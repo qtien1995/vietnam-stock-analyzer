@@ -1,0 +1,15 @@
+# Core Data & Math
+pandas>=2.0.0
+numpy>=1.24.0
+requests>=2.31.0
+
+# Terminal UI & Formatting
+rich>=13.7.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Optional AI SDKs (Chỉ cần nếu muốn dùng API trực tiếp của các bên)
+# pip install google-genai
+# pip install openai
+# pip install anthropic

@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables & secrets (Tuyệt đối không commit)
+.env
+*.env
+!.env.example
+
+# Local cache
+cache/
+.cache/
+
+# SQLite databases & backups
+data/*.db
+*.sqlite3
+*.db
+!data/.gitkeep
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
