@@ -16,24 +16,28 @@ from rich.panel import Panel
 from rich.markdown import Markdown
 
 from config import REPORTS_DIR, DEFAULT_WATCHLIST
-from core.data_loader import get_realtime_quote, get_historical_ohlcv, get_financial_data, get_all_tickers_realtime
-from core.fa_engine import analyze_fundamentals
-from core.ta_engine import analyze_technicals
-from core.risk_manager import calculate_trade_setup
-from ai.council import InvestmentCouncil
-from alerts.telegram_bot import send_telegram_alert
+from core.stock_service import (
+    run_screener,
+    analyze_ticker_full,
+    analyze_ticker_fa,
+    analyze_ticker_ta
+)
+from core.performance_tracker import (
+    evaluate_all_recommendations,
+    render_performance_terminal_dashboard
+)
 
 console = Console()
 
 
 def analyze_single_ticker(symbol: str, mode: str = "full", save_report: bool = True, send_alert: bool = True) -> dict:
     """
-    Quy trình bóc tách sâu 1 mã cổ phiếu.
+    Quy trình bóc tách sâu 1 mã cổ phiếu qua lớp Stock Service.
     mode: "full" (cả FA và TA), "fa" (chỉ Cơ bản), "ta" (chỉ Kỹ thuật)
     """
     symbol = symbol.upper().strip()
     
-    mode_text = "Toàn diện (FA & TA)"
+    mode_text = "Toàn diện (Vĩ mô & FA & TA)"
     if mode == "fa":
         mode_text = "Cơ bản Doanh nghiệp (FA)"
     elif mode == "ta":
@@ -41,69 +45,38 @@ def analyze_single_ticker(symbol: str, mode: str = "full", save_report: bool = T
         
     console.print(f"\n[bold cyan]⏳ Đang tải dữ liệu ({mode_text}) cho mã [yellow]{symbol}[/yellow]...[/bold cyan]")
 
-    # 1. Thu thập dữ liệu chung
-    quote = get_realtime_quote(symbol)
-    current_price = quote.get("price", 0)
-
-    # Nếu realtime chưa có giá, fallback ngay sang nến lịch sử gần nhất
-    if current_price <= 0:
-        df_tmp = get_historical_ohlcv(symbol, days=30)
-        if not df_tmp.empty:
-            current_price = float(df_tmp["close"].iloc[-1])
-            quote["price"] = current_price
-
-    # 2. Xử lý tùy theo mode
-    fa_result = {}
-    ta_result = {}
-    trade_setup = {}
-    df_ohlcv = None
-
-    if mode in ["full", "ta"]:
-        df_ohlcv = get_historical_ohlcv(symbol, days=250)
-        ta_result = analyze_technicals(df_ohlcv)
-
-    if mode in ["full", "fa"]:
-        fin_data = get_financial_data(symbol)
-        if fin_data.get("eps") and fin_data["eps"] > 0 and current_price > 0:
-            fin_data["pe"] = round(current_price / fin_data["eps"], 2)
-        if fin_data.get("bvps") and fin_data["bvps"] > 0 and current_price > 0:
-            fin_data["pb"] = round(current_price / fin_data["bvps"], 2)
-        fa_result = analyze_fundamentals(fin_data, current_price, quote)
-
-    if current_price <= 0:
-        console.print(f"[bold red]❌ Không tìm thấy dữ liệu giá hợp lệ cho mã {symbol}. Vui lòng kiểm tra lại mã.[/bold red]")
-        return {}
-
-    # Nếu full mode, tính trade setup và council
     if mode == "full":
-        trade_setup = calculate_trade_setup(current_price, fa_result, ta_result, quote)
-        from core.db_manager import save_eod_quote, save_recommendation
-        save_eod_quote(quote)
-        save_recommendation(trade_setup, quote)
-        
-        council = InvestmentCouncil()
-        council_result = council.deliberate(symbol, quote, fa_result, ta_result, trade_setup)
-        
-        _render_terminal_dashboard(symbol, quote, fa_result, ta_result, trade_setup, council_result)
-        
+        res = analyze_ticker_full(symbol, save_report=save_report, send_alert=send_alert)
+        if "error" in res:
+            console.print(f"[bold red]❌ {res['error']}[/bold red]")
+            return {}
+
+        _render_terminal_dashboard(
+            symbol,
+            res["quote"],
+            res["fa_result"],
+            res["ta_result"],
+            res["trade_setup"],
+            res["council_result"]
+        )
+
         if save_report:
-            _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, council_result)
-            
-        if send_alert:
-            send_telegram_alert(symbol, trade_setup, quote.get("company_name", ""))
-            
-        return trade_setup
+            _save_markdown_report(symbol, res["quote"], res["fa_result"], res["ta_result"], res["trade_setup"], res["council_result"])
+            if res.get("html_path"):
+                console.print(f"[bold green]🌐 Đã xuất bản báo cáo HTML trực quan (Mobile & Desktop) tại:[/bold green] [underline cyan]{res['html_path']}[/underline cyan]")
+
+        return res["trade_setup"]
 
     elif mode == "fa":
-        # Chỉ render báo cáo FA
-        _render_terminal_fa(symbol, quote, fa_result)
-        return fa_result
+        res = analyze_ticker_fa(symbol)
+        _render_terminal_fa(symbol, res["quote"], res["fa_result"])
+        return res["fa_result"]
 
     elif mode == "ta":
-        # Chỉ render báo cáo TA (giả lập một fa_result rỗng để tính trade_setup nếu cần stop loss)
-        trade_setup = calculate_trade_setup(current_price, {"fa_total_score": 50}, ta_result, quote)
-        _render_terminal_ta(symbol, quote, ta_result, trade_setup)
-        return ta_result
+        res = analyze_ticker_ta(symbol)
+        _render_terminal_ta(symbol, res["quote"], res["ta_result"], res["trade_setup"])
+        return res["ta_result"]
+
 
 
 def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, council_result):
@@ -135,6 +108,9 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
     for sub in sub_web.get("key_subsidiaries", [])[:6]:
         sub_md += f"| **{sub.get('name')}** | **{sub.get('ownership_percent')}%** | Công ty con trực thuộc |\n"
 
+    macro = fa_result.get("macro", {})
+    cf = fa_result.get("cash_flow", {})
+
     full_md_content = f"""# 📊 BÁO CÁO PHÂN TÍCH CHIẾN LƯỢC: {symbol} - {quote.get('company_name', symbol)}
 > **Ngày phân tích:** {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}  
 > **Nguồn dữ liệu:** Giá Khớp lệnh Realtime & Báo cáo Tài chính Độc lập
@@ -142,7 +118,6 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
 ---
 
 ## 🎯 1. TỔNG QUAN TÍN HIỆU & KẾ HOẠCH GIAO DỊCH
-
 | Thông số | Giá trị | Ý nghĩa |
 | :--- | :--- | :--- |
 | **Khuyến nghị** | **{trade_setup.get('action')}** | {trade_setup.get('action_summary')} |
@@ -156,8 +131,27 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
 
 ---
 
-## 💎 2. ĐỊNH GIÁ THEO KHỐI TÀI SẢN & RADAR PHÁT HIỆN THAO TÚNG (ASSET-BASED VALUATION)
+## 🌐 2. BỐI CẢNH VĨ MÔ & CHU KỲ NGÀNH (MACRO & SECTOR MATRIX)
+> **Ngành nghề:** **{macro.get('sector_name', 'Chưa rõ')}** &bull; **Pha chu kỳ:** `{macro.get('cycle_phase', 'Bình thường')}`  
+> **Điểm Gió xuôi Vĩ mô:** **{macro.get('tailwind_score', 70)}/100** ({macro.get('sentiment', 'TRUNG TÍNH')})  
+> **Ray Dalio (Cỗ máy vĩ mô):** {macro.get('dalio_verdict', 'N/A')}  
+> **Howard Marks (Tâm lý chu kỳ):** {macro.get('marks_verdict', 'N/A')}  
 
+---
+
+## 🔬 3. VI MÔ - SỨC KHỎE BCTC & BÓC TÁCH DÒNG TIỀN THẬT (CASH FLOW FORENSIC)
+| Chỉ tiêu Dòng tiền & Sức khỏe | Giá trị thực tế | Đánh giá Chất lượng & Rủi ro |
+| :--- | :--- | :--- |
+| **Chất lượng Lợi nhuận** | **Hạng {cf.get('quality_grade', 'B')}: {cf.get('quality_verdict', 'LÀNH MẠNH')}** | {cf.get('quality_desc', '')} |
+| **Dòng tiền thuần HĐKD (CFO TTM)** | **{cf.get('cfo_ttm', 0):,.0f} VND** | Tiền mặt thực thu từ hoạt động kinh doanh cốt lõi |
+| **Chi tiêu vốn (CapEx TTM)** | **{cf.get('capex_ttm', 0):,.0f} VND** | Dòng tiền chi mua sắm tài sản cố định mở rộng |
+| **Dòng tiền tự do (FCF TTM)** | **{cf.get('fcf_ttm', 0):,.0f} VND** | {cf.get('fcf_verdict', '')} |
+| **Chỉ số Altman Z''-Score** | **{cf.get('altman_z', 0):.2f} điểm** | **{cf.get('z_verdict', 'AN TOÀN')}** ({cf.get('z_desc', '')}) |
+| **Piotroski F-Score** | **{fa_result.get('f_score', 0)}/9 điểm** | Sức khỏe bảng cân đối kế toán |
+
+---
+
+## 💎 4. ĐỊNH GIÁ THEO KHỐI TÀI SẢN & RADAR PHÁT HIỆN THAO TÚNG (ASSET-BASED VALUATION)
 | Chỉ tiêu Tài sản | Giá trị thực tế | Ý nghĩa & Đánh giá an toàn vốn |
 | :--- | :--- | :--- |
 | **Giá trị sổ sách (BVPS)** | **{asset_val.get('bvps', 0):,.0f} VND/CP** | Giá trị tài sản ròng thuộc về mỗi cổ đông sau khi trả hết nợ |
@@ -170,7 +164,7 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
 
 ---
 
-## 🏢 3. BÓC TÁCH MÔ HÌNH KINH DOANH CỐT LÕI (CORE BUSINESS BREAKDOWN)
+## 🏢 5. BÓC TÁCH MÔ HÌNH KINH DOANH CỐT LÕI (CORE BUSINESS BREAKDOWN)
 > **Tóm tắt mô hình:** {segments_data.get('business_model_summary', 'N/A')}
 
 | Mảng hoạt động | % Doanh thu | % Lợi nhuận gộp | Biên lãi gộp | Vai trò chiến lược | Điểm nhấn triển vọng & Rủi ro |
@@ -178,7 +172,7 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
 {segments_md}
 ---
 
-## 👥 4. QUẢN TRỊ DOANH NGHIỆP, CỔ ĐÔNG & MẠNG LƯỚI CÔNG TY CON (GOVERNANCE & SHELL RADAR)
+## 👥 6. QUẢN TRỊ DOANH NGHIỆP, CỔ ĐÔNG & MẠNG LƯỚI CÔNG TY CON (GOVERNANCE & SHELL RADAR)
 > **Điểm Quản trị (G-Score):** **{gov.get('g_score', 'N/A')}/100** ({gov.get('g_rating', 'N/A')})  
 > **Cơ cấu Sở hữu:** {own.get('structure', 'N/A')} — *Trôi nổi:* `{own.get('free_float_pct', 0)}%` | *Khối ngoại:* `{own.get('foreigner_pct', 0)}%` | *Nhà nước:* `{own.get('state_pct', 0)}%`  
 > **Ban Điều hành:** Chủ tịch: **{lead.get('chairman', 'Chưa rõ')}** | CEO: **{lead.get('ceo', 'Chưa rõ')}** (Skin in the game: `{lead.get('insider_total_pct', 0)}%` — {lead.get('skin_in_game_verdict', 'N/A')})  
@@ -195,7 +189,7 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
 {sub_md}
 ---
 
-## 🏛️ 5. PHẢN BIỆN ĐA GÓC NHÌN TỪ HỘI ĐỒNG ĐẦU TƯ AI
+## 🏛️ 7. PHẢN BIỆN ĐA GÓC NHÌN TỪ HỘI ĐỒNG ĐẦU TƯ AI
 
 {council_result.get('council_report')}
 
@@ -204,6 +198,53 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
 """
     report_path.write_text(full_md_content, encoding="utf-8")
     console.print(f"\n[bold green]📁 Đã xuất bản báo cáo chi tiết tại:[/bold green] [underline cyan]{report_path}[/underline cyan]")
+
+
+def _render_segments_table(symbol: str, seg_data: dict):
+    """Bảng Bóc tách Mô hình kinh doanh cốt lõi (Segments)"""
+    if not seg_data or not seg_data.get("segments"):
+        return
+    s_table = Table(title=f"🏢 BÓC TÁCH MÔ HÌNH KINH DOANH CỐT LÕI (CORE BUSINESS): {symbol}", header_style="bold green")
+    s_table.add_column("Mảng kinh doanh", style="bold white")
+    s_table.add_column("% Doanh thu", style="cyan", justify="right")
+    s_table.add_column("% LN Gộp", style="bold green", justify="right")
+    s_table.add_column("Biên gộp", style="yellow", justify="right")
+    s_table.add_column("Vai trò chiến lược", style="magenta")
+
+    for s in seg_data.get("segments", []):
+        s_table.add_row(
+            s.get("name"),
+            f"{s.get('rev_share_pct')}%",
+            f"{s.get('gross_profit_share_pct')}%",
+            f"{s.get('gross_margin_pct')}%",
+            s.get("role")
+        )
+    console.print(s_table)
+
+
+def _render_governance_table(gov: dict):
+    """Bảng Quản trị Doanh nghiệp & Mạng lưới Công ty con"""
+    if not gov:
+        return
+    own = gov.get("ownership", {})
+    lead = gov.get("leadership", {})
+    sub_web = gov.get("subsidiary_web", {})
+
+    g_color = "green" if gov.get("g_score", 0) >= 70 else ("yellow" if gov.get("g_score", 0) >= 50 else "red")
+    g_table = Table(title=f"👥 QUẢN TRỊ DOANH NGHIỆP & CƠ CẤU CỔ ĐÔNG (G-SCORE: {gov.get('g_score')}/100)", header_style="bold blue")
+    g_table.add_column("Hạng mục", style="cyan")
+    g_table.add_column("Thông số", style="bold white")
+    g_table.add_column("Đánh giá Rủi ro Quản trị", style="white")
+
+    g_table.add_row("Điểm Quản trị (G-Score)", f"[{g_color}]{gov.get('g_score')}/100[/{g_color}]", f"[{g_color}]{gov.get('g_rating')}[/{g_color}]")
+    g_table.add_row("Cơ cấu Sở hữu", f"Trôi nổi {own.get('free_float_pct', 0)}% | Ngoại {own.get('foreigner_pct', 0)}%", f"{own.get('structure')}")
+    g_table.add_row("Cam kết Lãnh đạo (Skin in game)", f"{lead.get('insider_total_pct', 0)}% vốn CSH", f"{lead.get('skin_in_game_verdict')}")
+    g_table.add_row("Mạng lưới Chân rết", f"{sub_web.get('subsidiary_count', 0)} cty con / {sub_web.get('affiliate_count', 0)} liên kết", f"{sub_web.get('conglomerate_type')}")
+    
+    c_color = "red" if sub_web.get("circular_capital_risk_level", 1) >= 4 else ("yellow" if sub_web.get("circular_capital_risk_level") == 3 else "green")
+    g_table.add_row("Radar Tăng vốn ảo & Nợ", f"[{c_color}]Cấp {sub_web.get('circular_capital_risk_level', 1)}/5[/{c_color}]", f"[{c_color}]{sub_web.get('circular_capital_verdict')}[/{c_color}]")
+    
+    console.print(g_table)
 
 
 def _render_terminal_dashboard(symbol, quote, fa, ta, trade, council):
@@ -223,17 +264,57 @@ def _render_terminal_dashboard(symbol, quote, fa, ta, trade, council):
     # Bảng Tín hiệu
     action_color = trade.get("action_color", "white")
     t_table = Table(title="🎯 KẾ HOẠCH GIAO DỊCH (CHIEF RISK OFFICER)", header_style="bold magenta")
-    t_table.add_column("Chỉ tiêu", style="cyan")
-    t_table.add_column("Thông số", style="bold white")
+    t_table.add_column("Trường phái / Hạng mục", style="cyan")
+    t_table.add_column("Kế hoạch & Vùng mua", style="bold white")
+    t_table.add_column("Lý do & Kỷ luật rủi ro", style="yellow")
     
-    t_table.add_row("Khuyến nghị", f"[{action_color}]{trade.get('action')}[/{action_color}]")
-    t_table.add_row("Điểm Đồng thuận", f"{trade.get('consensus_score')}/100")
-    t_table.add_row("Vùng mua", f"{trade.get('buy_zone')}")
-    t_table.add_row("Cắt lỗ", f"{trade.get('stop_loss', 0):,.0f} (-{trade.get('stop_loss_pct', 0)}%)")
-    t_table.add_row("Chốt lời TP1", f"{trade.get('take_profit_1', 0):,.0f}")
-    t_table.add_row("Tỷ trọng NAV", f"Max {trade.get('max_position_size_pct', 0):.1f}%")
+    t_table.add_row("Khuyến nghị tổng hợp", f"[{action_color}]{trade.get('action')}[/{action_color}]", f"Đồng thuận: {trade.get('consensus_score')}/100 | Tỷ trọng Max {trade.get('max_position_size_pct', 0):.1f}% NAV")
+    
+    val_status_color = "red" if "ĐẮT" in trade.get("value_status", "") else ("green" if "RẺ" in trade.get("value_status", "") else "cyan")
+    t_table.add_row(
+        "🏛️ Đầu tư Giá trị (Buffett)",
+        f"{trade.get('value_buy_zone')}\n(Giá trị thực: [bold]{trade.get('fair_price', current_price):,.0f} đ[/bold])",
+        f"[{val_status_color}]{trade.get('value_status')}[/{val_status_color}]: {trade.get('value_rationale', '')}"
+    )
+    
+    t_table.add_row(
+        "🏄 Lướt sóng Ngắn hạn (Swing)",
+        f"Vùng mua: [bold green]{trade.get('swing_buy_zone')}[/bold green]\nCắt lỗ: [bold red]{trade.get('stop_loss', 0):,.0f} đ[/bold red] (-{trade.get('stop_loss_pct', 0)}%)\nChốt lời TP1: [bold cyan]{trade.get('take_profit_1', 0):,.0f} đ[/bold cyan] (+{trade.get('take_profit_1_pct', 0)}%)",
+        f"R:R = {trade.get('risk_reward_ratio')}:1\n{trade.get('swing_strategy_note', '')}"
+    )
 
     console.print(t_table)
+
+    # Bảng Vĩ mô & Chu kỳ Ngành
+    macro = fa.get("macro", {})
+    if macro:
+        m_table = Table(title="🌐 VĨ MÔ & CHU KỲ NGÀNH (RAY DALIO & HOWARD MARKS)", header_style="bold blue")
+        m_table.add_column("Chỉ tiêu Vĩ mô", style="cyan")
+        m_table.add_column("Trạng thái", style="bold yellow")
+        m_table.add_column("Nhận định & Tác động", style="white")
+
+        t_color = "green" if macro.get("tailwind_score", 70) >= 80 else ("cyan" if macro.get("tailwind_score", 70) >= 70 else "yellow")
+        m_table.add_row("Ngành & Pha chu kỳ", f"{macro.get('sector_name')}", f"Pha: {macro.get('cycle_phase')}")
+        m_table.add_row("Gió xuôi Vĩ mô", f"[{t_color}]{macro.get('tailwind_score')}/100[/{t_color}]", f"[{t_color}]{macro.get('sentiment')}[/{t_color}]")
+        m_table.add_row("Động lực chính", "Catalysts", f"{macro.get('macro_drivers', [''])[0]}")
+        console.print(m_table)
+
+    # Bảng Dòng tiền thật & Altman Z-Score
+    cf = fa.get("cash_flow", {})
+    if cf:
+        cf_table = Table(title="🔬 BÓC TÁCH DÒNG TIỀN THẬT & ALTMAN Z''-SCORE (CASH FLOW FORENSIC)", header_style="bold green")
+        cf_table.add_column("Chỉ tiêu", style="cyan")
+        cf_table.add_column("Giá trị", style="bold white")
+        cf_table.add_column("Kiểm định Chất lượng", style="white")
+
+        q_color = "green" if cf.get("quality_grade") in ["A", "B"] else "red"
+        z_color = "green" if cf.get("z_zone") == "SAFE" else ("yellow" if cf.get("z_zone") == "GREY" else "red")
+
+        cf_table.add_row("Chất lượng Lợi nhuận", f"[{q_color}]Hạng {cf.get('quality_grade')}[/{q_color}]", f"[{q_color}]{cf.get('quality_verdict')}[/{q_color}]")
+        cf_table.add_row("Tiền HĐKD thật (CFO TTM)", f"{cf.get('cfo_ttm', 0):,.0f} đ", f"Tỷ lệ CFO/LNST: {cf.get('earnings_quality_ratio', 1.0):.2f}x")
+        cf_table.add_row("Dòng tiền tự do (FCF)", f"{cf.get('fcf_ttm', 0):,.0f} đ", f"CapEx: {cf.get('capex_ttm', 0):,.0f} đ")
+        cf_table.add_row("Altman Z''-Score", f"[{z_color}]{cf.get('altman_z', 0):.2f}[/{z_color}]", f"[{z_color}]{cf.get('z_verdict')}[/{z_color}]")
+        console.print(cf_table)
 
     # Bảng Định giá Tài sản & Radar Thao túng
     asset_val = fa.get("asset_valuation", {})
@@ -253,48 +334,10 @@ def _render_terminal_dashboard(symbol, quote, fa, ta, trade, council):
         console.print(a_table)
 
     # Bảng Bóc tách Mô hình kinh doanh cốt lõi (Segments)
-    seg_data = fa.get("segments", {})
-    if seg_data and seg_data.get("segments"):
-        s_table = Table(title=f"🏢 BÓC TÁCH MÔ HÌNH KINH DOANH CỐT LÕI (CORE BUSINESS): {symbol}", header_style="bold green")
-        s_table.add_column("Mảng kinh doanh", style="bold white")
-        s_table.add_column("% Doanh thu", style="cyan", justify="right")
-        s_table.add_column("% LN Gộp", style="bold green", justify="right")
-        s_table.add_column("Biên gộp", style="yellow", justify="right")
-        s_table.add_column("Vai trò chiến lược", style="magenta")
-
-        for s in seg_data.get("segments", []):
-            s_table.add_row(
-                s.get("name"),
-                f"{s.get('rev_share_pct')}%",
-                f"{s.get('gross_profit_share_pct')}%",
-                f"{s.get('gross_margin_pct')}%",
-                s.get("role")
-            )
-        console.print(s_table)
+    _render_segments_table(symbol, fa.get("segments", {}))
 
     # Bảng Quản trị Doanh nghiệp & Mạng lưới Công ty con
-    gov = fa.get("governance", {})
-    if gov:
-        own = gov.get("ownership", {})
-        lead = gov.get("leadership", {})
-        sub_web = gov.get("subsidiary_web", {})
-
-        g_color = "green" if gov.get("g_score", 0) >= 70 else ("yellow" if gov.get("g_score", 0) >= 50 else "red")
-        g_table = Table(title=f"👥 QUẢN TRỊ DOANH NGHIỆP & CƠ CẤU CỔ ĐÔNG (G-SCORE: {gov.get('g_score')}/100)", header_style="bold blue")
-        g_table.add_column("Hạng mục", style="cyan")
-        g_table.add_column("Thông số", style="bold white")
-        g_table.add_column("Đánh giá Rủi ro Quản trị", style="white")
-
-        g_table.add_row("Điểm Quản trị (G-Score)", f"[{g_color}]{gov.get('g_score')}/100[/{g_color}]", f"[{g_color}]{gov.get('g_rating')}[/{g_color}]")
-        g_table.add_row("Cơ cấu Sở hữu", f"Trôi nổi {own.get('free_float_pct', 0)}% | Ngoại {own.get('foreigner_pct', 0)}%", f"{own.get('structure')}")
-        g_table.add_row("Cam kết Lãnh đạo (Skin in game)", f"{lead.get('insider_total_pct', 0)}% vốn CSH", f"{lead.get('skin_in_game_verdict')}")
-        g_table.add_row("Mạng lưới Chân rết", f"{sub_web.get('subsidiary_count', 0)} cty con / {sub_web.get('affiliate_count', 0)} liên kết", f"{sub_web.get('conglomerate_type')}")
-        
-        c_color = "red" if sub_web.get("circular_capital_risk_level", 1) >= 4 else ("yellow" if sub_web.get("circular_capital_risk_level") == 3 else "green")
-        g_table.add_row("Radar Tăng vốn ảo & Nợ", f"[{c_color}]Cấp {sub_web.get('circular_capital_risk_level', 1)}/5[/{c_color}]", f"[{c_color}]{sub_web.get('circular_capital_verdict')}[/{c_color}]")
-        
-        console.print(g_table)
-
+    _render_governance_table(fa.get("governance", {}))
 
 
 def _render_terminal_fa(symbol, quote, fa):
@@ -321,46 +364,10 @@ def _render_terminal_fa(symbol, quote, fa):
     console.print(t)
 
     # Hiển thị phân khúc nếu có
-    if seg_data and seg_data.get("segments"):
-        s_table = Table(title=f"🏢 CƠ CẤU PHÂN KHÚC HOẠT ĐỘNG (CORE BUSINESS): {symbol}", header_style="bold green")
-        s_table.add_column("Mảng kinh doanh", style="bold white")
-        s_table.add_column("% Doanh thu", style="cyan", justify="right")
-        s_table.add_column("% LN Gộp", style="bold green", justify="right")
-        s_table.add_column("Biên gộp", style="yellow", justify="right")
-        s_table.add_column("Vai trò", style="magenta")
-
-        for s in seg_data.get("segments", []):
-            s_table.add_row(
-                s.get("name"),
-                f"{s.get('rev_share_pct')}%",
-                f"{s.get('gross_profit_share_pct')}%",
-                f"{s.get('gross_margin_pct')}%",
-                s.get("role")
-            )
-        console.print(s_table)
+    _render_segments_table(symbol, seg_data)
     
     # Hiển thị Quản trị & Cổ đông trong FA
-    gov = fa.get("governance", {})
-    if gov:
-        own = gov.get("ownership", {})
-        lead = gov.get("leadership", {})
-        sub_web = gov.get("subsidiary_web", {})
-
-        g_color = "green" if gov.get("g_score", 0) >= 70 else ("yellow" if gov.get("g_score", 0) >= 50 else "red")
-        g_table = Table(title=f"👥 QUẢN TRỊ DOANH NGHIỆP & CƠ CẤU CỔ ĐÔNG (G-SCORE: {gov.get('g_score')}/100)", header_style="bold blue")
-        g_table.add_column("Hạng mục", style="cyan")
-        g_table.add_column("Thông số", style="bold white")
-        g_table.add_column("Đánh giá Rủi ro Quản trị", style="white")
-
-        g_table.add_row("Điểm Quản trị (G-Score)", f"[{g_color}]{gov.get('g_score')}/100[/{g_color}]", f"[{g_color}]{gov.get('g_rating')}[/{g_color}]")
-        g_table.add_row("Cơ cấu Sở hữu", f"Trôi nổi {own.get('free_float_pct', 0)}% | Ngoại {own.get('foreigner_pct', 0)}%", f"{own.get('structure')}")
-        g_table.add_row("Cam kết Lãnh đạo (Skin in game)", f"{lead.get('insider_total_pct', 0)}% vốn CSH", f"{lead.get('skin_in_game_verdict')}")
-        g_table.add_row("Mạng lưới Chân rết", f"{sub_web.get('subsidiary_count', 0)} cty con / {sub_web.get('affiliate_count', 0)} liên kết", f"{sub_web.get('conglomerate_type')}")
-        
-        c_color = "red" if sub_web.get("circular_capital_risk_level", 1) >= 4 else ("yellow" if sub_web.get("circular_capital_risk_level") == 3 else "green")
-        g_table.add_row("Radar Tăng vốn ảo & Nợ", f"[{c_color}]Cấp {sub_web.get('circular_capital_risk_level', 1)}/5[/{c_color}]", f"[{c_color}]{sub_web.get('circular_capital_verdict')}[/{c_color}]")
-        
-        console.print(g_table)
+    _render_governance_table(fa.get("governance", {}))
 
     # Verdicts
     console.print(f"\n[bold green]Warren Buffett (Moat & Giá trị):[/bold green] {fa.get('buffett', {}).get('reasons', [''])[0]}")
@@ -392,107 +399,46 @@ def _render_terminal_ta(symbol, quote, ta, trade):
     console.print(f"\n[bold white]Kế hoạch Điểm vào:[/bold white] Mua vùng {trade.get('buy_zone')}. Cắt lỗ tại {trade.get('stop_loss', 0):,.0f}.")
 
 
-def get_liquidity_rating(value_vnd: float) -> str:
-    if value_vnd >= 10_000_000_000:
-        return "A (Cao)"
-    elif value_vnd >= 2_000_000_000:
-        return "B (Trung bình)"
-    elif value_vnd >= 300_000_000:
-        return "C (Thấp - Hidden Gem)"
-    return "D (Chết thanh khoản)"
+from core.stock_service import get_liquidity_rating, matches_sector_filter
 
 
-def run_market_screener(top_n: int = 10):
+def run_market_screener(top_n: int = 10, sector_filter: str = None):
     """
-    Quét danh mục TOÀN THỊ TRƯỜNG (HOSE, HNX, UPCoM):
+    Quét danh mục TOÀN THỊ TRƯỜNG (HOSE, HNX, UPCoM) thông qua StockService:
+    Lọc thanh khoản tối thiểu 300 triệu VNĐ/phiên, hỗ trợ lọc theo nhóm ngành.
     """
+    filter_label = f" (Nhóm ngành: {sector_filter})" if sector_filter else " (Toàn thị trường)"
     console.print(Panel(
-        f"[bold white]Đang khởi động Radar quét toàn bộ 1500+ mã trên TTCK Việt Nam...[/bold white]\n"
+        f"[bold white]Đang khởi động Radar quét toàn bộ 1500+ mã trên TTCK Việt Nam{filter_label}...[/bold white]\n"
         f"Lọc thanh khoản tối thiểu 300 triệu VNĐ/phiên.",
-        title="[bold green]🔍 BỘ LỌC TÀN CẦU THỊ TRƯỜNG (FULL-MARKET SCREENER)[/bold green]",
+        title="[bold green]🔍 BỘ LỌC TOÀN CẦU THỊ TRƯỜNG (FULL-MARKET SCREENER)[/bold green]",
         border_style="green"
     ))
 
-    # GIAI ĐOẠN 1: Quét toàn thị trường qua Realtime API
-    console.print("[cyan]Bước 1: Nạp dữ liệu Realtime từ HOSE, HNX, UPCoM...[/cyan]")
-    all_tickers = get_all_tickers_realtime()
-    
-    if not all_tickers:
-        console.print("[red]Không thể lấy dữ liệu Realtime. Kiểm tra kết nối mạng.[/red]")
+    def on_progress(msg: str):
+        if "Đang quét TA" in msg:
+            print(msg, end="\r")
+        else:
+            console.print(f"[cyan]{msg}[/cyan]")
+
+    results = run_screener(
+        top_n=top_n,
+        sector_filter=sector_filter,
+        progress_callback=on_progress
+    )
+
+    if not results:
+        console.print("[yellow]Không tìm thấy mã nào thỏa mãn điều kiện lọc hoặc lỗi kết nối realtime.[/yellow]")
         return
-        
-    # Lọc thanh khoản (Liquidity Gate >= 300 triệu VNĐ)
-    liquid_tickers = [t for t in all_tickers if t.get("value", 0) >= 300_000_000]
-    
-    # Ưu tiên xếp hạng theo Nổ Volume (vol_ratio không có sẵn trong realtime, nên tạm xếp theo change_pct và value)
-    # Để tối ưu, ta chọn top 80 mã tăng giá mạnh nhất hoặc giao dịch sôi động nhất đưa vào OHLCV quét.
-    liquid_tickers.sort(key=lambda x: (x.get("change_pct", 0), x.get("value", 0)), reverse=True)
-    eval_pool = liquid_tickers[:80]
-    
-    console.print(f"[cyan]Đã lọc được {len(liquid_tickers)} mã đạt thanh khoản chuẩn. Đang phân tích TA {len(eval_pool)} mã dẫn đầu...[/cyan]")
-
-    # Lấy TA
-    ta_candidates = []
-    for idx, t in enumerate(eval_pool, start=1):
-        sym = t["symbol"]
-        print(f"[{idx}/{len(eval_pool)}] Đang quét TA: {sym}...", end="\r")
-        try:
-            df_ohlcv = get_historical_ohlcv(sym, days=250)
-            if df_ohlcv.empty:
-                continue
-            ta_result = analyze_technicals(df_ohlcv)
-            t["ta_score"] = ta_result.get("ta_total_score", 50)
-            t["vol_ratio"] = ta_result.get("indicators", {}).get("vol_ratio", 1.0)
-            t["ta_result"] = ta_result
-            ta_candidates.append(t)
-        except Exception:
-            pass
-
-    # Sort theo nổ vol và điểm TA
-    ta_candidates.sort(key=lambda x: (x["vol_ratio"] >= 1.2, x["ta_score"], x["vol_ratio"]), reverse=True)
-    
-    # GIAI ĐOẠN 2: Bóc tách BCTC cho top mã tiềm năng
-    final_candidates = ta_candidates[:max(top_n * 2, 10)]
-    console.print(f"\n[cyan]Bước 2: Phân tích Cơ bản FA chuyên sâu cho Top {len(final_candidates)} mã...[/cyan]")
-    
-    results = []
-    for c in final_candidates:
-        sym = c["symbol"]
-        price = c["price"]
-        ta_result = c["ta_result"]
-        
-        fin_data = get_financial_data(sym)
-        fa_result = analyze_fundamentals(fin_data, price)
-        trade = calculate_trade_setup(price, fa_result, ta_result, c)
-        
-        results.append({
-            "symbol": sym,
-            "exchange": c.get("exchange", ""),
-            "price": price,
-            "change_pct": c["change_pct"],
-            "value": c["value"],
-            "vol_ratio": c["vol_ratio"],
-            "consensus_score": trade.get("consensus_score", 0),
-            "action": trade.get("action", "QUAN SÁT"),
-            "buy_zone": trade.get("buy_zone", ""),
-            "stop_loss": trade.get("stop_loss", 0),
-            "tp1": trade.get("take_profit_1", 0),
-            "f_score": fa_result.get("f_score", 0),
-            "pe": fa_result.get("ratios", {}).get("pe", "N/A"),
-            "liquidity": get_liquidity_rating(c["value"])
-        })
-
-    # Xếp hạng tổng quát
-    results.sort(key=lambda x: (x["consensus_score"], x["vol_ratio"]), reverse=True)
 
     console.print("\n")
-    screen_table = Table(title=f"🏆 BẢNG XẾP HẠNG TOÀN THỊ TRƯỜNG (TOP {top_n} CỔ PHIẾU TIỀM NĂNG)", header_style="bold green")
-    screen_table.add_column("Mã CP", style="bold yellow")
-    screen_table.add_column("Giá", style="bold white")
-    screen_table.add_column("Thanh khoản", style="cyan")
+    screen_table = Table(title=f"🏆 BẢNG XẾP HẠNG TOÀN THỊ TRƯỜNG (TOP {min(len(results), top_n)} CỔ PHIẾU TIỀM NĂNG)", header_style="bold green")
+    screen_table.add_column("Mã CP (Sàn)", style="bold yellow")
+    screen_table.add_column("Nhóm Ngành", style="bold blue")
+    screen_table.add_column("Giá Khớp", style="bold white")
     screen_table.add_column("Nổ Vol", style="cyan")
-    screen_table.add_column("Điểm Đồng Thuận", style="bold yellow")
-    screen_table.add_column("FA (F-Score|P/E)", style="magenta")
+    screen_table.add_column("Đồng Thuận", style="bold yellow")
+    screen_table.add_column("FA (F | CFO)", style="magenta")
     screen_table.add_column("Khuyến nghị", style="bold")
     screen_table.add_column("Vùng Mua", style="green")
 
@@ -500,11 +446,11 @@ def run_market_screener(top_n: int = 10):
         action_col = "green" if "MUA MẠNH" in r["action"] else ("cyan" if "MUA" in r["action"] else "yellow")
         screen_table.add_row(
             f"{r['symbol']} ({r['exchange']})",
+            r["sector_name"],
             f"{r['price']:,.0f} ({r['change_pct']:+.1f}%)",
-            r['liquidity'],
             f"{r['vol_ratio']:.2f}x",
             f"{r['consensus_score']}/100",
-            f"{r['f_score']}/9 | {r['pe']}",
+            f"{r['f_score']}/9 | Hạng {r['cfo_grade']}",
             f"[{action_col}]{r['action']}[/{action_col}]",
             r["buy_zone"]
         )
@@ -519,14 +465,19 @@ def main():
     )
     parser.add_argument(
         "--mode", "-m",
-        choices=["analyze", "scan", "bot", "fa", "ta"],
+        choices=["analyze", "scan", "bot", "fa", "ta", "track"],
         default="analyze",
-        help="Chế độ hoạt động:\n  analyze: Soi sâu 1 mã (FA + TA)\n  fa: Chỉ phân tích Cơ bản (BCTC)\n  ta: Chỉ phân tích Kỹ thuật (Chart)\n  scan: Quét toàn bộ TTCK\n  bot: Chạy Telegram Bot"
+        help="Chế độ hoạt động:\n  analyze: Soi sâu 1 mã (FA + TA)\n  fa: Chỉ phân tích Cơ bản (BCTC)\n  ta: Chỉ phân tích Kỹ thuật (Chart)\n  scan: Quét toàn bộ TTCK\n  track: PDCA - Đánh giá hiệu suất khuyến nghị quá khứ\n  bot: Chạy Telegram Bot"
     )
     parser.add_argument(
         "--ticker", "-t",
         default="HPG",
         help="Mã cổ phiếu cần phân tích (ví dụ: HPG, FPT...)"
+    )
+    parser.add_argument(
+        "--sector", "-s",
+        default=None,
+        help="Lọc theo nhóm ngành khi scan (ví dụ: KCN, Bán lẻ, Ngân hàng, Thép...)"
     )
     parser.add_argument(
         "--top",
@@ -538,7 +489,10 @@ def main():
     args = parser.parse_args()
 
     if args.mode == "scan":
-        run_market_screener(top_n=args.top)
+        run_market_screener(top_n=args.top, sector_filter=args.sector)
+    elif args.mode == "track":
+        perf_data = evaluate_all_recommendations()
+        render_performance_terminal_dashboard(perf_data)
     elif args.mode == "bot":
         from alerts.telegram_interactive_bot import start_interactive_bot
         start_interactive_bot()

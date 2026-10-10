@@ -19,16 +19,28 @@ from config import (
     DEFAULT_WATCHLIST,
     REPORTS_DIR
 )
-from core.data_loader import get_realtime_quote, get_historical_ohlcv, get_financial_data, get_all_tickers_realtime
-from core.fa_engine import analyze_fundamentals
-from core.ta_engine import analyze_technicals
-from core.risk_manager import calculate_trade_setup
-from core.db_manager import save_eod_quote, save_recommendation
+from core.data_loader import get_realtime_quote
+from core.stock_service import (
+    run_screener,
+    analyze_ticker_full,
+    analyze_ticker_fa,
+    analyze_ticker_ta
+)
+from core.performance_tracker import (
+    evaluate_all_recommendations,
+    get_performance_telegram_summary
+)
+from alerts.telegram_bot import send_telegram_document, is_duplicate_alert, record_sent_alert
 from ai.council import InvestmentCouncil
 from ai.llm_router import LLMRouter
 
 # Bộ nhớ hội thoại ngắn hạn (Context Memory)
 chat_memory: List[Dict[str, str]] = []
+
+# Cache chống spam / double-click / trùng lặp lệnh
+_PROCESSING_REQUESTS: Dict[str, float] = {}
+_PROCESSED_UPDATE_IDS = set()
+
 
 
 # =====================================================================
@@ -45,7 +57,7 @@ def get_persistent_reply_keyboard() -> dict:
         "keyboard": [
             [{"text": "🏆 Top 10 Hôm Nay"}, {"text": "📋 Menu Tính Năng"}],
             [{"text": "🔍 Soi Cổ Phiếu"}, {"text": "💵 Tra Giá Realtime"}],
-            [{"text": "📊 Danh Mục Watchlist"}, {"text": "❓ Hướng Dẫn"}]
+            [{"text": "📈 Hiệu Suất PnL"}, {"text": "📊 Danh Mục Watchlist"}]
         ],
         "resize_keyboard": True,
         "is_persistent": True
@@ -64,7 +76,10 @@ def get_menu_inline_keyboard() -> dict:
                 {"text": "💵 Tra Cứu Giá", "callback_data": "cmd:pick_gia"}
             ],
             [
-                {"text": "📊 Danh Mục Watchlist (20 mã)", "callback_data": "cmd:watchlist"},
+                {"text": "📈 Hiệu Suất Khuyến Nghị (PDCA)", "callback_data": "cmd:pnl"},
+                {"text": "📊 Watchlist (20 mã)", "callback_data": "cmd:watchlist"}
+            ],
+            [
                 {"text": "❓ Hướng Dẫn & Mẹo Chat", "callback_data": "cmd:help"}
             ]
         ]
@@ -105,8 +120,6 @@ def get_watchlist_inline_keyboard() -> dict:
             current_row = []
     if current_row:
         rows.append(current_row)
-    if action == 'soi':
-        rows.append([{"text": "🏛️ Soi FA", "callback_data": "cmd:pick_fa"}, {"text": "📈 Soi TA", "callback_data": "cmd:pick_ta"}])
     rows.append([{"text": "🔙 Quay Lại Menu", "callback_data": "cmd:menu"}])
     return {"inline_keyboard": rows}
 
@@ -167,6 +180,7 @@ def setup_bot_commands() -> bool:
         {"command": "soi", "description": "🔍 Soi toàn diện 1 mã (VD: /soi HPG)"},
         {"command": "fa", "description": "🏛️ Soi Cơ Bản Doanh nghiệp (VD: /fa HPG)"},
         {"command": "ta", "description": "📈 Soi Kỹ thuật Chart & Dòng tiền (VD: /ta HPG)"},
+        {"command": "pnl", "description": "📊 Nghiệm thu hiệu suất khuyến nghị PDCA"},
         {"command": "gia", "description": "💵 Bảng giá Realtime & Dòng tiền (VD: /gia FPT)"},
         {"command": "watchlist", "description": "📊 Danh mục theo dõi trọng điểm (20 mã)"},
         {"command": "help", "description": "❓ Hướng dẫn sử dụng & Mẹo hỏi đáp"},
@@ -329,86 +343,58 @@ def handle_quick_price(chat_id: str | int, symbol: str):
     send_message(chat_id, msg, reply_markup=action_buttons)
 
 
-def handle_scan(chat_id: str | int, top_n: int = 10):
-    send_message(chat_id, "⏳ *HỆ THỐNG RADAR TÀN CẦU ĐANG KHỞI ĐỘNG*...\n\nĐang quét Realtime toàn bộ 1500+ mã trên HOSE, HNX, UPCoM...")
+def handle_scan(chat_id: str | int, top_n: int = 10, sector_filter: str = None):
+    filter_label = f" (Ngành: {sector_filter})" if sector_filter else ""
+    send_message(chat_id, f"⏳ *HỆ THỐNG RADAR TOÀN THỊ TRƯỜNG ĐANG KHỞI ĐỘNG*{filter_label}...\n\nĐang quét Realtime toàn bộ 1500+ mã trên HOSE, HNX, UPCoM...")
     
     try:
-        from core.data_loader import get_all_tickers_realtime
-        all_tickers = get_all_tickers_realtime()
-        
-        if not all_tickers:
-            send_message(chat_id, "❌ Lỗi kết nối dữ liệu. Vui lòng thử lại sau.")
+        results = run_screener(top_n=top_n, sector_filter=sector_filter)
+        if not results:
+            send_message(chat_id, "❌ Không tìm thấy mã nào thỏa mãn điều kiện hoặc lỗi kết nối dữ liệu.")
             return
-            
-        liquid_tickers = [t for t in all_tickers if t.get('value', 0) >= 300_000_000]
-        liquid_tickers.sort(key=lambda x: (x.get('change_pct', 0), x.get('value', 0)), reverse=True)
-        eval_pool = liquid_tickers[:40]
-        
-        send_message(chat_id, f"✅ Đã lọc ra {len(liquid_tickers)} mã đạt chuẩn Thanh khoản (>300tr/phiên).\nĐang nạp OHLCV để quét tín hiệu TA...")
-        
-        ta_candidates = []
-        for t in eval_pool:
-            sym = t['symbol']
-            try:
-                df_ohlcv = get_historical_ohlcv(sym, days=150)
-                if df_ohlcv.empty:
-                    continue
-                ta_result = analyze_technicals(df_ohlcv)
-                t['ta_score'] = ta_result.get('ta_total_score', 50)
-                t['vol_ratio'] = ta_result.get('indicators', {}).get('vol_ratio', 1.0)
-                t['ta_result'] = ta_result
-                ta_candidates.append(t)
-            except Exception:
-                pass
-                
-        ta_candidates.sort(key=lambda x: (x['vol_ratio'] >= 1.2, x['ta_score'], x['vol_ratio']), reverse=True)
-        final_candidates = ta_candidates[:min(top_n, 8)]
-        
-        send_message(chat_id, f"✅ Đã quét xong Kỹ thuật. Đang đi sâu soi BCTC (FA) Top {len(final_candidates)} siêu cổ...")
-        
-        results = []
-        for c in final_candidates:
-            sym = c['symbol']
-            fin = get_financial_data(sym)
-            fa = analyze_fundamentals(fin, c['price'])
-            trade = calculate_trade_setup(c['price'], fa, c['ta_result'], c)
-            results.append({
-                'symbol': sym,
-                'price': c['price'],
-                'change_pct': c['change_pct'],
-                'action': trade.get('action', 'QUAN SÁT'),
-                'score': trade.get('consensus_score', 0),
-                'f_score': fa.get('f_score', 0),
-                'pe': fa.get('ratios', {}).get('pe', 'N/A')
-            })
-            
-        results.sort(key=lambda x: x['score'], reverse=True)
-        
-        msg = f"🏆 *TOP {len(results)} SIÊU CỔ PHIẾU HÔM NAY*\n\n"
+
+        msg = f"🏆 *TOP {len(results)} SIÊU CỔ PHIẾU HÔM NAY*{filter_label}\n\n"
         for idx, r in enumerate(results, 1):
             act_icon = "🟢" if "MUA" in r['action'] else ("🟡" if "THEO DÕI" in r['action'] else "🔴")
-            msg += f"{idx}. *{r['symbol']}* - {r['price']:,.0f} ({r['change_pct']:+.1f}%)\n"
-            msg += f"   {act_icon} Khuyến nghị: *{r['action']}*\n"
-            msg += f"   🎯 Điểm Đ.Thuận: {r['score']}/100 | FA: {r['f_score']}/9 | P/E: {r['pe']}\n\n"
+            msg += f"{idx}. *{r['symbol']}* ({r.get('exchange', '')}) - `{r['price']:,.0f}` ({r['change_pct']:+.1f}%)\n"
+            msg += f"   🏷️ Ngành: _{r.get('sector_name', 'Doanh nghiệp')}_\n"
+            msg += f"   {act_icon} Khuyến nghị: *{r['action']}* (Vùng mua: `{r.get('buy_zone', '')}`)\n"
+            msg += f"   🎯 Điểm Đ.Thuận: `{r.get('consensus_score', 0)}/100` | FA: `F{r.get('f_score', 0)}/9` (CFO: {r.get('cfo_grade')}) | Vol: `{r.get('vol_ratio', 1.0):.2f}x`\n\n"
             
-        msg += "💡 _Dùng /fa <Mã> hoặc /ta <Mã> để xem chi tiết._"
+        msg += "💡 _Bấm vào nút bên dưới hoặc gõ /soi <Mã>, /fa <Mã>, /ta <Mã> để phân tích chi tiết._"
         
-        send_message(chat_id, msg)
-        
+        kb_rows = []
+        cur_row = []
+        for r in results[:6]:
+            sym = r['symbol']
+            cur_row.append({"text": f"🔍 {sym}", "callback_data": f"soi:{sym}"})
+            if len(cur_row) == 3:
+                kb_rows.append(cur_row)
+                cur_row = []
+        if cur_row:
+            kb_rows.append(cur_row)
+        kb_rows.append([{"text": "🔙 Menu Chính", "callback_data": "cmd:menu"}])
+
+        send_message(chat_id, msg, reply_markup={"inline_keyboard": kb_rows})
     except Exception as e:
         send_message(chat_id, f"❌ Lỗi khi quét thị trường: {str(e)}")
 
+
 def handle_analyze(chat_id: str | int, symbol: str):
-    """Phân tích chuyên sâu 1 mã với 5 góc nhìn Hội đồng AI."""
+    """Phân tích chuyên sâu 1 mã với 5 góc nhìn Hội đồng AI thông qua StockService."""
     symbol = symbol.upper().strip()
+    
+    # Chống spam / double-request liên tiến trình trong vòng 20 giây
+    if is_duplicate_alert(chat_id, symbol, cooldown_seconds=20.0):
+        print(f"⏱️ Bỏ qua yêu cầu phân tích trùng lặp cho {symbol} từ Chat ID {chat_id}.")
+        send_message(chat_id, f"⚡ Báo cáo phân tích cho mã `{symbol}` vừa được thực hiện trong ít giây qua. Bạn xem tin nhắn & file đính kèm phía trên nhé!")
+        return
+    record_sent_alert(chat_id, symbol)
+
     send_message(chat_id, f"⏳ Đang lấy dữ liệu BCTC & Kỹ thuật mới nhất cho mã *{symbol}*...")
 
-    quote = get_realtime_quote(symbol)
-    df_ohlcv = get_historical_ohlcv(symbol, days=250)
-    fin_data = get_financial_data(symbol)
-
-    current_price = quote.get("price") or (float(df_ohlcv["close"].iloc[-1]) if not df_ohlcv.empty else 0.0)
-    if current_price <= 0:
+    data = analyze_ticker_full(symbol)
+    if not data or data.get("current_price", 0) <= 0:
         send_message(
             chat_id,
             f"❌ Không tìm thấy dữ liệu giá cho `{symbol}`. Vui lòng kiểm tra lại mã cổ phiếu.",
@@ -416,20 +402,16 @@ def handle_analyze(chat_id: str | int, symbol: str):
         )
         return
 
-    save_eod_quote(quote)
-
-    fa_result = analyze_fundamentals(fin_data, current_price)
-    ta_result = analyze_technicals(df_ohlcv)
-    trade_setup = calculate_trade_setup(current_price, fa_result, ta_result, quote)
-
-    # Lưu recommendation vào Database
-    save_recommendation(trade_setup, quote)
-
-    council = InvestmentCouncil()
-    council_result = council.deliberate(symbol, quote, fa_result, ta_result, trade_setup)
+    quote = data["quote"]
+    fa_result = data["fa"]
+    ta_result = data["ta"]
+    trade_setup = data["trade"]
+    current_price = data["current_price"]
+    html_path = data.get("html_path")
 
     # Các thông số cơ bản cốt lõi
     fin = fa_result.get("ratios", {})
+    macro = fa_result.get("macro", {})
     pe_val = fin.get("pe")
     pb_val = fin.get("pb")
     roe_val = fin.get("roe")
@@ -439,45 +421,68 @@ def handle_analyze(chat_id: str | int, symbol: str):
     roe_str = f"{roe_val:.1f}%" if roe_val is not None else "N/A"
     gr_str = f"{gr_val:+.1f}%" if gr_val is not None else "N/A"
 
+    macro_sector = macro.get("sector_name", "Doanh nghiệp")
+    macro_phase = macro.get("cycle_phase", "Bình thường")
+    val_gap_expl = trade_setup.get("valuation_gap_explanation", "")
+
     report_text = (
-        f"📊 *BÁO CÁO: {symbol} - {quote.get('company_name', symbol)}*\n"
-        f"📅 _Dữ liệu: Chốt phiên ngày {quote.get('trading_date') or datetime.now().strftime('%d/%m/%Y')}_\n"
+        f"📊 *BÁO CÁO PHÂN TÍCH: {symbol}*\n"
+        f"🏢 _{quote.get('company_name', symbol)}_\n"
+        f"🌐 *Ngành:* _{macro_sector}_ (Pha: {macro_phase})\n"
+        f"📅 _Chốt phiên: {quote.get('trading_date') or datetime.now().strftime('%d/%m/%Y')}_\n"
         f"━━━━━━━━━━━━━━━━━━\n"
+        f"💵 *Thị giá hiện tại:* `{current_price:,.0f} VND` ({quote.get('change_pct', 0):+.2f}%)\n"
         f"🎯 *Khuyến nghị:* *{trade_setup.get('action')}* ({trade_setup.get('consensus_score', 0)}/100 điểm)\n"
-        f"💵 *Giá hiện tại:* `{current_price:,.0f} VND` ({quote.get('change_pct', 0):+.2f}%)\n"
-        f"📈 *Chỉ số cốt lõi:* P/E: `{pe_str}` | P/B: `{pb_str}` | ROE: `{roe_str}` | Tăng trưởng LN: `{gr_str}`\n"
-        f"🛒 *Vùng mua:* `{trade_setup.get('buy_zone')}`\n"
-        f"🛑 *Cắt lỗ:* `{trade_setup.get('stop_loss', 0):,.0f}` (-{trade_setup.get('stop_loss_pct', 0)}%)\n"
-        f"🚀 *Ngắn hạn (TP1):* `{trade_setup.get('take_profit_1', 0):,.0f}` (+{trade_setup.get('take_profit_1_pct', 0)}%)\n"
-        f"🎯 *Trung hạn (TP2):* `{trade_setup.get('take_profit_2', 0):,.0f}` (+{trade_setup.get('take_profit_2_pct', 0)}%)\n"
-        f"⚖️ *Tỷ lệ R:R:* `{trade_setup.get('risk_reward_ratio')}:1` | Tỷ trọng tối đa: `{trade_setup.get('max_position_size_pct', 10):.1f}% NAV`\n"
+        f"📈 *Chỉ số cốt lõi:* P/E: `{pe_str}` | P/B: `{pb_str}` | ROE: `{roe_str}` | Tăng trưởng: `{gr_str}`\n"
         f"━━━━━━━━━━━━━━━━━━\n"
-        f"💡 *Chiến lược:* {trade_setup.get('action_summary')}\n"
+        f"🏛️ *1. GÓC NHÌN ĐẦU TƯ GIÁ TRỊ (BUFFETT & GRAHAM):*\n"
+        f"• *Trạng thái:* *{trade_setup.get('value_status', 'ĐỊNH GIÁ HỢP LÝ')}*\n"
+        f"• *Giá trị thực ước tính (Fair Value):* `{trade_setup.get('fair_price', current_price):,.0f} VND`\n"
+        f"• *Vùng gom an toàn (Margin of Safety ≥ 15%):* `{trade_setup.get('value_buy_zone')}`\n"
+        f"• *Lý do định giá:* _{trade_setup.get('value_rationale')}_\n"
     )
 
-    # Cảnh báo rủi ro nếu có
-    val_warn = fa_result.get("valuation_warning")
-    if val_warn or trade_setup.get("in_downtrend") or trade_setup.get("heavy_foreign_sell"):
-        report_text += "\n⚠️ *CẢNH BÁO RỦI RO:*\n"
-        if val_warn:
-            report_text += f"• Định giá: _{val_warn}_\n"
-        if trade_setup.get("in_downtrend"):
-            report_text += "• Kỹ thuật: _Giá đang nằm dưới các đường xu hướng EMA20/EMA50 (ngắn & trung hạn)._\n"
-        if trade_setup.get("heavy_foreign_sell"):
-            report_text += f"• Dòng tiền: _Khối ngoại đang bán ròng mạnh ({quote.get('foreign_net_vol', 0):,.0f} CP)._\n"
+    if val_gap_expl:
+        report_text += f"• 💡 *Lý giải chênh lệch định giá:* _{val_gap_expl}_\n"
 
+    if trade_setup.get("value_warning"):
+        report_text += f"• ⚠️ *Cảnh báo giá trị:* _{trade_setup.get('value_warning')}_\n"
+
+    report_text += (
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🏄 *2. KẾ HOẠCH LƯỚT SÓNG NGẮN HẠN (SWING / KỸ THUẬT):*\n"
+        f"• *Vùng mua lướt sóng (Buy Zone):* `{trade_setup.get('swing_buy_zone')}`\n"
+        f"• *Cắt lỗ nghiêm ngặt (Stop Loss):* `{trade_setup.get('stop_loss', 0):,.0f} VND` (-{trade_setup.get('stop_loss_pct', 0)}%)\n"
+        f"• *Mục tiêu ngắn hạn (TP1):* `{trade_setup.get('take_profit_1', 0):,.0f} VND` (+{trade_setup.get('take_profit_1_pct', 0)}%)\n"
+        f"• *Mục tiêu trung hạn (TP2):* `{trade_setup.get('take_profit_2', 0):,.0f} VND` (+{trade_setup.get('take_profit_2_pct', 0)}%)\n"
+        f"• *Tỷ lệ Risk / Reward:* `{trade_setup.get('risk_reward_ratio')}:1` | Tỷ trọng: `Max {trade_setup.get('max_position_size_pct', 10):.1f}% NAV`\n"
+    )
+
+    if trade_setup.get("swing_strategy_note"):
+        report_text += f"• 💡 *Lưu ý lướt sóng:* _{trade_setup.get('swing_strategy_note')}_\n"
+
+    # Trích xuất nhận định nổi bật của Hội đồng
     report_text += "\n🎭 *HỘI ĐỒNG PHÁN QUYẾT:*\n"
-
-    # Trích xuất lý do từ các trường phái
     for role, key in [("Giá trị (Buffett)", "buffett"), ("Tăng trưởng (Lynch)", "lynch"), ("Kỹ thuật (O'Neil)", "oneil"), ("Dòng tiền (VSA)", "vsa")]:
         reason = (fa_result.get(key) or ta_result.get(key) or {}).get("reasons", [""])[0]
-        report_text += f"• *{role}:* _{reason}_\n"
+        if reason:
+            report_text += f"• *{role}:* _{reason}_\n"
+
+    report_text += (
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🌐 *BÁO CÁO HTML TRỰC QUAN (MOBILE & DESKTOP):*\n"
+        f"• Đã đính kèm file báo cáo HTML tương tác Chart.js bên dưới! Chạm vào file để mở xem ngay.\n"
+    )
 
     action_buttons = {
         "inline_keyboard": [
             [
                 {"text": f"💵 Giá Realtime ({symbol})", "callback_data": f"gia:{symbol}"},
                 {"text": "🏆 Top 10 Hôm Nay", "callback_data": "cmd:top10"}
+            ],
+            [
+                {"text": f"🏛️ Soi FA ({symbol})", "callback_data": f"fa:{symbol}"},
+                {"text": f"📈 Soi TA ({symbol})", "callback_data": f"ta:{symbol}"}
             ],
             [
                 {"text": "🔍 Soi Mã Khác", "callback_data": "cmd:pick_soi"},
@@ -487,6 +492,133 @@ def handle_analyze(chat_id: str | int, symbol: str):
     }
 
     send_message(chat_id, report_text, reply_markup=action_buttons)
+
+    # Gửi kèm file HTML trực tiếp qua Telegram document
+    if html_path and Path(html_path).exists():
+        send_telegram_document(
+            file_path=html_path,
+            caption=f"🌐 Báo cáo chiến lược toàn diện: {symbol} | Vietnam Stock Analyzer",
+            chat_id=chat_id
+        )
+
+
+def handle_fa(chat_id: str | int, symbol: str):
+    """Phân tích chuyên sâu Cơ bản (FA & Quản trị) trực tiếp trên tin nhắn Telegram."""
+    symbol = symbol.upper().strip()
+    send_message(chat_id, f"⏳ Đang bóc tách BCTC & Quản trị cho mã *{symbol}*...")
+    data = analyze_ticker_fa(symbol)
+    if not data:
+        send_message(chat_id, f"❌ Không thể lấy dữ liệu tài chính cho mã `{symbol}`.")
+        return
+
+    fa = data["fa"]
+    quote = data["quote"]
+    fin = fa.get("ratios", {})
+    asset_val = fa.get("asset_valuation", {})
+    cf = fa.get("cash_flow", {})
+    gov = fa.get("governance", {})
+    seg = fa.get("segments", {})
+
+    msg = (
+        f"🏛️ *PHÂN TÍCH CƠ BẢN DOANH NGHIỆP: {symbol}*\n"
+        f"🏢 _{quote.get('company_name', symbol)}_\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"⭐ *Piotroski F-Score:* `{fa.get('f_score', 0)}/9`\n"
+        f"💵 *P/E:* `{fin.get('pe', 'N/A')}x` | *P/B:* `{asset_val.get('pb', fin.get('pb', 'N/A'))}x`\n"
+        f"💎 *BVPS (Giá trị sổ sách):* `{asset_val.get('bvps', 0):,.0f} VND`\n"
+        f"📊 *ROE:* `{fin.get('roe', 'N/A')}%` | *Biên ròng:* `{fin.get('net_margin', 'N/A')}%`\n"
+        f"💳 *Nợ vay / Vốn CSH:* `{fin.get('debt_to_equity', 'N/A')}x`\n"
+        f"🔬 *Chất lượng Lợi nhuận (CFO):* Hạng `{cf.get('quality_grade', 'N/A')}` ({cf.get('quality_verdict', '')})\n"
+        f"🚨 *Radar Thao túng:* Cấp `{asset_val.get('manipulation_risk_level', 1)}/5` ({asset_val.get('manipulation_verdict', 'An toàn')})\n"
+    )
+
+    if gov:
+        own = gov.get("ownership", {})
+        lead = gov.get("leadership", {})
+        msg += (
+            f"━━━━━━━━━━━━━━━━━━\n"
+            f"👥 *QUẢN TRỊ & CỔ ĐÔNG (G-Score: {gov.get('g_score', 0)}/100 - {gov.get('g_rating', '')}):*\n"
+            f"• Trôi nổi: `{own.get('free_float_pct', 0)}%` | Ngoại: `{own.get('foreigner_pct', 0)}%`\n"
+            f"• Lãnh đạo (Skin in game): `{lead.get('insider_total_pct', 0)}%` ({lead.get('skin_in_game_verdict', '')})\n"
+        )
+
+    if seg and seg.get("segments"):
+        msg += "🏢 *Cơ cấu doanh thu cốt lõi:*\n"
+        for s in seg.get("segments", [])[:3]:
+            msg += f"• {s.get('name')}: `{s.get('rev_share_pct')}% DT` | `{s.get('gross_profit_share_pct')}% LNG`\n"
+
+    msg += (
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🧐 *Warren Buffett:* _{fa.get('buffett', {}).get('reasons', [''])[0]}_\n"
+        f"🚀 *Peter Lynch:* _{fa.get('lynch', {}).get('reasons', [''])[0]}_\n"
+    )
+
+    buttons = {
+        "inline_keyboard": [
+            [{"text": f"📈 Soi Kỹ Thuật ({symbol})", "callback_data": f"ta:{symbol}"}, {"text": f"🔍 Soi Đầy Đủ ({symbol})", "callback_data": f"soi:{symbol}"}],
+            [{"text": "🔙 Menu Chính", "callback_data": "cmd:menu"}]
+        ]
+    }
+    send_message(chat_id, msg, reply_markup=buttons)
+
+
+def handle_ta(chat_id: str | int, symbol: str):
+    """Phân tích chuyên sâu Kỹ thuật (TA & Chart) trực tiếp trên tin nhắn Telegram."""
+    symbol = symbol.upper().strip()
+    send_message(chat_id, f"⏳ Đang phân tích Chart & Dòng tiền cho mã *{symbol}*...")
+    data = analyze_ticker_ta(symbol)
+    if not data:
+        send_message(chat_id, f"❌ Không thể lấy dữ liệu kỹ thuật cho mã `{symbol}`.")
+        return
+
+    ta = data["ta"]
+    trade = data["trade"]
+    quote = data["quote"]
+    ind = ta.get("indicators", {})
+
+    msg = (
+        f"📈 *PHÂN TÍCH KỸ THUẬT & DÒNG TIỀN: {symbol}*\n"
+        f"🏢 _{quote.get('company_name', symbol)}_\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"💰 *Giá hiện tại:* `{ind.get('close', 0):,.0f} VND` ({quote.get('change_pct', 0):+.2f}%)\n"
+        f"📉 *EMA 20 (Ngắn hạn):* `{ind.get('ema20', 0):,.0f}` | *EMA 50:* `{ind.get('ema50', 0):,.0f}`\n"
+        f"📦 *Volume Ratio (so MA20):* `{ind.get('vol_ratio', 1.0):.2f}x`\n"
+        f"⚡ *RSI 14:* `{ind.get('rsi14', 50):.1f}`\n"
+        f"🛡️ *Hỗ trợ 20 phiên:* `{ind.get('sup_20d', 0):,.0f}`\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🎯 *KẾ HOẠCH GIAO DỊCH KỸ THUẬT:*\n"
+        f"• Vùng mua tham khảo: `{trade.get('buy_zone')}`\n"
+        f"• Cắt lỗ kỷ luật: `{trade.get('stop_loss', 0):,.0f} VND` (-{trade.get('stop_loss_pct', 0)}%)\n"
+        f"• Chốt lời ngắn hạn (TP1): `{trade.get('take_profit_1', 0):,.0f} VND`\n"
+        f"━━━━━━━━━━━━━━━━━━\n"
+        f"🦅 *William O'Neil (CANSLIM):* _{ta.get('oneil', {}).get('reasons', [''])[0]}_\n"
+        f"🌊 *Wyckoff VSA:* Pha {ta.get('vsa', {}).get('phase')} - _{ta.get('vsa', {}).get('reasons', [''])[0]}_\n"
+    )
+
+    buttons = {
+        "inline_keyboard": [
+            [{"text": f"🏛️ Soi Cơ Bản ({symbol})", "callback_data": f"fa:{symbol}"}, {"text": f"🔍 Soi Đầy Đủ ({symbol})", "callback_data": f"soi:{symbol}"}],
+            [{"text": "🔙 Menu Chính", "callback_data": "cmd:menu"}]
+        ]
+    }
+    send_message(chat_id, msg, reply_markup=buttons)
+
+
+def handle_performance_track(chat_id: str | int):
+    """Tổng hợp và gửi báo cáo nghiệm thu PDCA (Hiệu suất khuyến nghị) lên Telegram."""
+    send_message(chat_id, "⏳ *HỆ THỐNG PDCA ĐANG TỔNG HỢP HIỆU SUẤT KHUYẾN NGHỊ*...\n\nĐang đối chiếu các điểm vào lệnh quá khứ với biến động nến thực tế...")
+    try:
+        perf_data = evaluate_all_recommendations()
+        summary_text = get_performance_telegram_summary(perf_data)
+        buttons = {
+            "inline_keyboard": [
+                [{"text": "🏆 Top 10 Hôm Nay", "callback_data": "cmd:top10"}, {"text": "🔍 Soi Cổ Phiếu", "callback_data": "cmd:pick_soi"}],
+                [{"text": "🔙 Menu Chính", "callback_data": "cmd:menu"}]
+            ]
+        }
+        send_message(chat_id, summary_text, reply_markup=buttons)
+    except Exception as e:
+        send_message(chat_id, f"❌ Lỗi khi tính toán hiệu suất PDCA: {str(e)}")
 
 
 def handle_chat(chat_id: str | int, text: str):
@@ -636,14 +768,28 @@ def handle_callback_query(item: dict):
     # Tắt spinner loading trên nút Telegram
     answer_callback_query(cb_id)
 
+    # Chống double-click từ người dùng chạm nhanh vào nút Inline (trong vòng 3.5 giây)
+    now = time.time()
+    cb_key = f"{chat_id}:cb:{data}"
+    if (now - _PROCESSING_REQUESTS.get(cb_key, 0.0)) < 3.5:
+        print(f"⏱️ Bỏ qua double-click nút '{data}' từ chat {chat_id}.")
+        return
+    _PROCESSING_REQUESTS[cb_key] = now
+
     print(f"🔘 [Callback từ User {chat_id}]: {data}")
 
     if data == "cmd:menu":
         handle_menu(chat_id)
     elif data == "cmd:top10":
         handle_scan(chat_id, top_n=10)
+    elif data == "cmd:pnl":
+        handle_performance_track(chat_id)
     elif data == "cmd:pick_soi":
         handle_quick_soi_picker(chat_id)
+    elif data == "cmd:pick_fa":
+        send_message(chat_id, "🏛️ Bấm mã để soi Cơ Bản:", reply_markup=get_stock_picker_inline_keyboard(action="fa"))
+    elif data == "cmd:pick_ta":
+        send_message(chat_id, "📈 Bấm mã để soi Kỹ Thuật:", reply_markup=get_stock_picker_inline_keyboard(action="ta"))
     elif data == "cmd:pick_gia":
         handle_quick_gia_picker(chat_id)
     elif data == "cmd:watchlist":
@@ -653,6 +799,12 @@ def handle_callback_query(item: dict):
     elif data.startswith("soi:"):
         symbol = data.split(":", 1)[1]
         handle_analyze(chat_id, symbol)
+    elif data.startswith("fa:"):
+        symbol = data.split(":", 1)[1]
+        handle_fa(chat_id, symbol)
+    elif data.startswith("ta:"):
+        symbol = data.split(":", 1)[1]
+        handle_ta(chat_id, symbol)
     elif data.startswith("gia:"):
         symbol = data.split(":", 1)[1]
         handle_quick_price(chat_id, symbol)
@@ -719,7 +871,14 @@ def start_interactive_bot():
             if r.status_code == 200:
                 data = r.json()
                 for item in data.get("result", []):
-                    offset = item["update_id"] + 1
+                    up_id = item.get("update_id")
+                    if up_id:
+                        offset = up_id + 1
+                        if up_id in _PROCESSED_UPDATE_IDS:
+                            continue
+                        _PROCESSED_UPDATE_IDS.add(up_id)
+                        if len(_PROCESSED_UPDATE_IDS) > 2000:
+                            _PROCESSED_UPDATE_IDS.clear()
 
                     # Trường hợp 1: Sự kiện bấm nút Inline (callback_query)
                     if "callback_query" in item:
@@ -747,6 +906,8 @@ def start_interactive_bot():
                         handle_menu(chat_id)
                     elif text in ["/top10", "/scan", "🏆 Top 10 Hôm Nay", "Top 10"]:
                         handle_scan(chat_id, top_n=10)
+                    elif text in ["/pnl", "/track", "📈 Hiệu Suất PnL", "Hiệu suất"]:
+                        handle_performance_track(chat_id)
                     elif text in ["/watchlist", "📊 Danh Mục Watchlist", "Watchlist"]:
                         handle_watchlist_view(chat_id)
                     elif text in ["🔍 Soi Cổ Phiếu", "Soi"]:
@@ -756,27 +917,23 @@ def start_interactive_bot():
                     elif text in ["/help", "❓ Hướng Dẫn", "Hướng dẫn", "Help"]:
                         handle_help(chat_id)
                     elif text.startswith("/soi"):
-                parts = text.split(" ")
-                if len(parts) > 1:
-                    handle_analyze(chat_id, parts[1])
-            elif text.startswith("/fa"):
-                parts = text.split(" ")
-                if len(parts) > 1:
-                    from main import analyze_single_ticker
-                    analyze_single_ticker(parts[1], mode="fa", save_report=False, send_alert=False)
-                    send_message(chat_id, f"✅ Đã chạy phân tích Cơ Bản cho {parts[1]}. Vui lòng xem Terminal.")
-            elif text.startswith("/ta"):
-                parts = text.split(" ")
-                if len(parts) > 1:
-                    from main import analyze_single_ticker
-                    analyze_single_ticker(parts[1], mode="ta", save_report=False, send_alert=False)
-                    send_message(chat_id, f"✅ Đã chạy phân tích Kỹ Thuật cho {parts[1]}. Vui lòng xem Terminal.")
-            elif text == "/soi": # Block cũ để ignore
                         parts = text.split(maxsplit=1)
                         if len(parts) > 1:
                             handle_analyze(chat_id, parts[1])
                         else:
                             handle_quick_soi_picker(chat_id)
+                    elif text.startswith("/fa"):
+                        parts = text.split(maxsplit=1)
+                        if len(parts) > 1:
+                            handle_fa(chat_id, parts[1])
+                        else:
+                            send_message(chat_id, "Vui lòng nhập mã cổ phiếu. Ví dụ: /fa HPG")
+                    elif text.startswith("/ta"):
+                        parts = text.split(maxsplit=1)
+                        if len(parts) > 1:
+                            handle_ta(chat_id, parts[1])
+                        else:
+                            send_message(chat_id, "Vui lòng nhập mã cổ phiếu. Ví dụ: /ta HPG")
                     elif text.startswith("/gia"):
                         parts = text.split(maxsplit=1)
                         if len(parts) > 1:

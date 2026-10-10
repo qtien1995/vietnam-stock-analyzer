@@ -1,0 +1,100 @@
+{
+  "company_name": "Tổng Công ty IDICO - CTCP",
+  "business_model_summary": "Tập đoàn phát triển hạ tầng và Khu công nghiệp (KCN) hàng đầu Việt Nam hoạt động theo mô hình tích hợp khép kín: (1) Quỹ đất KCN sạch quy mô lớn tại các thủ phủ FDI (Long An, Bà Rịa - Vũng Tàu, Bắc Ninh, Thái Bình) tạo dòng tiền đột biến từ cho thuê đất 50 năm; (2) Độc quyền phân phối điện lưới và thủy điện nội khu cho hàng trăm nhà máy KCN tạo 'cỗ máy in tiền mặt' đều đặn hàng tháng; (3) Cho thuê nhà xưởng xây sẵn (RBF) và thu phí BOT đường bộ tạo nguồn thu ổn định phòng thủ quanh năm.",
+  "segments": [
+    {
+      "name": "Cho thuê đất Khu công nghiệp (Hạ tầng hoàn thiện 50 năm)",
+      "service_description": "Cho các tập đoàn FDI và doanh nghiệp sản xuất trong và ngoài nước thuê đất công nghiệp đã đền bù, giải phóng mặt bằng sạch và hoàn thiện hạ tầng kỹ thuật (đường nội bộ, trạm xử lý nước thải, cấp thoát nước) trong thời hạn lên đến 50 năm. Doanh nghiệp thu tiền 1 lần hoặc định kỳ hàng năm.",
+      "target_customers": "Các tập đoàn sản xuất lớn, doanh nghiệp FDI đa quốc gia (Hyosung, PepsiCo, các nhà máy dệt may, điện tử, dược phẩm...)",
+      "rev_share_pct": 43.5,
+      "gross_profit_share_pct": 65.0,
+      "gross_margin_pct": 58.5,
+      "role": "Ngòi nổ Lợi nhuận Đột biến & Thặng dư Dòng tiền",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Đang cho thuê rất tích cực",
+      "highlights": "Quỹ đất thương phẩm sẵn sàng cho thuê còn lại hơn 580 ha. Giá thuê đất KCN duy trì đà tăng 8-12%/năm tại các vùng kinh tế trọng điểm phía Nam (Long An, Bà Rịa - Vũng Tàu). Khách thuê trả tiền mặt lớn giúp thặng dư tiền gửi dồi dào.",
+      "risks": "Tiến độ bàn giao đất phụ thuộc vào tốc độ cấp giấy chứng nhận đầu tư (IRC) của khách thuê và chu kỳ dòng vốn FDI toàn cầu."
+    },
+    {
+      "name": "Kinh doanh, Phân phối & Truyền tải Điện KCN",
+      "service_description": "IDICO sở hữu độc quyền trạm biến áp và mạng lưới lưới điện trung - hạ thế tại KCN Nhơn Trạch (Đồng Nai) và KCN Hựu Thạnh (Long An). Mua điện từ EVN kết hợp tự phát điện từ 2 nhà máy thủy điện Đak Mi 3 (63MW) và Srok Phu Miêng (51MW), sau đó bán lại cho các nhà máy sản xuất trong KCN.",
+      "target_customers": "Toàn bộ hàng trăm nhà máy sản xuất hoạt động bên trong các KCN do IDICO quản lý (bắt buộc phải mua điện để vận hành dây chuyền).",
+      "rev_share_pct": 39.0,
+      "gross_profit_share_pct": 18.5,
+      "gross_margin_pct": 11.5,
+      "role": "Con bò sữa dòng tiền (Cash Cow) đều đặn hàng tháng",
+      "strategic_role": "CASH_COW",
+      "status": "Cực kỳ ổn định",
+      "highlights": "Sản lượng điện tiêu thụ tăng trưởng lũy kế theo tỷ lệ lấp đầy của các KCN. Tiền điện được thu hàng tháng, tuyệt đối không có rủi ro nợ xấu vì nhà máy không thể ngừng sản xuất.",
+      "risks": "Biên lợi nhuận gộp phụ thuộc vào chênh lệch giá mua điện đầu vào từ EVN và chu kỳ thủy văn của các nhà máy thủy điện."
+    },
+    {
+      "name": "Cho thuê Nhà xưởng xây sẵn (RBF) & Kho bãi tiêu chuẩn",
+      "service_description": "Xây dựng các block nhà xưởng tiền chế tiêu chuẩn cao từ 1.000m² đến 5.000m² đáp ứng ngay nhu cầu lắp đặt máy móc sản xuất nhanh cho các doanh nghiệp vừa và nhỏ, doanh nghiệp phụ trợ với hợp đồng thuê linh hoạt từ 3 đến 5 năm.",
+      "target_customers": "Các doanh nghiệp công nghiệp phụ trợ, cơ khí chính xác, logistics, điện tử vừa và nhỏ muốn thử nghiệm thị trường mà không muốn đầu tư xây dựng nhà máy ban đầu.",
+      "rev_share_pct": 8.5,
+      "gross_profit_share_pct": 10.0,
+      "gross_margin_pct": 46.0,
+      "role": "Dòng tiền cho thuê định kỳ gối đầu",
+      "strategic_role": "CASH_COW",
+      "status": "Mở rộng diện tích",
+      "highlights": "Giá thuê đạt từ 4.2 - 5.2 USD/m²/tháng; tỷ lệ lấp đầy trung bình trên 90%. Dự kiến mở rộng thêm 100.000 - 150.000 m² sàn xưởng cho thuê tại Hựu Thạnh và Cầu Nghìn.",
+      "risks": "Cần vốn đầu tư xây dựng ban đầu (CapEx) và chịu sự cạnh tranh từ các quỹ đầu tư chuyên nghiệp như BW Industrial, KCN Vietnam."
+    },
+    {
+      "name": "Thu phí giao thông BOT & Cung cấp Nước sạch, Xử lý nước thải",
+      "service_description": "Vận hành và thu phí trạm BOT Quốc lộ 1A đoạn An Sương - An Lạc (tuyến huyết mạch cửa ngõ phía Tây TP.HCM kết nối các tỉnh miền Tây) cùng dịch vụ cung cấp nước sạch công nghiệp và xử lý nước thải đạt chuẩn cho các nhà máy KCN.",
+      "target_customers": "Phương tiện lưu thông qua trạm BOT QL1A và các nhà máy sản xuất trong KCN.",
+      "rev_share_pct": 9.0,
+      "gross_profit_share_pct": 6.5,
+      "gross_margin_pct": 24.0,
+      "role": "Nguồn thu phụ trợ phòng thủ",
+      "strategic_role": "SCALE_BASE",
+      "status": "Thu tiền đều đặn",
+      "highlights": "Trạm thu phí BOT An Sương - An Lạc có lưu lượng xe tải và container cực lớn, mang lại dòng tiền mặt đều đặn hàng ngày; dịch vụ nước sạch gắn liền với chu kỳ vận hành của KCN.",
+      "risks": "Thời hạn hợp đồng BOT có giới hạn và phải duy trì chi phí duy tu, bảo dưỡng định kỳ tuyến đường."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Khu công nghiệp Hựu Thạnh",
+      "location": "Huyện Bến Lức, Tỉnh Long An (Giáp ranh TP.HCM)",
+      "scale": "524.1 ha (Diện tích đất thương phẩm còn lại ~120 - 130 ha)",
+      "status": "Đang khai thác & Bàn giao đất mạnh mẽ",
+      "profit_contribution": "Đóng góp 40-50% tổng lợi nhuận KCN của IDC giai đoạn 2024-2027. Giá thuê đạt mức cao kỷ lục 145 - 155 USD/m²/chu kỳ thuê.",
+      "bottlenecks_and_risks": "Đã hoàn tất đền bù giải phóng mặt bằng 100%, hạ tầng hoàn thiện. Không có vướng mắc pháp lý lớn. Rủi ro duy nhất là tiến độ quyết định đầu tư thực tế từ các tập đoàn FDI lớn trong bối cảnh địa chính trị."
+    },
+    {
+      "name": "KCN Phú Mỹ II & Phú Mỹ II Mở rộng",
+      "location": "Thị xã Phú Mỹ, Tỉnh Bà Rịa - Vũng Tàu (Cận kề Cảng nước sâu Cái Mép)",
+      "scale": "999 ha (Đã lấp đầy trên 88-90%, diện tích còn lại ~40 - 50 ha)",
+      "status": "Giai đoạn cuối chu kỳ cho thuê",
+      "profit_contribution": "Giá thuê đạt 130 - 140 USD/m², tạo dòng tiền thu nốt diện tích còn lại và duy trì nguồn doanh thu điện/nước nội khu cực lớn.",
+      "bottlenecks_and_risks": "Quỹ đất thương phẩm còn lại ít. Doanh nghiệp đang chuyển dần trọng tâm sang khai thác dịch vụ hậu cần cảng và phân phối điện ổn định."
+    },
+    {
+      "name": "Khu công nghiệp Cầu Nghìn",
+      "location": "Huyện Thái Thụy, Tỉnh Thái Bình (Vùng kinh tế ven biển miền Bắc)",
+      "scale": "184.1 ha (Đất thương phẩm ~120 ha)",
+      "status": "Hoàn thiện hạ tầng & Đang thu hút nhà đầu tư",
+      "profit_contribution": "Giá thuê quanh 85 - 95 USD/m², đóng góp lợi nhuận gối đầu từ năm 2025-2026 khi thị trường KCN miền Bắc thiếu hụt nguồn cung sạch.",
+      "bottlenecks_and_risks": "Tốc độ lấp đầy chậm hơn khu vực miền Nam. Cần tuyến đường cao tốc ven biển Hải Phòng - Thái Bình hoàn thành toàn bộ để tối ưu kết nối logistics."
+    },
+    {
+      "name": "KCN Quế Võ II (Mở rộng Giai đoạn 2)",
+      "location": "Huyện Quế Võ, Tỉnh Bắc Ninh (Thủ phủ công nghiệp bán dẫn & điện tử)",
+      "scale": "277.5 ha (Dự án mở rộng đón sóng FDI công nghệ cao)",
+      "status": "Đang hoàn thiện thủ tục pháp lý & Phương án bồi thường",
+      "profit_contribution": "Kỳ vọng giá thuê đạt trên 130 - 150 USD/m² nhờ vị trí chiến lược cạnh các nhà máy Foxconn, Samsung, Canon.",
+      "bottlenecks_and_risks": "Đang trong giai đoạn hoàn tất phê duyệt chủ trương và phương án giải phóng mặt bằng. Cần theo dõi tiến độ đền bù đất nông nghiệp của địa phương."
+    },
+    {
+      "name": "Dự án Gối đầu: KCN Tân Phước 1",
+      "location": "Huyện Tân Phước, Tỉnh Tiền Giang (Kết nối trực tiếp cao tốc Trung Lương)",
+      "scale": "470 ha (Tổng vốn đầu tư đăng ký ~5.936 tỷ đồng)",
+      "status": "Đã được Thủ tướng phê duyệt chủ trương đầu tư (Tháng 5/2024)",
+      "profit_contribution": "Động lực tăng trưởng chiến lược dài hạn cho chu kỳ 2026-2030 khi KCN Hựu Thạnh dần lấp đầy.",
+      "bottlenecks_and_risks": "Đang triển khai công tác đo đạc, lập phương án bồi thường hỗ trợ tái định cư. Nguy cơ chi phí đền bù đất tăng theo bảng giá đất mới của Luật Đất đai 2024, đòi hỏi chuẩn bị nguồn vốn đối ứng lớn."
+    }
+  ]
+}

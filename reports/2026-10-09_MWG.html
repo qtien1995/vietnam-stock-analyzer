@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Báo cáo Chiến lược MWG | Vietnam Stock Analyzer</title>
+    <!-- Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #0a0e17;
+            --bg-card: #111827;
+            --bg-card-alt: #1a2333;
+            --border: #263345;
+            --border-highlight: #3b82f6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding-bottom: 50px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header Bar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 23, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .report-time {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        /* Executive Header */
+        .hero-card {
+            background: linear-gradient(145deg, #131c2e, #0f172a);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .hero-left h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-left p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .price-badge-group {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .hero-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ef4444;
+        }
+
+        .hero-change {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ef4444;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .hero-action-box {
+            text-align: right;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid #f59e0b;
+            padding: 16px 22px;
+            border-radius: 14px;
+        }
+
+        .hero-action-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .hero-action-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #f59e0b;
+            margin-top: 2px;
+        }
+
+        .consensus-meter {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* CRO Trade Setup Grid */
+        .trade-setup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .trade-cell {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .trade-cell-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .trade-cell-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 4px;
+            color: #fff;
+        }
+
+        /* Section Layout */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 32px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f8fafc;
+        }
+
+        .card-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 10px;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+        }
+
+        /* Bullet lists */
+        ul.bullet-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.bullet-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            line-height: 1.45;
+        }
+
+        ul.bullet-list li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+        }
+
+        /* Progress Bar */
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        /* Accordion / Council report blocks */
+        .council-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 14px;
+            line-height: 1.6;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        .council-box h4 {
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .hero-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .hero-action-box {
+                text-align: left;
+            }
+            .card-grid-2, .card-grid-3 {
+                grid-template-columns: 1fr;
+            }
+            .hero-left h1 {
+                font-size: 1.8rem;
+            }
+            .container {
+                padding: 12px 10px;
+            }
+            .trade-cell-val {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div class="top-navbar">
+        <div class="brand-title">🏛️ VIETNAM STOCK ANALYZER &bull; RESEARCH TERMINAL</div>
+        <div class="report-time">09/10/2026 22:15</div>
+    </div>
+
+    <div class="container">
+
+        <!-- 1. Executive Snapshot & Action Card -->
+        <div class="hero-card">
+            <div class="hero-header">
+                <div class="hero-left">
+                    <h1>
+                        MWG
+                        <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6;">HOSE</span>
+                        <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid #8b5cf6;">Bán lẻ & Tiêu dùng Nội địa</span>
+                    </h1>
+                    <p>Công ty Cổ phần Đầu tư Thế Giới Di Động</p>
+                    <div class="price-badge-group">
+                        <span class="hero-price">75,900 đ</span>
+                        <span class="hero-change">-0.26%</span>
+                        <span style="font-size: 0.85rem; color: #94a3b8; margin-left: 10px;">Vol: <b>2,801,400</b> CP (0.94x MA20)</span>
+                    </div>
+                </div>
+
+                <div class="hero-action-box">
+                    <div class="hero-action-label">Phán quyết Chief Risk Officer</div>
+                    <div class="hero-action-title">THEO DÕI (WATCHLIST)</div>
+                    <div class="consensus-meter">Độ đồng thuận Hội đồng: <b>56/100</b> điểm</div>
+                </div>
+            </div>
+
+            <!-- Trade Execution Parameters -->
+            <div class="trade-setup-grid">
+                <div class="trade-cell">
+                    <div class="trade-cell-label">Vùng mua tối ưu (Buy Zone)</div>
+                    <div class="trade-cell-val" style="color: #38bdf8;">73,174 - 77,038 đ</div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Canh rung lắc giải ngân</div>
+                </div>
+                <div class="trade-cell">
+                    <div class="trade-cell-label">Điểm cắt lỗ cứng (Stop Loss)</div>
+                    <div class="trade-cell-val" style="color: #f87171;">70,587 đ</div>
+                    <div style="font-size: 0.75rem; color: #ef4444; margin-top: 2px;">Giới hạn: -7.0% (Bảo toàn vốn)</div>
+                </div>
+                <div class="trade-cell">
+                    <div class="trade-cell-label">Chốt lời 1 &bull; 2 (Take Profit)</div>
+                    <div class="trade-cell-val" style="color: #34d399;">82,731 &bull; 92,598 đ</div>
+                    <div style="font-size: 0.75rem; color: #10b981; margin-top: 2px;">+9.0% &bull; +22.0%</div>
+                </div>
+                <div class="trade-cell">
+                    <div class="trade-cell-label">Tỷ lệ Risk / Reward &bull; Tỷ trọng</div>
+                    <div class="trade-cell-val" style="color: #fbbf24;">1.29:1 &bull; Max 5.0%</div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Giới hạn rủi ro 1.5% NAV</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. TẦNG 1: VĨ MÔ & CHU KỲ NGÀNH (MACRO & SECTOR MATRIX) -->
+        <div class="section-title">🌐 TẦNG 1: BỐI CẢNH VĨ MÔ & CHU KỲ NGÀNH (MACRO MATRIX)</div>
+        <div class="card-grid-2">
+            <!-- Vị thế chu kỳ & Gió xuôi chiều -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Định vị Chu kỳ: Bán lẻ & Tiêu dùng Nội địa</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #3b82f6; border: 1px solid #3b82f6;">TÍCH CỰC (TAILWIND)</span>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Pha chu kỳ hiện tại:</span>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #fff; margin-top: 2px;">Phục hồi tăng tốc (Recovery to Expansion)</div>
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">Sức mua tiêu dùng hồi phục rõ nét; mô hình tái cấu trúc tinh gọn mạng lưới cửa hàng bắt đầu phát huy đòn bẩy hoạt động, biên lợi nhuận cải thiện mạnh.</p>
+                </div>
+
+                <div style="margin-top: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                        <span style="color: var(--text-secondary);">Điểm số Gió xuôi Vĩ mô (Tailwind Score)</span>
+                        <span style="font-weight: 700; color: #3b82f6;">78/100</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 78%; background: #3b82f6;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Động lực Vĩ mô Trọng tâm:</div>
+                    <ul class="bullet-list">
+                        <li>Tổng mức bán lẻ hàng hóa và doanh thu dịch vụ tiêu dùng duy trì đà tăng trưởng 8.5 - 9.5% YoY.</li><li>Chính sách hỗ trợ tài khóa tiếp tục giảm 2% thuế VAT kích thích sức mua người dân.</li><li>Lãi suất cho vay duy trì thấp hỗ trợ tín dụng tiêu dùng hồi phục trở lại.</li><li>Thu nhập khả dụng và tầng lớp trung lưu gia tăng thúc đẩy xu hướng tiêu dùng hiện đại (Modern Trade).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Góc nhìn Ray Dalio & Howard Marks -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Trí tuệ Chu kỳ: Ray Dalio & Howard Marks</span>
+                    <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">CYCLE MASTERY</span>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #a78bfa; margin-bottom: 4px;">Ray Dalio (Cỗ máy Kinh tế):</div>
+                    <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">Theo chu kỳ vĩ mô hiện tại, ngành Bán lẻ & Tiêu dùng Nội địa đang ở pha 'Phục hồi tăng tốc (Recovery to Expansion)'. Môi trường vĩ mô nhìn chung thuận lợi, hỗ trợ hoạt động kinh doanh cốt lõi mở rộng ổn định.</p>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">Howard Marks (Tâm lý Chu kỳ & Bẫy Định giá):</div>
+                    <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">Howard Marks (Tâm lý Chu kỳ & Định giá): Khi ngành ở pha Phục hồi tăng tốc (Recovery to Expansion), thị trường đang phản ánh đúng tốc độ mở rộng. Hãy tập trung vào việc liệu dòng tiền kinh doanh (CFO) có chuyển hóa tương xứng với tốc độ tăng trưởng doanh thu hay không.</p>
+                </div>
+
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px; margin-top: 12px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Chỉ số Đặc thù Cần Giám sát:</div>
+                    <ul class="bullet-list">
+                        <li>Tăng trưởng doanh số trên cùng một cửa hàng (Same-Store Sales Growth - SSSG).</li><li>Biên lợi nhuận gộp từng chuỗi bán lẻ (ICT/CE, Bách hóa thực phẩm, Dược phẩm, Trang sức vàng).</li><li>Tốc độ tối ưu hóa chi phí vận hành (SG&A / Doanh thu).</li><li>Mùa vụ tiêu dùng cao điểm (Quý 3 tựu trường, Quý 4 lễ hội & Quý 1 Tết Nguyên Đán).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. TẦNG 2: VI MÔ - BCTC & BÓC TÁCH DÒNG TIỀN THẬT (CASH FLOW FORENSIC) -->
+        <div class="section-title">🔬 TẦNG 2: VI MÔ - SỨC KHỎE BCTC & BÓC TÁCH DÒNG TIỀN THẬT</div>
+        <div class="card-grid-3" style="margin-bottom: 20px;">
+            <!-- Thẻ 1: Chất lượng lợi nhuận -->
+            <div class="card" style="border-left: 4px solid #f59e0b;">
+                <div class="card-header">
+                    <span>Chất lượng Lợi nhuận</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #f59e0b;">HẠNG C</span>
+                </div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: #f59e0b;">TRUNG BÌNH - NGUY CƠ ĐỌNG VỐN</div>
+                <p style="font-size: 0.82rem; color: #94a3b8; margin-top: 6px;">CFO (5,738,793,943,109 đ) thấp hơn nhiều so với LNST (9,856,625,258,642 đ) - Tỷ lệ chỉ 0.58x. Lợi nhuận bị chiếm dụng vốn qua công nợ.</p>
+                <div style="margin-top: 10px; font-size: 0.85rem;">
+                    Tỷ lệ CFO / LNST: <b style="color: #38bdf8;">0.58x</b>
+                </div>
+            </div>
+
+            <!-- Thẻ 2: Altman Z-Score -->
+            <div class="card" style="border-left: 4px solid #10b981;">
+                <div class="card-header">
+                    <span>Altman Z''-Score</span>
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #10b981;">SAFE</span>
+                </div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: #10b981;">3.84 điểm</div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: #fff; margin-top: 2px;">VÙNG AN TOÀN CAO (SAFE ZONE)</div>
+                <p style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">Chỉ số Altman Z''-Score đạt 3.84 (> 2.60). Xác suất phá sản / kiệt quệ tài chính trong 2 năm tới là cực thấp.</p>
+            </div>
+
+            <!-- Thẻ 3: Piotroski F-Score -->
+            <div class="card" style="border-left: 4px solid #ef4444;">
+                <div class="card-header">
+                    <span>Piotroski F-Score</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #ef4444;">4/9 ĐIỂM</span>
+                </div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: #ef4444;">4/9</div>
+                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">
+                    ROA: <b>9.4%</b> | ROE: <b>27.1%</b><br>
+                    Nợ/Vốn CSH: <b>0.8x</b>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ Dòng tiền & Cờ đỏ -->
+        <div class="card-grid-2">
+            <!-- Chart so sánh CFO vs LNST -->
+            <div class="card">
+                <div class="card-header">
+                    <span>So sánh Dòng tiền thật (CFO) vs LNST Kế toán (Tỷ VNĐ)</span>
+                    <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">4 QUÝ GẦN NHẤT</span>
+                </div>
+                <div style="height: 240px; position: relative;">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 10px;">
+                    Cột xanh dương: Lợi nhuận sau thuế &bull; Cột xanh lá: Dòng tiền thuần HĐKD (CFO) &bull; Đường vàng: Dòng tiền tự do (FCF)
+                </div>
+            </div>
+
+            <!-- Cờ đỏ kế toán & Bảng dòng tiền -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Rà soát Cờ đỏ Kế toán (Forensic Audit)</span>
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">RED FLAGS</span>
+                </div>
+                <ul class="bullet-list" style="margin-bottom: 16px;">
+                    <li style='color: #f87171;'>⚠️ CFO thấp hơn nhiều so với LNST (Tỷ lệ 0.58x), tiền bị giam ở công nợ hoặc hàng tồn kho.</li>
+                </ul>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Chỉ tiêu Dòng tiền</th>
+                                <th style="text-align: right;">Giá trị (VND)</th>
+                                <th>Đánh giá</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tiền kinh doanh thật (CFO TTM)</td>
+                                <td style="text-align: right; font-weight: 700; color: #34d399;">5,738,793,943,109 đ</td>
+                                <td style="font-size: 0.8rem; color: #94a3b8;">Tiền mặt về từ bán hàng</td>
+                            </tr>
+                            <tr>
+                                <td>Chi tiêu mua sắm TSCĐ (CapEx TTM)</td>
+                                <td style="text-align: right; color: #f87171;">1,116,103,777,562 đ</td>
+                                <td style="font-size: 0.8rem; color: #94a3b8;">Đầu tư mở rộng sản xuất</td>
+                            </tr>
+                            <tr>
+                                <td>Dòng tiền tự do (FCF TTM)</td>
+                                <td style="text-align: right; font-weight: 700; color: #34d399;">4,622,690,165,547 đ</td>
+                                <td style="font-size: 0.8rem; color: #94a3b8;">Tự chủ tài chính sau CapEx</td>
+                            </tr>
+                            <tr>
+                                <td>Lợi nhuận sau thuế (LNST TTM)</td>
+                                <td style="text-align: right; color: #38bdf8;">9,856,625,258,642 đ</td>
+                                <td style="font-size: 0.8rem; color: #94a3b8;">Lợi nhuận sổ sách kế toán</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. TẦNG 3: ĐỊNH GIÁ KHỐI TÀI SẢN & BÓC TÁCH MÔ HÌNH KINH DOANH -->
+        <div class="section-title">💎 TẦNG 3: ĐỊNH GIÁ KHỐI TÀI SẢN & MÔ HÌNH KINH DOANH CỐT LÕI</div>
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <span>Bóc tách Mô hình Hoạt động Phân khúc (Core Business Breakdown)</span>
+                <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">SEGMENTS</span>
+            </div>
+            <div style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 14px;">
+                <b>Tóm tắt mô hình:</b> Bán lẻ chuỗi đa mô hình: Thế Giới Di Động (ICT), Điện Máy Xanh (CE), Bách Hóa Xanh (thực phẩm thiết yếu), An Khang (dược phẩm) và EraBlue (Indonesia).
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mảng kinh doanh</th>
+                            <th style="text-align: right;">% Doanh thu</th>
+                            <th style="text-align: right;">% LN Gộp</th>
+                            <th style="text-align: right;">Biên lãi gộp</th>
+                            <th>Vai trò chiến lược</th>
+                            <th>Triển vọng & Rủi ro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr>
+            <td style="font-weight: 600; color: #f1f5f9;">Thế Giới Di Động & Điện Máy Xanh</td>
+            <td style="text-align: right; color: #38bdf8;">68.0%</td>
+            <td style="text-align: right; color: #34d399;">78.0%</td>
+            <td style="text-align: right; color: #fbbf24;">23.5%</td>
+            <td><span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4);">Trụ cột lợi nhuận & Dòng tiền</span></td>
+            <td style="font-size: 0.82rem; color: #94a3b8;">Thị phần số 1 Việt Nam về điện thoại và điện máy; đóng các cửa hàng kém hiệu quả để tối đa hóa biên lãi ròng.</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600; color: #f1f5f9;">Chuỗi Bách Hóa Xanh (Bán lẻ thực phẩm & FMCG)</td>
+            <td style="text-align: right; color: #38bdf8;">29.0%</td>
+            <td style="text-align: right; color: #34d399;">20.0%</td>
+            <td style="text-align: right; color: #fbbf24;">26.0%</td>
+            <td><span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4);">Ngôi sao tăng trưởng tương lai</span></td>
+            <td style="font-size: 0.82rem; color: #94a3b8;">Doanh thu/cửa hàng đạt trên 1.8 - 2.0 tỷ/tháng, chính thức đem lại lợi nhuận hoạt động dương từ 2024-2025.</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600; color: #f1f5f9;">Chuỗi Nhà thuốc An Khang & EraBlue (Indonesia)</td>
+            <td style="text-align: right; color: #38bdf8;">3.0%</td>
+            <td style="text-align: right; color: #34d399;">2.0%</td>
+            <td style="text-align: right; color: #fbbf24;">18.0%</td>
+            <td><span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4);">Thử nghiệm tiềm năng</span></td>
+            <td style="font-size: 0.82rem; color: #94a3b8;">EraBlue tại Indonesia đang nhân rộng nhanh với mô hình hiệu quả.</td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-grid-2">
+            <!-- Định giá theo khối tài sản -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Định giá Tài sản ròng & Radar Thao túng</span>
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f59e0b;">CẤP 3/5</span>
+                </div>
+                <div style="font-size: 1.05rem; font-weight: 700; color: #f59e0b; margin-bottom: 4px;">ĐỊNH GIÁ CAO (VALUATION PREMIUM)</div>
+                <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px;">Lành mạnh</div>
+
+                <div class="table-responsive">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td style="color: var(--text-muted);">Giá trị sổ sách (BVPS)</td>
+                                <td style="text-align: right; font-weight: 700; color: #fff;">24,633 đ/CP</td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">Hệ số Định giá P/B</td>
+                                <td style="text-align: right; font-weight: 700; color: #fbbf24;">3.08x</td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">Chiết khấu / Thặng dư tài sản</td>
+                                <td style="text-align: right; font-weight: 700; color: #f87171;">-208.1%</td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">Tài sản đọng vốn (Phải thu + Tồn kho)</td>
+                                <td style="text-align: right; color: #94a3b8;">31.7% Tổng tài sản</td>
+                            </tr>
+                            <tr>
+                                <td style="color: var(--text-muted);">Bộ đệm Tiền mặt & Tiền gửi</td>
+                                <td style="text-align: right; color: #34d399;">48.0% Tổng tài sản</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quản trị G-Score & Cổ đông -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Quản trị Doanh nghiệp & Cổ đông</span>
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #10b981;">G-SCORE 90/100</span>
+                </div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 8px;">
+                    <b>Cơ cấu sở hữu:</b> Sở hữu đan xen Công ty riêng & Trôi nổi cao (Complex Insider Shell)<br>
+                    Trôi nổi: <b style="color: #38bdf8;">75.0%</b> | Khối ngoại: <b style="color: #34d399;">49.0%</b> | Nhà nước: <b style="color: #fbbf24;">0.0%</b>
+                </div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 12px;">
+                    <b>Cam kết Lãnh đạo (Skin in the game):</b> 3.22% (THẤP)<br>
+                    <b>Radar Tăng vốn ảo & Trái phiếu:</b> <span style="color: #34d399;">MINH BẠCH / KHÔNG CÓ DẤU HIỆU LUÂN CHUYỂN VỐN BẤT THƯỜNG</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Top Cổ đông lớn</th>
+                                <th style="text-align: right;">Tỷ lệ</th>
+                                <th style="text-align: right;">Số lượng CP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty TNHH Tư Vấn Đầu Tư Thế Giới Bán Lẻ</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">10.38%</td>
+            <td style="text-align: right; color: #94a3b8;">153,375,288 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Vietnam Enterprise Investments Limited</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">4.96%</td>
+            <td style="text-align: right; color: #94a3b8;">29,262,420 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Arisaig Asia Fund Limited</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">3.45%</td>
+            <td style="text-align: right; color: #94a3b8;">50,461,588 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Nguyễn Đức Tài</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">2.26%</td>
+            <td style="text-align: right; color: #94a3b8;">33,439,892 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Đinh Anh Huân</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">2.22%</td>
+            <td style="text-align: right; color: #94a3b8;">3,108,121 CP</td>
+        </tr>
+        
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. TẦNG 4: KỸ THUẬT CHART & DÒNG TIỀN (TA & VSA) -->
+        <div class="section-title">📈 TẦNG 4: KỸ THUẬT & DÒNG TIỀN LỚN (TA & WYCKOFF VSA)</div>
+        <div class="card-grid-3">
+            <div class="card">
+                <div class="card-header">
+                    <span>O'Neil CANSLIM & Breakout</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">TREND TEMPLATE</span>
+                </div>
+                <div style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 6px;">
+                    Volume: <b style="color: #38bdf8;">0.94x MA20</b>
+                </div>
+                <p style="font-size: 0.85rem; color: #94a3b8;">
+                    Giá đang vận động tích lũy trong nền giá.
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>Wyckoff VSA (Dòng tiền Thông minh)</span>
+                    <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">PHA PHA DAO ĐỘNG TÍCH LŨY (CONSOLIDATION)</span>
+                </div>
+                <div style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 6px;">
+                    RSI 14: <b style="color: #fbbf24;">74.0</b>
+                </div>
+                <p style="font-size: 0.85rem; color: #94a3b8;">
+                    Thị trường dao động hẹp, lực cung cầu đang trong trạng thái cân bằng.
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>Khung Xu hướng Trung hạn</span>
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">MOVING AVERAGES</span>
+                </div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.8;">
+                    EMA 20: <b>73,174 đ</b><br>
+                    EMA 50: <b>72,718 đ</b><br>
+                    Hỗ trợ 20 phiên: <b>67,700 đ</b>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. TẦNG 5: HỘI ĐỒNG PHẢN BIỆN AI ĐA TRƯỜNG PHÁI -->
+        <div class="section-title">🏛️ TẦNG 5: HỘI ĐỒNG PHẢN BIỆN AI ĐA TRƯỜNG PHÁI</div>
+        <div class="card" style="padding: 24px;">
+            <div style="font-size: 0.95rem; line-height: 1.7; color: #cbd5e1;">
+                <h4 style="color: #38bdf8; margin: 18px 0 8px 0;">1. 🌐 Góc nhìn Vĩ mô & Chu kỳ Ngành (Ray Dalio & Howard Marks)
+* **Ngành nghề:** **Bán lẻ & Tiêu dùng Nội địa** — **Pha chu kỳ:** `Phục hồi tăng tốc (Recovery to Expansion)`
+* **Điểm số Gió xuôi Vĩ mô (Tailwind Score):** **78/100** (TÍCH CỰC (TAILWIND))
+* **Nhận định Cỗ máy Vĩ mô (Ray Dalio):** Theo chu kỳ vĩ mô hiện tại, ngành Bán lẻ & Tiêu dùng Nội địa đang ở pha 'Phục hồi tăng tốc (Recovery to Expansion)'. Môi trường vĩ mô nhìn chung thuận lợi, hỗ trợ hoạt động kinh doanh cốt lõi mở rộng ổn định.
+* **Nhận định Tâm lý & Bẫy Định giá (Howard Marks):** Howard Marks (Tâm lý Chu kỳ & Định giá): Khi ngành ở pha Phục hồi tăng tốc (Recovery to Expansion), thị trường đang phản ánh đúng tốc độ mở rộng. Hãy tập trung vào việc liệu dòng tiền kinh doanh (CFO) có chuyển hóa tương xứng với tốc độ tăng trưởng doanh thu hay không.
+* **Động lực vĩ mô chính:**
+  - Tổng mức bán lẻ hàng hóa và doanh thu dịch vụ tiêu dùng duy trì đà tăng trưởng 8.5 - 9.5% YoY.
+  - Chính sách hỗ trợ tài khóa tiếp tục giảm 2% thuế VAT kích thích sức mua người dân.
+  - Lãi suất cho vay duy trì thấp hỗ trợ tín dụng tiêu dùng hồi phục trở lại.
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">2. 🏛️ Góc nhìn Warren Buffett (Đầu tư Giá trị & Định giá Khối tài sản ròng)
+* **Phán quyết:** **MUA TÍCH SẢN** (Điểm số: 90/100)
+* **Luận điểm cốt lõi về Tài sản & Con hào kinh tế:**
+  - ROE xuất sắc (27.1%), thể hiện lợi thế cạnh tranh con hào kinh tế bền vững.
+  - Cấu trúc tài chính rất an toàn, nợ/vốn chỉ 0.80x.
+  - Định giá hợp lý với P/E 11.4x.
+  - **Khối tài sản ròng thực tế (BVPS):** 24,633 VND/CP. Thị giá hiện tại (75,900 VND) tương ứng P/B **3.08x**.
+  - P/B ở mức cao (3.08x) nhưng được bảo chứng bởi ROE xuất sắc (27.1%).
+  - *Giá trị hợp lý ước tính:* 96,879 VND (Biên an toàn: 21.7%)
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">3. 🔬 Bóc tách Dòng tiền Thật & Kiểm định Kiệt quệ Tài chính (Cash Flow Forensic)
+* **Chất lượng Lợi nhuận:** **Hạng C: TRUNG BÌNH - NGUY CƠ ĐỌNG VỐN**
+  - **Dòng tiền thuần HĐKD (CFO TTM):** `5,738,793,943,109 VND` vs **LNST kế toán (TTM):** `9,856,625,258,642 VND` (Tỷ lệ CFO/LNST: `0.58x`)
+  - **Chi tiêu vốn (CapEx TTM):** `1,116,103,777,562 VND` | **Dòng tiền tự do (FCF):** `4,622,690,165,547 VND`
+  - *Đánh giá FCF:* Dương lớn (4,622,690,165,547 đ). Doanh nghiệp tự chủ tài chính hoàn toàn sau khi đầu tư mở rộng CapEx.
+* **Chỉ số Kiệt quệ Tài chính Altman Z''-Score (Emerging Markets):** **3.84** (VÙNG AN TOÀN CAO (SAFE ZONE))
+  - *Ý nghĩa:* Chỉ số Altman Z''-Score đạt 3.84 (> 2.60). Xác suất phá sản / kiệt quệ tài chính trong 2 năm tới là cực thấp.
+  - ⚠️ CFO thấp hơn nhiều so với LNST (Tỷ lệ 0.58x), tiền bị giam ở công nợ hoặc hàng tồn kho.
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">4. 📈 Góc nhìn Peter Lynch & Bóc tách Hoạt động Cốt lõi (Core Business)
+* **Phán quyết:** **MUA TĂNG TRƯỞNG** (Điểm số: 75/100)
+* **Mô hình hoạt động cốt lõi:** Bán lẻ chuỗi đa mô hình: Thế Giới Di Động (ICT), Điện Máy Xanh (CE), Bách Hóa Xanh (thực phẩm thiết yếu), An Khang (dược phẩm) và EraBlue (Indonesia).
+* **Bóc tách Cơ cấu Phân khúc Kinh doanh (Segment Breakdown):**
+  * **Thế Giới Di Động & Điện Máy Xanh:** Chiếm **68.0% Doanh thu**, đóng góp **78.0% Lợi nhuận gộp** (Biên lãi gộp: `23.5%`).
+    - *Vai trò:* Trụ cột lợi nhuận & Dòng tiền | *Trạng thái:* Tái cấu trúc tối ưu hóa
+    - *Điểm nhấn:* Thị phần số 1 Việt Nam về điện thoại và điện máy; đóng các cửa hàng kém hiệu quả để tối đa hóa biên lãi ròng.
+    - *Rủi ro:* Thị trường ICT bão hòa, chu kỳ đổi máy kéo dài.
+  * **Chuỗi Bách Hóa Xanh (Bán lẻ thực phẩm & FMCG):** Chiếm **29.0% Doanh thu**, đóng góp **20.0% Lợi nhuận gộp** (Biên lãi gộp: `26.0%`).
+    - *Vai trò:* Ngôi sao tăng trưởng tương lai | *Trạng thái:* Đã có lãi & Chuẩn bị mở rộng
+    - *Điểm nhấn:* Doanh thu/cửa hàng đạt trên 1.8 - 2.0 tỷ/tháng, chính thức đem lại lợi nhuận hoạt động dương từ 2024-2025.
+    - *Rủi ro:* Quản lý hao hụt hàng tươi sống và chi phí logistics.
+  * **Chuỗi Nhà thuốc An Khang & EraBlue (Indonesia):** Chiếm **3.0% Doanh thu**, đóng góp **2.0% Lợi nhuận gộp** (Biên lãi gộp: `18.0%`).
+    - *Vai trò:* Thử nghiệm tiềm năng | *Trạng thái:* Thu hẹp để tìm điểm hòa vốn
+    - *Điểm nhấn:* EraBlue tại Indonesia đang nhân rộng nhanh với mô hình hiệu quả.
+    - *Rủi ro:* An Khang đang chịu cạnh tranh lớn từ Long Châu.
+
+* **Chất lượng tăng trưởng & Hệ số PEG:**
+  - Chỉ số PEG đạt chuẩn xuất sắc (0.76 <= 1.0).
+  - Thiếu dữ liệu so sánh tăng trưởng doanh thu/lợi nhuận theo quý.
+  - *Hệ số định giá PEG:* 0.76x
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">5. 🚀 Góc nhìn William O'Neil & Mark Minervini (CANSLIM & Xu hướng giá)
+* **Phán quyết:** **YẾU / KHÔNG MUA** (Điểm số: 40/100)
+* **Luận điểm cốt lõi:**
+  - Giá nằm trong xu hướng tăng mạnh: Giá > EMA20 > EMA50.
+  - Thanh khoản duy trì ở mức bình thường (0.94x MA20).
+  - Giá đang vận động tích lũy trong nền giá dưới kháng cự 77,300.
+  - *Khối lượng giao dịch:* Gấp 0.94x lần mức trung bình 20 phiên
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">6. 📊 Góc nhìn Price Action & Wyckoff VSA (Dòng tiền lớn)
+* **Phán quyết:** **TRUNG LẬP** (Điểm số: 55/100)
+* **Pha chu kỳ thị trường:** Pha Dao động tích lũy (Consolidation)
+* **Luận điểm cốt lõi:**
+  - Thị trường dao động hẹp, lực cung cầu đang trong trạng thái cân bằng.
+  - *Chỉ số RSI 14:* 74.0
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">7. 👥 Bóc tách Quản trị Doanh nghiệp, Cổ đông & Mạng lưới Công ty con (Corporate Governance & Shell Radar)
+* **Điểm Quản trị (G-Score):** **90/100** (QUẢN TRỊ MINH BẠCH & AN TOÀN (EXEMPLARY))
+* **Cơ cấu Sở hữu & Cổ đông:**
+  - **Mô hình:** Sở hữu đan xen Công ty riêng & Trôi nổi cao (Complex Insider Shell)
+  - *Tỷ lệ trôi nổi (Free Float):* `75.0%` | *Khối ngoại:* `49.0%` | *Nhà nước:* `0.0%`
+  - *Đặc điểm:* Lãnh đạo và nhóm cổ đông lớn nắm giữ qua nhiều công ty TNHH cá nhân/liên quan (Vietnam Enterprise Investments Limited, Hanoi Investments Holdings Limited), cổ phiếu trôi nổi ngoài thị trường cao (75.0%).
+  - Cổ đông: **Công ty TNHH Tư Vấn Đầu Tư Thế Giới Bán Lẻ** nắm **10.38%** (153,375,288 CP)
+  - Cổ đông: **Vietnam Enterprise Investments Limited** nắm **4.96%** (29,262,420 CP)
+  - Cổ đông: **Arisaig Asia Fund Limited** nắm **3.45%** (50,461,588 CP)
+  - Cổ đông: **Nguyễn Đức Tài** nắm **2.26%** (33,439,892 CP)
+  - Cổ đông: **Đinh Anh Huân** nắm **2.22%** (3,108,121 CP)
+* **Hội đồng Quản trị & Ban Điều hành:**
+  - **Chủ tịch HĐQT:** Nguyễn Đức Tài (Chủ tịch Hội đồng Quản trị)
+  - **Tổng Giám đốc (CEO):** Vũ Đăng Linh (Thành viên Hội đồng Quản trị/Tổng Giám đốc)
+  - **Mức độ cam kết vốn (Skin in the game):** `3.22%` — THẤP (Ban lãnh đạo chỉ nắm giữ 3.2% vốn điều lệ, mức độ gắn kết tài sản cá nhân với công ty ở mức thấp.)
+* **Mạng lưới Công ty con & Radar Tăng vốn ảo / Trái phiếu hệ sinh thái:**
+  - **Quy mô mạng lưới:** 8 công ty con & 1 công ty liên kết (MẠNG LƯỚI ĐA TẦNG PHỨC TẠP (COMPLEX CONGLOMERATE WEB)).
+  - **Phán quyết Radar:** **MINH BẠCH / KHÔNG CÓ DẤU HIỆU LUÂN CHUYỂN VỐN BẤT THƯỜNG**
+  - Cấu trúc sở hữu và các khoản phải thu ở ngưỡng an toàn của ngành.
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">8. ⚖️ Phán quyết của Chief Risk Officer (Giám đốc Quản trị rủi ro & Radar Thao túng)
+* **TÍN HIỆU THỰC THI:** **THEO DÕI (WATCHLIST)** (Độ đồng thuận: 56/100 điểm)
+* **Radar Phát hiện Thao túng / Bẫy giá trị:** **Cấp độ 3/5: ĐỊNH GIÁ CAO (VALUATION PREMIUM)**
+* **Kiểm định Chất lượng Tài sản:** Lành mạnh
+  - Bộ đệm tiền mặt an toàn (48.0% tổng tài sản, ~50,343,700,128,261 VND).
+* **Kế hoạch hành động cụ thể:**
+  * **Vùng mua khuyến nghị (Buy Zone):** `73,174 - 77,038` VND
+  * **Điểm cắt lỗ nghiêm ngặt (Stop Loss):** `70,587` VND (Chặn lỗ tối đa `-7.0%`)
+  * **Tỷ trọng phân bổ tối đa:** `5.0% NAV` (Nguyên tắc bảo toàn vốn cá nhân)
+  * **Mục tiêu chốt lời 1 (TP1):** `82,731` VND (`+9.0%`)
+  * **Mục tiêu chốt lời 2 (TP2):** `92,598` VND (`+22.0%`)
+  * **Tỷ lệ Risk / Reward (R:R):** `1.29:1` (Đạt chuẩn an toàn vốn)
+
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);">
+            Báo cáo phân tích chiến lược được khởi tạo tự động bởi Hệ thống <b>Vietnam Stock Analyzer</b>.<br>
+            <i>Lưu ý: Báo cáo mang tính chất tham mưu hỗ trợ quyết định dựa trên mô hình toán học và BCTC độc lập, không phải cam kết sinh lời hay lời mời chào mua bán.</i>
+        </div>
+
+    </div>
+
+    <!-- Script Chart.js -->
+    <script>
+        const ctx = document.getElementById('cashFlowChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["2025-Q3", "2025-Q4", "2026-Q1", "2026-Q2"],
+                datasets: [
+                    {
+                        label: 'LNST Kế toán (Tỷ đ)',
+                        data: [1770.9, 2068.7, 2714.4, 3302.5],
+                        backgroundColor: 'rgba(56, 189, 248, 0.7)',
+                        borderColor: '#38bdf8',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Tiền HĐKD thật - CFO (Tỷ đ)',
+                        data: [2775.8, -611.9, 1193.3, 2381.6],
+                        backgroundColor: 'rgba(52, 211, 153, 0.7)',
+                        borderColor: '#34d399',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        type: 'line',
+                        label: 'Dòng tiền tự do - FCF (Tỷ đ)',
+                        data: [2656.1, -961.6, 843.1, 2085.1],
+                        borderColor: '#fbbf24',
+                        backgroundColor: '#fbbf24',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#94a3b8',
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', font: { size: 11 } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

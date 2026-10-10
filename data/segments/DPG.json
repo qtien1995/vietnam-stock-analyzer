@@ -1,0 +1,50 @@
+{
+  "company_name": "Công ty Cổ phần Tập đoàn Đạt Phương",
+  "business_model_summary": "Mô hình 'Kiềng ba chân': Xây lắp hạ tầng làm nền tảng quy mô doanh thu, Thủy điện là 'máy in tiền' (biên lãi >60%) tài trợ chi phí vốn, và Bất động sản nghỉ dưỡng tạo lợi nhuận đột biến theo chu kỳ.",
+  "segments": [
+    {
+      "name": "Xây lắp hạ tầng giao thông & Cầu đường",
+      "rev_share_pct": 78.0,
+      "gross_profit_share_pct": 26.0,
+      "gross_margin_pct": 7.5,
+      "role": "Trụ cột doanh thu & Dòng việc",
+      "strategic_role": "SCALE_BASE",
+      "status": "Ổn định",
+      "highlights": "Top đầu nhà thầu cầu đường Việt Nam; Backlog đầu tư công lớn (>9.000 tỷ đồng) đảm bảo khối lượng công việc đến 2027.",
+      "risks": "Biên lợi nhuận mỏng (7-8%), nhạy cảm với biến động giá nguyên vật liệu (cát, thép, đá) và tiến độ giải ngân vốn đầu tư công."
+    },
+    {
+      "name": "Sản xuất & Bán điện thương phẩm (Thủy điện)",
+      "rev_share_pct": 14.5,
+      "gross_profit_share_pct": 52.0,
+      "gross_margin_pct": 62.5,
+      "role": "Con bò sữa tạo tiền mặt (Cash Cow)",
+      "strategic_role": "CASH_COW",
+      "status": "Rất tích cực",
+      "highlights": "Cụm 4 nhà máy thủy điện (Sơn Trà 1A, 1B, 1C tổng 69MW và Sông Bung 6 30MW). Biên lãi gộp vượt trội (>60%), mang lại dòng tiền ròng 300-400 tỷ/năm ổn định.",
+      "risks": "Phụ thuộc chu kỳ thủy văn (El Nino làm giảm lưu lượng nước về hồ)."
+    },
+    {
+      "name": "Kinh doanh Bất động sản Khu đô thị",
+      "rev_share_pct": 6.0,
+      "gross_profit_share_pct": 19.5,
+      "gross_margin_pct": 45.0,
+      "role": "Ngòi nổ lợi nhuận đột biến (Catalyst)",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Chờ điểm rơi bàn giao",
+      "highlights": "Quỹ đất giá vốn sạch tại Hội An: Casamia Võng Nhi, Casamia Calm, trọng điểm là Casamia Balanca Cồn Tiến (31ha, tổng mức đầu tư nghìn tỷ). Biên lãi gộp 40-50%.",
+      "risks": "Tiến độ định giá tiền sử dụng đất bổ sung và sức mua thị trường BĐS nghỉ dưỡng miền Trung phục hồi chậm."
+    },
+    {
+      "name": "Sản xuất Công nghiệp & Dịch vụ Khách sạn",
+      "rev_share_pct": 1.5,
+      "gross_profit_share_pct": 2.5,
+      "gross_margin_pct": 25.0,
+      "role": "Động lực tương lai (Future Horizon)",
+      "strategic_role": "FUTURE_BET",
+      "status": "Đang đầu tư",
+      "highlights": "Dự án Nhà máy kính hoa siêu trắng Chu Lai (phục vụ pin năng lượng mặt trời) và quy hoạch quần thể nghỉ dưỡng Bình Dương (sân golf 18 lỗ).",
+      "risks": "Đòi hỏi CapEx ban đầu lớn, cần thời gian chạy thử nghiệm và nghiệm thu thị trường."
+    }
+  ]
+}

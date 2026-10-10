@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hội Đồng Tham Mưu: TOP 5 Cổ Phiếu Tinh Hoa TTCK Việt Nam</title>
+    <!-- Google Fonts & Tailwind CDN & Chart.js -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0a0e17',
+                            card: '#111827',
+                            border: '#1f293d',
+                            accent: '#3b82f6',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            cyan: '#06b6d4',
+                            purple: '#8b5cf6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #080d16;
+            color: #e2e8f0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .neon-glow-blue {
+            box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.25);
+        }
+        .neon-glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.15));
+            border-color: #3b82f6;
+            color: #60a5fa;
+            font-weight: 700;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b111e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #233554;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-6 lg:p-8 min-h-screen">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- HEADER BANNER -->
+        <header class="glass-panel rounded-2xl p-6 sm:p-8 neon-glow-blue border-t-2 border-t-blue-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        Full-Market Forensic Audit 2026
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+                        HỘI ĐỒNG THAM MƯU: <span class="bg-gradient-to-r from-blue-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">TOP 5 CỔ PHIẾU TINH HOA</span>
+                    </h1>
+                    <p class="text-slate-400 text-sm sm:text-base mt-1 max-w-3xl">
+                        Bóc tách định lượng toàn diện trên 1.500+ mã niêm yết: FA vững mạnh &bull; Định giá chiết khấu sâu &bull; Bảo trợ Vĩ mô &bull; Ban Lãnh đạo chuẩn mực &bull; Dòng tiền bảo toàn vốn.
+                    </p>
+                </div>
+                <div class="flex flex-col items-end text-xs font-mono text-slate-400 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <div>Ngày dữ liệu: <span class="text-blue-400 font-semibold">10/10/2026</span></div>
+                    <div>BCTC kiểm toán: <span class="text-emerald-400 font-semibold">TTM Q2 Gần nhất</span></div>
+                    <div>Trạng thái: <span class="text-amber-400 font-semibold">Tự động hoá Đa AI</span></div>
+                </div>
+            </div>
+
+            <!-- KEY PILLARS BADGES -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-800/80">
+                <div class="glass-card p-3 rounded-xl">
+                    <div class="text-xs text-slate-400">Tiêu chí 1</div>
+                    <div class="text-sm font-semibold text-emerald-400 mt-0.5">Sức khỏe FA & CFO Dương</div>
+                </div>
+                <div class="glass-card p-3 rounded-xl">
+                    <div class="text-xs text-slate-400">Tiêu chí 2</div>
+                    <div class="text-sm font-semibold text-blue-400 mt-0.5">Biên An Toàn &gt; 30% - 50%</div>
+                </div>
+                <div class="glass-card p-3 rounded-xl">
+                    <div class="text-xs text-slate-400">Tiêu chí 3</div>
+                    <div class="text-sm font-semibold text-purple-400 mt-0.5">Gió xuôi Vĩ mô & Ngành</div>
+                </div>
+                <div class="glass-card p-3 rounded-xl">
+                    <div class="text-xs text-slate-400">Tiêu chí 4</div>
+                    <div class="text-sm font-semibold text-amber-400 mt-0.5">Quản trị & Lãnh đạo Sạch</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- NAVIGATION TABS -->
+        <nav class="flex flex-wrap gap-2 p-1.5 glass-panel rounded-xl text-sm font-medium">
+            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="tab-btn active px-4 py-2.5 rounded-lg border border-transparent transition-all flex items-center gap-2">
+                <span>📊</span> Tổng quan Ma trận & Phân bổ
+            </button>
+            <button onclick="switchTab('hpg')" id="btn-tab-hpg" class="tab-btn px-4 py-2.5 rounded-lg border border-transparent transition-all flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-400"></span> HPG (Thép Hòa Phát)
+            </button>
+            <button onclick="switchTab('idc')" id="btn-tab-idc" class="tab-btn px-4 py-2.5 rounded-lg border border-transparent transition-all flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> IDC (IDICO KCN)
+            </button>
+            <button onclick="switchTab('mbb')" id="btn-tab-mbb" class="tab-btn px-4 py-2.5 rounded-lg border border-transparent transition-all flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> MBB (Ngân hàng Quân Đội)
+            </button>
+            <button onclick="switchTab('hah')" id="btn-tab-hah" class="tab-btn px-4 py-2.5 rounded-lg border border-transparent transition-all flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-amber-400"></span> HAH (Vận tải Hải An)
+            </button>
+            <button onclick="switchTab('pvs')" id="btn-tab-pvs" class="tab-btn px-4 py-2.5 rounded-lg border border-transparent transition-all flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-purple-400"></span> PVS (Kỹ thuật Dầu khí)
+            </button>
+        </nav>
+
+        <!-- TAB 1: DASHBOARD MATRIX & ALLOCATION -->
+        <div id="tab-dashboard" class="tab-content active space-y-6">
+
+            <!-- COMPARISON MATRIX TABLE -->
+            <div class="glass-panel rounded-2xl p-5 sm:p-6 overflow-hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                        <span class="text-blue-400">⚡</span> BẢNG ĐỐI SOÁT ĐỊNH LƯỢNG 5 CỔ PHIẾU XUẤT SẮC NHẤT
+                    </h2>
+                    <span class="text-xs font-mono text-slate-400 bg-slate-800 px-2.5 py-1 rounded-md">Khuyến nghị Tích sản & Lướt sóng</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-slate-900/80 text-slate-300 font-semibold uppercase font-mono border-b border-slate-800">
+                            <tr>
+                                <th class="p-3">Mã CP</th>
+                                <th class="p-3">Ngành nghề</th>
+                                <th class="p-3 text-right">Giá Khớp</th>
+                                <th class="p-3 text-center">P/E</th>
+                                <th class="p-3 text-center">P/B</th>
+                                <th class="p-3 text-center">ROE</th>
+                                <th class="p-3 text-right">CFO TTM (Tỷ đ)</th>
+                                <th class="p-3 text-center">Biên An Toàn</th>
+                                <th class="p-3 text-center">Khuyến nghị</th>
+                                <th class="p-3 text-center">Vùng Mua Gom</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 font-mono">
+                            <tr class="hover:bg-slate-800/30 transition-colors">
+                                <td class="p-3 font-bold text-blue-400 flex items-center gap-1.5 font-sans">
+                                    <span class="w-2 h-2 rounded-full bg-blue-400"></span> HPG (HOSE)
+                                </td>
+                                <td class="p-3 font-sans text-slate-300">Thép & Công nghiệp nặng</td>
+                                <td class="p-3 text-right font-bold text-white">20.100 đ</td>
+                                <td class="p-3 text-center text-slate-300">5.8x</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold">1.20x</td>
+                                <td class="p-3 text-center text-emerald-400">16.4%</td>
+                                <td class="p-3 text-right text-emerald-400 font-bold">+29.500</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold bg-emerald-500/10 rounded">49.6%</td>
+                                <td class="p-3 text-center font-sans font-bold text-amber-400">MUA DẦN</td>
+                                <td class="p-3 text-center text-slate-200">19.600 - 20.400</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition-colors">
+                                <td class="p-3 font-bold text-emerald-400 flex items-center gap-1.5 font-sans">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> IDC (HOSE)
+                                </td>
+                                <td class="p-3 font-sans text-slate-300">BĐS Khu công nghiệp</td>
+                                <td class="p-3 text-right font-bold text-white">35.500 đ</td>
+                                <td class="p-3 text-center text-slate-300">6.1x</td>
+                                <td class="p-3 text-center text-slate-300">1.68x</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold">24.6%</td>
+                                <td class="p-3 text-right text-emerald-400 font-bold">+2.507</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold bg-emerald-500/10 rounded">52.9%</td>
+                                <td class="p-3 text-center font-sans font-bold text-emerald-400">MUA THĂM DÒ</td>
+                                <td class="p-3 text-center text-slate-200">33.700 - 35.500</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition-colors">
+                                <td class="p-3 font-bold text-cyan-400 flex items-center gap-1.5 font-sans">
+                                    <span class="w-2 h-2 rounded-full bg-cyan-400"></span> MBB (HOSE)
+                                </td>
+                                <td class="p-3 font-sans text-slate-300">Ngân hàng Thương mại</td>
+                                <td class="p-3 text-right font-bold text-white">19.050 đ</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold">5.2x</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold">1.22x</td>
+                                <td class="p-3 text-center text-emerald-400">19.2%</td>
+                                <td class="p-3 text-right text-emerald-400 font-bold">+44.225</td>
+                                <td class="p-3 text-center text-cyan-400 font-bold bg-cyan-500/10 rounded">19.6%</td>
+                                <td class="p-3 text-center font-sans font-bold text-cyan-400">MUA GOM</td>
+                                <td class="p-3 text-center text-slate-200">18.600 - 19.300</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition-colors">
+                                <td class="p-3 font-bold text-amber-400 flex items-center gap-1.5 font-sans">
+                                    <span class="w-2 h-2 rounded-full bg-amber-400"></span> HAH (HOSE)
+                                </td>
+                                <td class="p-3 font-sans text-slate-300">Vận tải biển & Cảng</td>
+                                <td class="p-3 text-right font-bold text-white">50.300 đ</td>
+                                <td class="p-3 text-center text-slate-300">6.8x</td>
+                                <td class="p-3 text-center text-slate-300">1.58x</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold">21.1%</td>
+                                <td class="p-3 text-right text-emerald-400 font-bold">+1.821</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold bg-emerald-500/10 rounded">48.1%</td>
+                                <td class="p-3 text-center font-sans font-bold text-emerald-400">MUA THĂM DÒ</td>
+                                <td class="p-3 text-center text-slate-200">49.000 - 51.000</td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/30 transition-colors">
+                                <td class="p-3 font-bold text-purple-400 flex items-center gap-1.5 font-sans">
+                                    <span class="w-2 h-2 rounded-full bg-purple-400"></span> PVS (HNX)
+                                </td>
+                                <td class="p-3 font-sans text-slate-300">Kỹ thuật Dầu khí & Điện gió</td>
+                                <td class="p-3 text-right font-bold text-white">33.900 đ</td>
+                                <td class="p-3 text-center text-slate-300">13.5x</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold">1.25x</td>
+                                <td class="p-3 text-center text-slate-300">12.6%</td>
+                                <td class="p-3 text-right text-emerald-400 font-bold">+1.175</td>
+                                <td class="p-3 text-center text-emerald-400 font-bold bg-emerald-500/10 rounded">31.9%</td>
+                                <td class="p-3 text-center font-sans font-bold text-purple-400">MUA THEO TREND</td>
+                                <td class="p-3 text-center text-slate-200">33.200 - 34.400</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CHARTS SECTION: ALLOCATION & VALUATION GAP -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- CHART 1: PORTFOLIO ALLOCATION PIE -->
+                <div class="glass-panel rounded-2xl p-5 sm:p-6">
+                    <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                        <span>🎯</span> Chiến Lược Phân Bổ Tối Ưu (100% NAV)
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Cân bằng đa ngành: Công nghiệp &bull; BĐS KCN &bull; Tài chính &bull; Vận tải &bull; Năng lượng.</p>
+                    <div class="h-64 sm:h-72 flex items-center justify-center">
+                        <canvas id="allocationChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- CHART 2: FAIR VALUE VS CURRENT PRICE -->
+                <div class="glass-panel rounded-2xl p-5 sm:p-6">
+                    <h3 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                        <span>🏷️</span> Thị Giá Hiện Tại vs Giá Trị Hợp Lý Ước Tính (VND)
+                    </h3>
+                    <p class="text-xs text-slate-400 mb-4">Mức độ chiết khấu biên an toàn (Margin of Safety) của 5 mã.</p>
+                    <div class="h-64 sm:h-72 flex items-center justify-center">
+                        <canvas id="valuationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXECUTIVE SUMMARY CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="glass-panel rounded-xl p-4 border-l-4 border-l-blue-500">
+                    <div class="text-xs font-mono uppercase text-blue-400">1. Trụ Cột Nền Tảng (Anchor)</div>
+                    <div class="text-base font-bold text-white mt-1">HPG & IDC (50% Tổng Vốn)</div>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                        HPG là vua sản xuất chi phí thấp sẵn sàng bùng nổ khi Dung Quất 2 chạy. IDC là cỗ máy tạo tiền mặt đều đặn từ cho thuê đất KCN và trả cổ tức tiền mặt 30-40%.
+                    </p>
+                </div>
+                <div class="glass-panel rounded-xl p-4 border-l-4 border-l-cyan-500">
+                    <div class="text-xs font-mono uppercase text-cyan-400">2. Đệm Phòng Thủ Định Giá Rẻ</div>
+                    <div class="text-base font-bold text-white mt-1">MBB (20% Tổng Vốn)</div>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                        P/B tiệm cận 1.2x và P/E chỉ ~5.2x đối với một ngân hàng tư nhân có ROE ~19-20% và CASA top 1 là mức định giá quá hời, RSI đang ở đáy quá bán ngắn hạn.
+                    </p>
+                </div>
+                <div class="glass-panel rounded-xl p-4 border-l-4 border-l-purple-500">
+                    <div class="text-xs font-mono uppercase text-purple-400">3. Động Lực Bứt Phá (Catalysts)</div>
+                    <div class="text-base font-bold text-white mt-1">HAH & PVS (30% Tổng Vốn)</div>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                        HAH hưởng lợi cước vận tải biển neo cao và mở rộng 40% công suất đội tàu. PVS ngập trong 17.300 tỷ tiền mặt và ôm trọn Backlog Lô B Ô Môn + Điện gió tỷ USD.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: HPG DETAILS -->
+        <div id="tab-hpg" class="tab-content space-y-6">
+            <div class="glass-panel rounded-2xl p-6 border-t-2 border-t-blue-500">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-5">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-semibold mb-2">
+                            HOSE: HPG &bull; Thép & Công nghiệp nặng
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">CTCP TẬP ĐOÀN HÒA PHÁT</h2>
+                        <p class="text-sm text-slate-400">Doanh nghiệp sản xuất thép tích hợp khép kín lớn nhất Đông Nam Á, thị phần số 1 Việt Nam.</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-400 font-mono">Thị giá hiện tại</div>
+                        <div class="text-3xl font-black font-mono text-white">20.100 <span class="text-sm font-sans font-normal text-slate-400">VND</span></div>
+                        <div class="text-xs font-semibold text-emerald-400 mt-0.5">Biên an toàn MoS: 49.6% (Giá trị thực: 39.870 đ)</div>
+                    </div>
+                </div>
+
+                <!-- KEY METRICS CARDS -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 my-5">
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/E TTM</div>
+                        <div class="text-lg font-bold font-mono text-white">5.8x</div>
+                        <div class="text-xs text-emerald-400">Rất rẻ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/B</div>
+                        <div class="text-lg font-bold font-mono text-blue-400">1.20x</div>
+                        <div class="text-xs text-slate-400">BVPS: 16.761 đ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">ROE (TTM)</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">16.4%</div>
+                        <div class="text-xs text-slate-400">Đạt chuẩn Buffett</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Dòng tiền CFO</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">+29.500 Tỷ</div>
+                        <div class="text-xs text-emerald-400">Hạng A Xuất sắc</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Đòn bẩy D/E</div>
+                        <div class="text-lg font-bold font-mono text-amber-400">0.70x</div>
+                        <div class="text-xs text-slate-400">Tiền mặt: 37.256 Tỷ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Altman Z''</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">2.72</div>
+                        <div class="text-xs text-emerald-400">Vùng An Toàn</div>
+                    </div>
+                </div>
+
+                <!-- COUNCIL 5 SCHOOLS GRID -->
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">🏛️ Hội đồng Phản biện 5 Trường phái</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-emerald-500">
+                        <div class="text-xs font-bold text-emerald-400">GIÁ TRỊ (GRAHAM - BUFFETT)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Moat cực lớn nhờ quy mô khép kín và cảng nước sâu giúp chi phí sản xuất thấp nhất ngành. Tiền mặt 37.256 tỷ VND là tấm đệm hoàn hảo.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-blue-500">
+                        <div class="text-xs font-bold text-blue-400">TĂNG TRƯỞNG (LYNCH - O'NEIL)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Dung Quất 2 (85.000 tỷ) tăng công suất từ 8.5 lên hơn 14 triệu tấn/năm (+65%). Đây là ngòi nổ EPS tăng trưởng đột biến giai đoạn 2025-2027.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-amber-500">
+                        <div class="text-xs font-bold text-amber-400">KỸ THUẬT (DOW - MINERVINI)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            RSI(14) = 27.3 ở vùng quá bán sâu. Giá ép sát đáy trung hạn 19.500 - 20.000 đ. Vùng gom an toàn cho người mua dài hạn, chưa nổ vol đảo chiều.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-purple-500">
+                        <div class="text-xs font-bold text-purple-400">VĨ MÔ & CHU KỲ (DALIO - MARKS)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Đầu tư công giải ngân kỷ lục; Thuế chống bán phá giá HRC từ Trung Quốc bảo vệ trực tiếp biên lợi nhuận của Hòa Phát.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-rose-500 col-span-1 md:col-span-2">
+                        <div class="text-xs font-bold text-rose-400">RỦI RO & PHẢN BIỆN (MARKS - TALEB)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Rủi ro giá thép thế giới giảm nếu bất động sản Trung Quốc đóng băng kéo dài. Điều kiện mất hiệu lực: Biên lãi gộp tụt xuống dưới 8% hoặc thủng mốc 18.900 đ.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TRADE PLAN BOX -->
+                <div class="bg-gradient-to-r from-blue-900/30 via-slate-900/40 to-slate-900/30 p-4 sm:p-5 rounded-xl border border-blue-500/30">
+                    <h4 class="text-sm font-bold text-blue-400 uppercase tracking-wider mb-3">🎯 Kế Hoạch Giải Ngân & Quản Trị Rủi Ro HPG</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+                        <div>
+                            <span class="text-slate-400">Vùng Mua Gom:</span>
+                            <div class="text-sm font-bold text-white mt-0.5">19.600 - 20.400 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Cắt Lỗ Nghiêm Ngặt:</span>
+                            <div class="text-sm font-bold text-rose-400 mt-0.5">18.900 đ (-5.9%)</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Mục Tiêu TP1 / TP2:</span>
+                            <div class="text-sm font-bold text-emerald-400 mt-0.5">22.500 đ / 25.500 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Tỷ Trọng Khuyến Nghị:</span>
+                            <div class="text-sm font-bold text-blue-400 mt-0.5">25% - 30% NAV (R:R = 2.7)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GOVERNANCE & MANAGEMENT -->
+                <div class="mt-4 p-4 rounded-xl glass-card flex items-start gap-3">
+                    <span class="text-xl">🛡️</span>
+                    <div>
+                        <div class="text-xs font-bold text-slate-200">Kiểm toán Ban Lãnh đạo & Cổ đông:</div>
+                        <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                            Chủ tịch Trần Đình Long sở hữu lượng cổ phần trực tiếp lớn, gắn chặt lợi ích lâu dài. Doanh nghiệp nói thật làm thật, minh bạch bậc nhất ngành sản xuất, không dùng công ty sân sau rút ruột.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: IDC DETAILS -->
+        <div id="tab-idc" class="tab-content space-y-6">
+            <div class="glass-panel rounded-2xl p-6 border-t-2 border-t-emerald-500">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-5">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold mb-2">
+                            HOSE: IDC &bull; Bất động sản Khu công nghiệp
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">TỔNG CÔNG TY IDICO - CTCP</h2>
+                        <p class="text-sm text-slate-400">Chủ đầu tư KCN hàng đầu Việt Nam sở hữu quỹ đất sạch hơn 580 ha tại Long An, Bà Rịa - Vũng Tàu, Bắc Ninh.</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-400 font-mono">Thị giá hiện tại</div>
+                        <div class="text-3xl font-black font-mono text-white">35.500 <span class="text-sm font-sans font-normal text-slate-400">VND</span></div>
+                        <div class="text-xs font-semibold text-emerald-400 mt-0.5">Biên an toàn MoS: 52.9% (Giá trị thực: 75.366 đ)</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 my-5">
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/E TTM</div>
+                        <div class="text-lg font-bold font-mono text-white">6.1x</div>
+                        <div class="text-xs text-emerald-400">Ngành: 14x</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/B</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">1.68x</div>
+                        <div class="text-xs text-slate-400">BVPS: 21.153 đ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">ROE (TTM)</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400 font-bold">24.6%</div>
+                        <div class="text-xs text-emerald-400">Đỉnh cao sinh lời</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Tiền mặt ròng</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">+1.911 Tỷ</div>
+                        <div class="text-xs text-emerald-400">Tiền &gt; Tổng nợ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Cổ tức tiền mặt</div>
+                        <div class="text-lg font-bold font-mono text-amber-400">30% - 40%</div>
+                        <div class="text-xs text-amber-400">Yield: 9 - 11%/năm</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Altman Z''</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">4.81</div>
+                        <div class="text-xs text-emerald-400">Siêu an toàn</div>
+                    </div>
+                </div>
+
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">🏛️ Hội đồng Phản biện 5 Trường phái</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-emerald-500">
+                        <div class="text-xs font-bold text-emerald-400">GIÁ TRỊ (GRAHAM - BUFFETT)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            CFO thặng dư +2.507 tỷ VND. Doanh thu chưa thực hiện tiền thuê đất trả trước hàng nghìn tỷ bảo đảm dòng tiền tương lai vững chắc.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-blue-500">
+                        <div class="text-xs font-bold text-blue-400">TĂNG TRƯỞNG (LYNCH - O'NEIL)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            KCN Hựu Thạnh và Phú Mỹ 2 liên tục cho thuê giá cao. Chuẩn bị triển khai đại KCN Tân Phước 1 (Tiền Giang - 470 ha).
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-amber-500">
+                        <div class="text-xs font-bold text-amber-400">KỸ THUẬT (DOW - MINERVINI)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Xu hướng tăng bảo toàn (Giá nằm trên EMA20 và EMA50). RSI tiệm cận 78, khuyến nghị canh nhịp điều chỉnh rung lắc để giải ngân tối ưu.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-purple-500">
+                        <div class="text-xs font-bold text-purple-400">VĨ MÔ & CHU KỲ (DALIO - MARKS)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Dòng vốn FDI vào Việt Nam tăng trưởng bền vững; mảng thủy điện & phân phối điện nội khu là "con bò sữa" tạo tiền phòng thủ.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-rose-500 col-span-1 md:col-span-2">
+                        <div class="text-xs font-bold text-rose-400">RỦI RO & PHẢN BIỆN (MARKS - TALEB)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Rủi ro chậm tiến độ đền bù GPMB tại các KCN mới. Điều kiện mất hiệu lực: Cắt giảm tỷ lệ cổ tức tiền mặt hoặc biến động pháp lý đất đai.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-emerald-900/30 via-slate-900/40 to-slate-900/30 p-4 sm:p-5 rounded-xl border border-emerald-500/30">
+                    <h4 class="text-sm font-bold text-emerald-400 uppercase tracking-wider mb-3">🎯 Kế Hoạch Giải Ngân & Quản Trị Rủi Ro IDC</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+                        <div>
+                            <span class="text-slate-400">Vùng Mua Canh Rung Lắc:</span>
+                            <div class="text-sm font-bold text-white mt-0.5">33.700 - 35.500 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Cắt Lỗ Nghiêm Ngặt:</span>
+                            <div class="text-sm font-bold text-rose-400 mt-0.5">32.500 đ (-6.5%)</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Mục Tiêu TP1 / TP2:</span>
+                            <div class="text-sm font-bold text-emerald-400 mt-0.5">39.800 đ / 44.000 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Tỷ Trọng Khuyến Nghị:</span>
+                            <div class="text-sm font-bold text-emerald-400 mt-0.5">25% NAV (R:R = 2.1)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 rounded-xl glass-card flex items-start gap-3">
+                    <span class="text-xl">🛡️</span>
+                    <div>
+                        <div class="text-xs font-bold text-slate-200">Kiểm toán Ban Lãnh đạo & Cổ đông:</div>
+                        <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                            Ban điều hành tập trung cao độ vào năng lực thi công hạ tầng KCN lõi, minh bạch sòng phẳng với cổ đông qua mức cổ tức tiền mặt 30-40% hàng năm, không vướng nợ trái phiếu rủi ro.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: MBB DETAILS -->
+        <div id="tab-mbb" class="tab-content space-y-6">
+            <div class="glass-panel rounded-2xl p-6 border-t-2 border-t-cyan-500">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-5">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold mb-2">
+                            HOSE: MBB &bull; Ngân hàng Thương mại
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">NGÂN HÀNG TMCP QUÂN ĐỘI</h2>
+                        <p class="text-sm text-slate-400">Ngân hàng có chi phí vốn thấp nhất hệ thống nhờ tỷ lệ tiền gửi không kỳ hạn CASA Top 1.</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-400 font-mono">Thị giá hiện tại</div>
+                        <div class="text-3xl font-black font-mono text-white">19.050 <span class="text-sm font-sans font-normal text-slate-400">VND</span></div>
+                        <div class="text-xs font-semibold text-cyan-400 mt-0.5">Biên an toàn MoS: 19.6% (P/B chỉ 1.22x)</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 my-5">
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/E TTM</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400 font-bold">5.2x</div>
+                        <div class="text-xs text-emerald-400">Siêu rẻ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/B</div>
+                        <div class="text-lg font-bold font-mono text-cyan-400">1.22x</div>
+                        <div class="text-xs text-slate-400">BVPS: 15.569 đ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">ROE (TTM)</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400 font-bold">19.2%</div>
+                        <div class="text-xs text-emerald-400">Top 1 ngành Bank</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">LNST TTM</div>
+                        <div class="text-lg font-bold font-mono text-white">30.078 Tỷ</div>
+                        <div class="text-xs text-slate-400">Tăng trưởng ổn định</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Dòng tiền CFO</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">+44.225 Tỷ</div>
+                        <div class="text-xs text-emerald-400">Thanh khoản khổng lồ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">RSI(14)</div>
+                        <div class="text-lg font-bold font-mono text-rose-400">18.9</div>
+                        <div class="text-xs text-rose-400">Quá bán cực độ</div>
+                    </div>
+                </div>
+
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">🏛️ Hội đồng Phản biện 5 Trường phái</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-emerald-500">
+                        <div class="text-xs font-bold text-emerald-400">GIÁ TRỊ (GRAHAM - BUFFETT)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Định giá P/E 5.2x và P/B 1.22x đối với một ngân hàng sinh lời 19-20% là món hời tài sản hiếm có trên TTCK Việt Nam.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-blue-500">
+                        <div class="text-xs font-bold text-blue-400">TĂNG TRƯỞNG (LYNCH - O'NEIL)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Tăng trưởng tín dụng luôn thuộc top cao nhất ngành (&gt;18-20%). Hơn 28 triệu người dùng số giúp tỷ lệ CIR thấp dưới 30%.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-rose-500">
+                        <div class="text-xs font-bold text-rose-400">KỸ THUẬT (DOW - MINERVINI)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            RSI chạm 18.9 phản ánh hiện tượng bán tháo quá đà của dòng tiền ngắn hạn. Vùng giá 18.600 - 19.300 đ là điểm gom giá trị ngược xu hướng tuyệt vời.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-purple-500">
+                        <div class="text-xs font-bold text-purple-400">VĨ MÔ & CHU KỲ (DALIO - MARKS)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Được NHNN ưu tiên room tín dụng vượt trội nhờ nhận chuyển giao bắt buộc OceanBank; chính sách tiền tệ duy trì nới lỏng hỗ trợ chi phí vốn.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-amber-500 col-span-1 md:col-span-2">
+                        <div class="text-xs font-bold text-amber-400">RỦI RO & PHẢN BIỆN (MARKS - TALEB)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Nợ xấu từ lĩnh vực bất động sản và các dự án năng lượng đòi hỏi trích lập dự phòng thận trọng. Điều kiện mất hiệu lực: Tỷ lệ NPL vượt 2.5%.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-cyan-900/30 via-slate-900/40 to-slate-900/30 p-4 sm:p-5 rounded-xl border border-cyan-500/30">
+                    <h4 class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-3">🎯 Kế Hoạch Giải Ngân & Quản Trị Rủi Ro MBB</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+                        <div>
+                            <span class="text-slate-400">Vùng Mua Bắt Quá Bán:</span>
+                            <div class="text-sm font-bold text-white mt-0.5">18.600 - 19.300 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Cắt Lỗ Nghiêm Ngặt:</span>
+                            <div class="text-sm font-bold text-rose-400 mt-0.5">18.000 đ (-5.5%)</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Mục Tiêu TP1 / TP2:</span>
+                            <div class="text-sm font-bold text-emerald-400 mt-0.5">21.500 đ / 23.500 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Tỷ Trọng Khuyến Nghị:</span>
+                            <div class="text-sm font-bold text-cyan-400 mt-0.5">20% NAV (R:R = 3.16)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 rounded-xl glass-card flex items-start gap-3">
+                    <span class="text-xl">🛡️</span>
+                    <div>
+                        <div class="text-xs font-bold text-slate-200">Kiểm toán Ban Lãnh đạo & Cổ đông:</div>
+                        <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                            Cán bộ quản trị xuất thân kỷ luật quân đội, đề cao thượng tôn pháp luật và quản trị rủi ro an toàn hệ thống, không dính líu đến các sai phạm tài chính hay biến cố thao túng thị trường.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: HAH DETAILS -->
+        <div id="tab-hah" class="tab-content space-y-6">
+            <div class="glass-panel rounded-2xl p-6 border-t-2 border-t-amber-500">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-5">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-semibold mb-2">
+                            HOSE: HAH &bull; Vận tải biển & Xếp dỡ Cảng
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">CTCP VẬN TẢI & XẾP DỠ HẢI AN</h2>
+                        <p class="text-sm text-slate-400">Hãng tàu container nội địa số 1 Việt Nam (chiếm gần 40% thị phần) và mở rộng mạnh mẽ tuyến Nội Á.</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-400 font-mono">Thị giá hiện tại</div>
+                        <div class="text-3xl font-black font-mono text-white">50.300 <span class="text-sm font-sans font-normal text-slate-400">VND</span></div>
+                        <div class="text-xs font-semibold text-emerald-400 mt-0.5">Biên an toàn MoS: 48.1% (Giá trị thực: 96.988 đ)</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 my-5">
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/E TTM</div>
+                        <div class="text-lg font-bold font-mono text-white">6.8x</div>
+                        <div class="text-xs text-emerald-400">Định giá rẻ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/B</div>
+                        <div class="text-lg font-bold font-mono text-amber-400">1.58x</div>
+                        <div class="text-xs text-slate-400">BVPS: 31.784 đ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">ROE (TTM)</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400 font-bold">21.1%</div>
+                        <div class="text-xs text-emerald-400">ROA: 12.5%</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Dòng tiền CFO</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">+1.821 Tỷ</div>
+                        <div class="text-xs text-emerald-400">CFO &gt; LNST</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Đòn bẩy D/E</div>
+                        <div class="text-lg font-bold font-mono text-slate-200">0.44x</div>
+                        <div class="text-xs text-emerald-400">Rất lành mạnh</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Altman Z''</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">3.28</div>
+                        <div class="text-xs text-emerald-400">Vùng An Toàn</div>
+                    </div>
+                </div>
+
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">🏛️ Hội đồng Phản biện 5 Trường phái</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-emerald-500">
+                        <div class="text-xs font-bold text-emerald-400">GIÁ TRỊ (GRAHAM - BUFFETT)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            CFO thặng dư lớn gấp 1.4 lần LNST kế toán; cấu trúc vốn an toàn với nợ vay thấp hơn 50% vốn chủ sở hữu.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-blue-500">
+                        <div class="text-xs font-bold text-blue-400">TĂNG TRƯỞNG (LYNCH - O'NEIL)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Nhận thêm loạt tàu đóng mới nâng quy mô đội tàu lên 15-16 chiếc, mở rộng mạnh mẽ các tuyến Đông Nam Á & liên doanh với ZIM.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-amber-500">
+                        <div class="text-xs font-bold text-amber-400">KỸ THUẬT (DOW - MINERVINI)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Cổ phiếu giữ vững cấu trúc giá kênh trên ($Price &gt; EMA20 &gt; EMA50$), nhịp võng ngắn hạn là điểm mua Pullback lý tưởng.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-purple-500">
+                        <div class="text-xs font-bold text-purple-400">VĨ MÔ & CHU KỲ (DALIO - MARKS)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Giá cước tàu container thế giới neo ở mức cao do xung đột địa chính trị kéo dài hành trình vận tải; kim ngạch xuất nhập khẩu VN tăng tốc.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-rose-500 col-span-1 md:col-span-2">
+                        <div class="text-xs font-bold text-rose-400">RỦI RO & PHẢN BIỆN (MARKS - TALEB)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Rủi ro giá cước vận tải biển hạ nhiệt nhanh nếu các tuyến qua Biển Đỏ được khơi thông. Điều kiện mất hiệu lực: Thủng hỗ trợ 46.800 đ.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-amber-900/30 via-slate-900/40 to-slate-900/30 p-4 sm:p-5 rounded-xl border border-amber-500/30">
+                    <h4 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-3">🎯 Kế Hoạch Giải Ngân & Quản Trị Rủi Ro HAH</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+                        <div>
+                            <span class="text-slate-400">Vùng Mua Kéo Ngược:</span>
+                            <div class="text-sm font-bold text-white mt-0.5">49.000 - 51.000 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Cắt Lỗ Nghiêm Ngặt:</span>
+                            <div class="text-sm font-bold text-rose-400 mt-0.5">46.800 đ (-6.8%)</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Mục Tiêu TP1 / TP2:</span>
+                            <div class="text-sm font-bold text-emerald-400 mt-0.5">56.500 đ / 62.000 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Tỷ Trọng Khuyến Nghị:</span>
+                            <div class="text-sm font-bold text-amber-400 mt-0.5">15% - 20% NAV (R:R = 2.1)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 rounded-xl glass-card flex items-start gap-3">
+                    <span class="text-xl">🛡️</span>
+                    <div>
+                        <div class="text-xs font-bold text-slate-200">Kiểm toán Ban Lãnh đạo & Cổ đông:</div>
+                        <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                            Chủ tịch Vũ Ngọc Sơn là chuyên gia kỳ cựu ngành hàng hải. Ban điều hành quyết định đúng thời điểm mua sắm tàu, không phát tán nguồn lực sang các kênh đầu cơ bên ngoài.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: PVS DETAILS -->
+        <div id="tab-pvs" class="tab-content space-y-6">
+            <div class="glass-panel rounded-2xl p-6 border-t-2 border-t-purple-500">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-5">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold mb-2">
+                            HNX: PVS &bull; Dịch vụ Kỹ thuật Dầu khí & Năng lượng
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">TỔNG CTCP DỊCH VỤ KỸ THUẬT DẦU KHÍ VIỆT NAM</h2>
+                        <p class="text-sm text-slate-400">Nhà thầu EPCI công trình biển dầu khí và chế tạo chân đế điện gió ngoài khơi số 1 Đông Nam Á.</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-400 font-mono">Thị giá hiện tại</div>
+                        <div class="text-3xl font-black font-mono text-white">33.900 <span class="text-sm font-sans font-normal text-slate-400">VND</span></div>
+                        <div class="text-xs font-semibold text-purple-400 mt-0.5">Biên an toàn MoS: 31.9% (Tiền mặt ròng: 15.327 Tỷ)</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 my-5">
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/E TTM</div>
+                        <div class="text-lg font-bold font-mono text-white">13.5x</div>
+                        <div class="text-xs text-slate-400">P/E chu kỳ đầu tư</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">P/B</div>
+                        <div class="text-lg font-bold font-mono text-purple-400">1.25x</div>
+                        <div class="text-xs text-slate-400">BVPS: 27.168 đ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Tiền mặt ròng</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400 font-bold">+15.327 Tỷ</div>
+                        <div class="text-xs text-emerald-400">92% Vốn chủ SH</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Đòn bẩy D/E</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">0.12x</div>
+                        <div class="text-xs text-emerald-400">Gần như không nợ</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Backlog dự án</div>
+                        <div class="text-lg font-bold font-mono text-amber-400">&gt; 4 - 5 Tỷ USD</div>
+                        <div class="text-xs text-amber-400">Lô B & Điện gió</div>
+                    </div>
+                    <div class="glass-card p-3 rounded-xl">
+                        <div class="text-xs text-slate-400">Altman Z''</div>
+                        <div class="text-lg font-bold font-mono text-emerald-400">2.98</div>
+                        <div class="text-xs text-emerald-400">Vùng An Toàn</div>
+                    </div>
+                </div>
+
+                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3">🏛️ Hội đồng Phản biện 5 Trường phái</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-emerald-500">
+                        <div class="text-xs font-bold text-emerald-400">GIÁ TRỊ (GRAHAM - BUFFETT)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Bảng cân đối kế toán phòng thủ tối thượng: Hơn 17.300 tỷ tiền gửi ngân hàng mang lại hàng trăm tỷ lãi gửi đều đặn mỗi năm.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-blue-500">
+                        <div class="text-xs font-bold text-blue-400">TĂNG TRƯỞNG (LYNCH - O'NEIL)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Sở hữu khối lượng công việc Backlog khổng lồ kéo dài tới năm 2028-2030, mở rộng xuất khẩu chân đế điện gió ngoài khơi sang Đài Loan, Ba Lan.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-purple-500">
+                        <div class="text-xs font-bold text-purple-400">KỸ THUẬT (DOW - MINERVINI)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Duy trì xu hướng tăng trung hạn vững vàng ($Price &gt; EMA20 &gt; EMA50$), $RSI14 = 53.9$ ở vùng trung tính tạo đà bứt phá.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-amber-500">
+                        <div class="text-xs font-bold text-amber-400">VĨ MÔ & CHU KỲ (DALIO - MARKS)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Siêu dự án khí điện Lô B - Ô Môn (12 tỷ USD) bước vào giai đoạn tăng tốc thi công trao thầu liên tục; định hướng Net Zero thúc đẩy điện gió.
+                        </p>
+                    </div>
+                    <div class="glass-card p-4 rounded-xl border-l-2 border-l-rose-500 col-span-1 md:col-span-2">
+                        <div class="text-xs font-bold text-rose-400">RỦI RO & PHẢN BIỆN (MARKS - TALEB)</div>
+                        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                            Biến động giá nguyên vật liệu thép thi công EPC; dòng tiền nhận theo tiến độ nghiệm thu dự án. Điều kiện mất hiệu lực: Thủng hỗ trợ 31.500 đ.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-900/30 via-slate-900/40 to-slate-900/30 p-4 sm:p-5 rounded-xl border border-purple-500/30">
+                    <h4 class="text-sm font-bold text-purple-400 uppercase tracking-wider mb-3">🎯 Kế Hoạch Giải Ngân & Quản Trị Rủi Ro PVS</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+                        <div>
+                            <span class="text-slate-400">Vùng Mua Theo Trend:</span>
+                            <div class="text-sm font-bold text-white mt-0.5">33.200 - 34.400 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Cắt Lỗ Nghiêm Ngặt:</span>
+                            <div class="text-sm font-bold text-rose-400 mt-0.5">31.500 đ (-6.8%)</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Mục Tiêu TP1 / TP2:</span>
+                            <div class="text-sm font-bold text-emerald-400 mt-0.5">38.000 đ / 41.000 đ</div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400">Tỷ Trọng Khuyến Nghị:</span>
+                            <div class="text-sm font-bold text-purple-400 mt-0.5">15% - 20% NAV (R:R = 1.71)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 rounded-xl glass-card flex items-start gap-3">
+                    <span class="text-xl">🛡️</span>
+                    <div>
+                        <div class="text-xs font-bold text-slate-200">Kiểm toán Ban Lãnh đạo & Cổ đông:</div>
+                        <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                            Trực thuộc Tập đoàn Dầu khí Việt Nam (PVN), quản trị kỹ trị nghiêm ngặt theo chuẩn mực quốc tế, năng lực đã được khẳng định qua các tập đoàn năng lượng hàng đầu thế giới (Orsted, CIP).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER & LEGAL DISCLAIMER -->
+        <footer class="glass-panel rounded-2xl p-6 text-center text-xs text-slate-400 space-y-2 border-t border-slate-800">
+            <p class="font-semibold text-slate-300">
+                HỆ THỐNG PHÂN TÍCH CHỨNG KHOÁN CỤC BỘ ĐA AI &bull; VIETNAM STOCK ANALYZER
+            </p>
+            <p class="text-slate-400 max-w-4xl mx-auto leading-relaxed">
+                ⚠️ <strong class="text-amber-400">Tuyên bố miễn trừ trách nhiệm pháp lý:</strong> Báo cáo được xây dựng tự động bởi Hội đồng Tham mưu Cục bộ nhằm mục đích hỗ trợ nghiên cứu định lượng độc lập. Mọi số liệu được trích xuất trực tiếp từ Báo cáo Tài chính chính thức và dữ liệu khớp lệnh thị trường. Đây không phải là lời chào mời mua bán chứng khoán hay cam kết lợi nhuận. Nhà đầu tư tự chịu hoàn toàn trách nhiệm đối với quyết định đặt lệnh và quản trị rủi ro vốn của mình.
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- JAVASCRIPT FOR INTERACTIVE TABS & CHARTS -->
+    <script>
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Remove active style from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            // Show selected tab
+            const targetContent = document.getElementById('tab-' + tabId);
+            if (targetContent) targetContent.classList.add('active');
+
+            // Set button active
+            const targetBtn = document.getElementById('btn-tab-' + tabId);
+            if (targetBtn) targetBtn.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize Charts when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Allocation Chart
+            const ctxAlloc = document.getElementById('allocationChart').getContext('2d');
+            new Chart(ctxAlloc, {
+                type: 'doughnut',
+                data: {
+                    labels: ['HPG (25%)', 'IDC (25%)', 'MBB (20%)', 'HAH (15%)', 'PVS (15%)'],
+                    datasets: [{
+                        data: [25, 25, 20, 15, 15],
+                        backgroundColor: [
+                            '#3b82f6', // HPG Blue
+                            '#10b981', // IDC Emerald
+                            '#06b6d4', // MBB Cyan
+                            '#f59e0b', // HAH Amber
+                            '#8b5cf6'  // PVS Purple
+                        ],
+                        borderColor: '#0b111e',
+                        borderWidth: 3,
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#94a3b8',
+                                font: { family: 'Plus Jakarta Sans', size: 11 },
+                                padding: 12
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // 2. Valuation Gap Chart
+            const ctxVal = document.getElementById('valuationChart').getContext('2d');
+            new Chart(ctxVal, {
+                type: 'bar',
+                data: {
+                    labels: ['HPG', 'IDC', 'MBB', 'HAH', 'PVS'],
+                    datasets: [
+                        {
+                            label: 'Thị Giá Khớp Lệnh (VND)',
+                            data: [20100, 35500, 19050, 50300, 33900],
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Giá Trị Thực Ước Tính (VND)',
+                            data: [39870, 75366, 23700, 96988, 49752],
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', weight: 'bold' } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { family: 'JetBrains Mono', size: 10 },
+                                callback: function(value) { return value.toLocaleString() + ' đ'; }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' VND';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

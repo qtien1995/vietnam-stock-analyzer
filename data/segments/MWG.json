@@ -1,0 +1,39 @@
+{
+  "company_name": "Công ty Cổ phần Đầu tư Thế Giới Di Động",
+  "business_model_summary": "Bán lẻ chuỗi đa mô hình: Thế Giới Di Động (ICT), Điện Máy Xanh (CE), Bách Hóa Xanh (thực phẩm thiết yếu), An Khang (dược phẩm) và EraBlue (Indonesia).",
+  "segments": [
+    {
+      "name": "Thế Giới Di Động & Điện Máy Xanh",
+      "rev_share_pct": 68.0,
+      "gross_profit_share_pct": 78.0,
+      "gross_margin_pct": 23.5,
+      "role": "Trụ cột lợi nhuận & Dòng tiền",
+      "strategic_role": "CASH_COW",
+      "status": "Tái cấu trúc tối ưu hóa",
+      "highlights": "Thị phần số 1 Việt Nam về điện thoại và điện máy; đóng các cửa hàng kém hiệu quả để tối đa hóa biên lãi ròng.",
+      "risks": "Thị trường ICT bão hòa, chu kỳ đổi máy kéo dài."
+    },
+    {
+      "name": "Chuỗi Bách Hóa Xanh (Bán lẻ thực phẩm & FMCG)",
+      "rev_share_pct": 29.0,
+      "gross_profit_share_pct": 20.0,
+      "gross_margin_pct": 26.0,
+      "role": "Ngôi sao tăng trưởng tương lai",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Đã có lãi & Chuẩn bị mở rộng",
+      "highlights": "Doanh thu/cửa hàng đạt trên 1.8 - 2.0 tỷ/tháng, chính thức đem lại lợi nhuận hoạt động dương từ 2024-2025.",
+      "risks": "Quản lý hao hụt hàng tươi sống và chi phí logistics."
+    },
+    {
+      "name": "Chuỗi Nhà thuốc An Khang & EraBlue (Indonesia)",
+      "rev_share_pct": 3.0,
+      "gross_profit_share_pct": 2.0,
+      "gross_margin_pct": 18.0,
+      "role": "Thử nghiệm tiềm năng",
+      "strategic_role": "FUTURE_BET",
+      "status": "Thu hẹp để tìm điểm hòa vốn",
+      "highlights": "EraBlue tại Indonesia đang nhân rộng nhanh với mô hình hiệu quả.",
+      "risks": "An Khang đang chịu cạnh tranh lớn từ Long Châu."
+    }
+  ]
+}

@@ -1,41 +1,15 @@
 from typing import Dict, Any, Optional
+from config import FA_WEIGHTS, LEGAL_RISK_TICKERS
 from core.segment_analyzer import analyze_company_segments
 from core.governance_analyzer import analyze_governance_and_ownership
 from core.data_loader import get_governance_data
-
-SECTOR_MAPPING = {
-    "BANK": {
-        "VCB", "BID", "CTG", "MBB", "TCB", "VPB", "ACB", "STB", "HDB", "VIB",
-        "TPB", "SHB", "MSB", "SSB", "LPB", "OCB", "EIB", "NAB", "BVB", "KLB",
-        "PGB", "SGB", "VAB", "NVB"
-    },
-    "SECURITIES": {
-        "SSI", "VND", "VCI", "HCM", "SHS", "MBS", "FTS", "BSI", "CTS", "AGR",
-        "BVS", "ORS", "VDS", "TCI", "APG"
-    },
-    "TECH": {
-        "FPT", "CMG", "FOX", "ELC", "SAM", "ITD", "ICT"
-    },
-    "STEEL_CYCLICAL": {
-        "HPG", "HSG", "NKG", "DGC", "DCM", "DPM", "GVR", "BMP"
-    },
-    "REAL_ESTATE": {
-        "VHM", "VIC", "VRE", "NVL", "KDH", "NLG", "PDR", "DXG", "DIG", "CEO",
-        "KBC", "IDC", "SZC", "HDG", "BCM"
-    },
-    "RETAIL_CONSUMER": {
-        "MWG", "PNJ", "MSN", "VNM", "DGW", "FRT", "SAB", "KDC"
-    }
-}
+from core.macro_engine import analyze_macro_and_sector_cycle, classify_sector
 
 
-def get_sector(symbol: str) -> str:
-    """Xác định ngành nghề đặc thù của cổ phiếu"""
-    sym = symbol.upper().strip()
-    for sec, tickers in SECTOR_MAPPING.items():
-        if sym in tickers:
-            return sec
-    return "GENERAL"
+def get_sector(symbol: str, overview_data: Optional[Dict[str, Any]] = None) -> str:
+    """Xác định ngành nghề đặc thù của cổ phiếu qua bộ lọc động toàn thị trường"""
+    return classify_sector(symbol, overview_data)
+
 
 
 def calculate_piotroski_score(fin: Dict[str, Any]) -> int:
@@ -410,13 +384,14 @@ def evaluate_asset_based_valuation(fin: Dict[str, Any], current_price: float) ->
 
     # Phân biệt MÓN HỜI TÀI SẢN THẬT vs BẪY GIÁ TRỊ (VALUE TRAP)
     # Nếu P/B < 1.0x nhưng tài sản đọng vốn lớn (illiquid > 38%), nợ vay ngập đầu hoặc tiền mặt mỏng
+    sym_code = fin.get("symbol", "").upper().strip()
     is_value_trap = (
         (pb < 1.0 and bvps > 0) and
         (
             illiquid_ratio > 38.0 or 
             debt_to_cash > 4.5 or
             receivables_ratio > 30.0 or
-            fin.get("symbol", "").upper() == "BCG"
+            sym_code in LEGAL_RISK_TICKERS
         )
     )
 
@@ -477,35 +452,156 @@ def evaluate_asset_based_valuation(fin: Dict[str, Any], current_price: float) ->
     }
 
 
+def evaluate_cash_flow_and_forensic(fin: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Bóc tách Báo cáo Lưu chuyển Tiền tệ (Cash Flow Statement), 
+    Chất lượng Lợi nhuận (Earnings Quality) và Mô hình Cảnh báo Kiệt quệ Tài chính Altman Z''-Score:
+    1. Dòng tiền thuần từ HĐKD (CFO TTM) vs Lợi nhuận sau thuế (LNST TTM).
+    2. Chi tiêu vốn (CapEx TTM) & Dòng tiền tự do (FCF TTM = CFO - CapEx).
+    3. Tỷ lệ Chất lượng Lợi nhuận = CFO / LNST.
+    4. Mô hình Altman Z''-Score cho thị trường mới nổi:
+       Z'' = 6.56*X1 + 3.26*X2 + 6.72*X3 + 1.05*X4
+    5. Rà soát Cờ đỏ kế toán (Forensic Accounting Red Flags).
+    """
+    cfo_ttm = fin.get("cfo_ttm") or 0.0
+    capex_ttm = fin.get("capex_ttm") or 0.0
+    fcf_ttm = fin.get("fcf_ttm") or (cfo_ttm - capex_ttm)
+    cfi_ttm = fin.get("cfi_ttm") or 0.0
+    cff_ttm = fin.get("cff_ttm") or 0.0
+    ttm_profit = fin.get("ttm_profit") or 0.0
+    total_assets = fin.get("total_assets") or 0.0
+    total_debt = fin.get("total_debt") or 0.0
+    owners_equity = fin.get("owners_equity") or 0.0
+    retained_earnings = fin.get("retained_earnings") or 0.0
+    working_capital = fin.get("working_capital") or (fin.get("current_assets", 0.0) - (fin.get("short_term_liabilities") or total_debt * 0.6))
+    ebit_ttm = fin.get("ebit_ttm") or (ttm_profit * 1.25)
+    quarterly_cf = fin.get("quarterly_cash_flows", [])
+
+    red_flags = []
+    
+    # 1. Đánh giá chất lượng lợi nhuận (CFO vs Net Profit)
+    earnings_quality_ratio = 1.0
+    if ttm_profit > 0:
+        earnings_quality_ratio = round(cfo_ttm / ttm_profit, 2)
+        if earnings_quality_ratio >= 1.0:
+            quality_grade = "A"
+            quality_verdict = "XUẤT SẮC (DÒNG TIỀN THẬT DỒI DÀO)"
+            quality_desc = f"CFO ({cfo_ttm:,.0f} đ) vượt trội so với LNST ({ttm_profit:,.0f} đ) - Tỷ lệ {earnings_quality_ratio:.2f}x. Tiền mặt thực thu lớn hơn lợi nhuận kế toán."
+        elif earnings_quality_ratio >= 0.7:
+            quality_grade = "B"
+            quality_verdict = "LÀNH MẠNH (ĐẠT CHUẨN)"
+            quality_desc = f"CFO ({cfo_ttm:,.0f} đ) tương đương LNST ({ttm_profit:,.0f} đ) - Tỷ lệ {earnings_quality_ratio:.2f}x. Vòng quay tiền mặt ổn định."
+        elif earnings_quality_ratio >= 0.2:
+            quality_grade = "C"
+            quality_verdict = "TRUNG BÌNH - NGUY CƠ ĐỌNG VỐN"
+            quality_desc = f"CFO ({cfo_ttm:,.0f} đ) thấp hơn nhiều so với LNST ({ttm_profit:,.0f} đ) - Tỷ lệ chỉ {earnings_quality_ratio:.2f}x. Lợi nhuận bị chiếm dụng vốn qua công nợ."
+            red_flags.append(f"CFO thấp hơn nhiều so với LNST (Tỷ lệ {earnings_quality_ratio:.2f}x), tiền bị giam ở công nợ hoặc hàng tồn kho.")
+        else:
+            quality_grade = "D"
+            quality_verdict = "BÁO ĐỘNG ĐỎ: LỢI NHUẬN TRÊN GIẤY!"
+            quality_desc = f"CFO âm hoặc gần bằng 0 ({cfo_ttm:,.0f} đ) trong khi LNST dương ({ttm_profit:,.0f} đ). Doanh nghiệp báo lãi nhưng thực chất không thu được tiền mặt về!"
+            red_flags.append("🚨 BÁO ĐỘNG ĐỎ DÒNG TIỀN: CFO âm nặng trong khi LNST dương. Nguy cơ lợi nhuận ảo trên sổ sách kế toán!")
+    else:
+        quality_grade = "D" if cfo_ttm < 0 else "C"
+        quality_verdict = "DOANH NGHIỆP ĐANG LỖ HOẶC THÂM HỤT TIỀN"
+        quality_desc = f"LNST âm ({ttm_profit:,.0f} đ), CFO ghi nhận {cfo_ttm:,.0f} đ."
+        if cfo_ttm < 0:
+            red_flags.append("Cả CFO và LNST đều âm, doanh nghiệp đang đốt tiền mặt trong hoạt động kinh doanh.")
+
+    # Kiểm tra FCF
+    if fcf_ttm > 0:
+        fcf_verdict = f"Dương lớn ({fcf_ttm:,.0f} đ). Doanh nghiệp tự chủ tài chính hoàn toàn sau khi đầu tư mở rộng CapEx."
+    else:
+        fcf_verdict = f"Âm ({fcf_ttm:,.0f} đ). Nhu cầu vốn đầu tư CapEx ({capex_ttm:,.0f} đ) vượt quá dòng tiền kinh doanh tạo ra, cần vay nợ tài trợ."
+        if capex_ttm > 0 and abs(fcf_ttm) > owners_equity * 0.3:
+            red_flags.append("CapEx mở rộng vượt quá khả năng tạo tiền từ CFO, gia tăng áp lực nợ vay hoặc phát hành tăng vốn.")
+
+    # 2. TÍNH TOÁN ALTMAN Z''-SCORE (EMERGING MARKETS)
+    altman_z = 0.0
+    z_zone = "SAFE"
+    z_verdict = "AN TOÀN TÀI CHÍNH (SAFE ZONE)"
+    if total_assets > 0:
+        x1 = working_capital / total_assets
+        x2 = retained_earnings / total_assets
+        x3 = ebit_ttm / total_assets
+        tot_liab = total_assets - owners_equity if total_assets > owners_equity else total_debt
+        x4 = (owners_equity / tot_liab) if tot_liab > 0 else 3.0
+
+        altman_z = round(6.56 * x1 + 3.26 * x2 + 6.72 * x3 + 1.05 * x4, 2)
+
+        if altman_z >= 2.60:
+            z_zone = "SAFE"
+            z_verdict = "VÙNG AN TOÀN CAO (SAFE ZONE)"
+            z_desc = f"Chỉ số Altman Z''-Score đạt {altman_z:.2f} (> 2.60). Xác suất phá sản / kiệt quệ tài chính trong 2 năm tới là cực thấp."
+        elif altman_z >= 1.10:
+            z_zone = "GREY"
+            z_verdict = "VÙNG XÁM CẢNH BÁO (GREY ZONE)"
+            z_desc = f"Chỉ số Altman Z''-Score đạt {altman_z:.2f} (trong ngưỡng 1.10 - 2.60). Sức khỏe tài chính trung bình, cần giám sát chặt chẽ áp lực trả nợ ngắn hạn."
+        else:
+            z_zone = "DISTRESS"
+            z_verdict = "VÙNG NGUY HIỂM KIỆT QUỆ TÀI CHÍNH (DISTRESS ZONE)"
+            z_desc = f"Chỉ số Altman Z''-Score rớt xuống {altman_z:.2f} (< 1.10). BÁO ĐỘNG ĐỎ: Doanh nghiệp có cấu trúc vốn rất yếu, nguy cơ mất khả năng thanh toán nợ vay cao!"
+            red_flags.append(f"🚨 Altman Z''-Score ở mức báo động {altman_z:.2f} (< 1.10), cảnh báo rủi ro kiệt quệ tài chính nghiêm trọng.")
+    else:
+        z_desc = "Không đủ dữ liệu tài sản để tính Altman Z''-Score."
+
+    return {
+        "cfo_ttm": cfo_ttm,
+        "capex_ttm": capex_ttm,
+        "fcf_ttm": fcf_ttm,
+        "cfi_ttm": cfi_ttm,
+        "cff_ttm": cff_ttm,
+        "earnings_quality_ratio": earnings_quality_ratio,
+        "quality_grade": quality_grade,
+        "quality_verdict": quality_verdict,
+        "quality_desc": quality_desc,
+        "fcf_verdict": fcf_verdict,
+        "altman_z": altman_z,
+        "z_zone": z_zone,
+        "z_verdict": z_verdict,
+        "z_desc": z_desc,
+        "red_flags": red_flags,
+        "quarterly_cash_flows": quarterly_cf,
+        "ttm_profit": ttm_profit
+    }
+
+
 def analyze_fundamentals(fin: Dict[str, Any], current_price: float, quote: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Tổng hợp toàn bộ phân tích cơ bản (FA) đa chiều:
-    - Piotroski F-Score (Sức khỏe bảng cân đối)
-    - Warren Buffett (Moat & Định giá theo ngành)
-    - Định giá theo Khối tài sản hiện có & Radar cảnh báo Thao túng giá ảo / Bẫy giá trị
-    - Peter Lynch (GARP & PEG)
-    - Bóc tách Mô hình kinh doanh cốt lõi (Core Business Segments)
-    - Bóc tách Quản trị, Cơ cấu Cổ đông & Radar Mạng lưới Tăng vốn ảo (Corporate Governance & Shell Network)
-    - Kiểm tra chất lượng tăng trưởng doanh thu vs lợi nhuận
+    Tổng hợp toàn bộ phân tích cơ bản (FA) đa chiều theo chu trình Top-Down:
+    1. Vĩ mô & Ma trận Chu kỳ ngành (Macro & Sector Cycle)
+    2. Bóc tách Báo cáo Lưu chuyển Tiền tệ & Dòng tiền Thật (Cash Flow Forensic)
+    3. Mô hình Cảnh báo Kiệt quệ Tài chính Altman Z''-Score
+    4. Piotroski F-Score (Sức khỏe bảng cân đối)
+    5. Warren Buffett (Moat & Định giá theo ngành)
+    6. Định giá theo Khối tài sản & Radar Thao túng giá ảo / Bẫy giá trị
+    7. Peter Lynch (GARP & PEG)
+    8. Bóc tách Mô hình kinh doanh cốt lõi (Core Business Segments)
+    9. Bóc tách Quản trị, Cơ cấu Cổ đông & Radar Tăng vốn ảo (G-Score)
     """
+    symbol = fin.get("symbol", "").upper().strip()
     f_score = calculate_piotroski_score(fin)
     buffett = evaluate_buffett_moat(fin, current_price)
     lynch = evaluate_peter_lynch(fin, current_price)
     growth_quality = evaluate_growth_and_earnings_quality(fin)
     asset_valuation = evaluate_asset_based_valuation(fin, current_price)
+    cash_flow = evaluate_cash_flow_and_forensic(fin)
 
-    # Lấy phân tích mảng kinh doanh cốt lõi (Core Business Segments)
+    # 1. Phân tích Vĩ mô & Chu kỳ Ngành (Macro & Sector Cycle)
+    macro_analysis = analyze_macro_and_sector_cycle(symbol, fin.get("overview"))
+
+    # 2. Phân tích Mảng kinh doanh cốt lõi (Segments)
     company_name = quote.get("company_name", "") if quote else ""
     segments = analyze_company_segments(
-        fin.get("symbol", ""),
+        symbol,
         company_name=company_name,
-        sector=buffett.get("sector", "GENERAL")
+        sector=macro_analysis.get("sector_key", buffett.get("sector", "GENERAL"))
     )
 
-    # Lấy phân tích Quản trị Doanh nghiệp, Cổ đông & Mạng lưới Công ty con (Governance & Shell Radar)
-    gov_data = get_governance_data(fin.get("symbol", ""))
+    # 3. Phân tích Quản trị Doanh nghiệp & Cổ đông (Governance & Shell Radar)
+    gov_data = get_governance_data(symbol)
     governance = analyze_governance_and_ownership(
-        fin.get("symbol", ""),
+        symbol,
         gov_data,
         fin,
         current_price,
@@ -513,7 +609,6 @@ def analyze_fundamentals(fin: Dict[str, Any], current_price: float, quote: Optio
     )
 
     # Chấm điểm tổng hợp FA (thang 100)
-    # 20% F-Score, 20% Buffett Moat & Ngành, 15% Định giá Tài sản, 15% Lynch PEG, 10% Tăng trưởng, 20% Quản trị (G-Score)
     asset_score = 50
     if asset_valuation["manipulation_risk_level"] == 1:
         asset_score = 90
@@ -527,20 +622,38 @@ def analyze_fundamentals(fin: Dict[str, Any], current_price: float, quote: Optio
         asset_score = 10
 
     g_score_val = governance.get("g_score", 60)
+    macro_tailwind = macro_analysis.get("tailwind_score", 70)
+
+    # Cấu trúc trọng số FA hoàn thiện:
+    # 15% Macro, 15% F-Score, 15% Buffett Moat, 15% Định giá Tài sản, 15% Dòng tiền CFO/Altman, 10% Lynch, 15% Quản trị G-Score
+    cf_score = 85 if cash_flow["quality_grade"] == "A" else (70 if cash_flow["quality_grade"] == "B" else (40 if cash_flow["quality_grade"] == "C" else 15))
+    if cash_flow["z_zone"] == "SAFE":
+        cf_score = min(100, cf_score + 10)
+    elif cash_flow["z_zone"] == "DISTRESS":
+        cf_score = max(5, cf_score - 25)
 
     raw_fa_score = (
-        (f_score / 9.0) * 20 +
-        buffett["score"] * 0.20 +
-        asset_score * 0.15 +
-        lynch["score"] * 0.15 +
-        growth_quality["growth_score"] * 0.10 +
-        g_score_val * 0.20
+        macro_tailwind * FA_WEIGHTS.get("macro", 0.15) +
+        (f_score / 9.0 * 100) * FA_WEIGHTS.get("f_score", 0.15) +
+        buffett["score"] * FA_WEIGHTS.get("buffett", 0.15) +
+        asset_score * FA_WEIGHTS.get("asset_valuation", 0.15) +
+        cf_score * FA_WEIGHTS.get("cash_flow", 0.15) +
+        lynch["score"] * FA_WEIGHTS.get("lynch", 0.10) +
+        g_score_val * FA_WEIGHTS.get("governance", 0.15)
     )
 
-    # Nếu có cảnh báo thổi giá / bẫy giá trị hoặc Rủi ro Quản trị / Tăng vốn ảo, phạt điểm nặng
+    # Nếu có cảnh báo thổi giá / bẫy giá trị hoặc Rủi ro Quản trị / Dòng tiền ảo, phạt điểm nặng
     valuation_warning = buffett.get("valuation_warning", "")
     if asset_valuation.get("manipulation_warning"):
         valuation_warning = (valuation_warning + " | " if valuation_warning else "") + asset_valuation["manipulation_warning"]
+
+    # Phạt rủi ro dòng tiền và kiệt quệ tài chính
+    if cash_flow["quality_grade"] == "D":
+        raw_fa_score = max(5, raw_fa_score - 25)
+        valuation_warning = (valuation_warning + " | " if valuation_warning else "") + "Cảnh báo Lợi nhuận trên giấy (CFO âm)"
+    if cash_flow["z_zone"] == "DISTRESS":
+        raw_fa_score = max(5, raw_fa_score - 20)
+        valuation_warning = (valuation_warning + " | " if valuation_warning else "") + "Cảnh báo Rủi ro Kiệt quệ Tài chính (Altman Z < 1.1)"
 
     # Phạt rủi ro quản trị nghiêm trọng hoặc tăng vốn ảo
     if governance.get("subsidiary_web", {}).get("circular_capital_risk_level", 1) >= 4:
@@ -550,14 +663,17 @@ def analyze_fundamentals(fin: Dict[str, Any], current_price: float, quote: Optio
     elif asset_valuation["manipulation_risk_level"] >= 4:
         raw_fa_score = max(5, raw_fa_score - 20)
     elif valuation_warning:
-        raw_fa_score = max(10, raw_fa_score - 15)
+        raw_fa_score = max(10, raw_fa_score - 10)
 
     fa_total_score = int(min(100, max(0, raw_fa_score)))
 
     return {
-        "sector": buffett.get("sector", "GENERAL"),
+        "sector": macro_analysis.get("sector_key", buffett.get("sector", "GENERAL")),
+        "sector_name": macro_analysis.get("sector_name", "Doanh nghiệp"),
         "f_score": f_score,
         "fa_total_score": fa_total_score,
+        "macro": macro_analysis,
+        "cash_flow": cash_flow,
         "buffett": buffett,
         "lynch": lynch,
         "growth_quality": growth_quality,

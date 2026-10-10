@@ -1,0 +1,39 @@
+{
+  "company_name": "Công ty Cổ phần FPT",
+  "business_model_summary": "Tập đoàn công nghệ hàng đầu Việt Nam hoạt động theo kiềng ba chân vững chắc: Xuất khẩu phần mềm toàn cầu, Hạ tầng viễn thông internet cáp quang, và Hệ sinh thái Giáo dục đào tạo.",
+  "segments": [
+    {
+      "name": "Khối Công nghệ & Xuất khẩu phần mềm (Global IT)",
+      "rev_share_pct": 60.5,
+      "gross_profit_share_pct": 52.0,
+      "gross_margin_pct": 22.0,
+      "role": "Ngựa ô tăng trưởng toàn cầu",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Tăng trưởng cao (>25%/năm)",
+      "highlights": "Doanh thu dịch vụ CNTT nước ngoài vượt 1 tỷ USD; mở rộng mạnh tại Nhật Bản, Mỹ, EU, APAC và mảng AI/bán dẫn.",
+      "risks": "Biến động tỷ giá JPY (Yên Nhật) và cắt giảm ngân sách IT tại các tập đoàn phương Tây."
+    },
+    {
+      "name": "Khối Viễn thông (FPT Telecom, PayTV, Data Center)",
+      "rev_share_pct": 30.5,
+      "gross_profit_share_pct": 33.0,
+      "gross_margin_pct": 38.0,
+      "role": "Con bò sữa dòng tiền (Cash Cow)",
+      "strategic_role": "CASH_COW",
+      "status": "Ổn định dòng tiền",
+      "highlights": "Cung cấp internet băng rộng và trung tâm dữ liệu (Data Center), dòng tiền trả trước dồi dào, biên lợi nhuận cao.",
+      "risks": "Thị trường băng rộng nội địa bão hòa, cạnh tranh khốc liệt với Viettel và VNPT."
+    },
+    {
+      "name": "Khối Giáo dục & Đầu tư (Đại học, Cao đẳng FPT)",
+      "rev_share_pct": 9.0,
+      "gross_profit_share_pct": 15.0,
+      "gross_margin_pct": 42.0,
+      "role": "Nguồn nhân lực & Biên lợi nhuận cao",
+      "strategic_role": "CORE_MOAT",
+      "status": "Tăng trưởng vượt bậc",
+      "highlights": "Số lượng người học tăng trưởng nhanh, biên lợi nhuận gộp trên 40%, tạo nguồn cung nhân lực kỹ sư CNTT trực tiếp cho tập đoàn.",
+      "risks": "Chi phí đầu tư cơ sở hạ tầng trường học mới (CapEx)."
+    }
+  ]
+}

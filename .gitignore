@@ -17,6 +17,8 @@ ENV/
 # Local cache
 cache/
 .cache/
+data/alerts_cache.json
+scratch/
 
 # SQLite databases & backups
 data/*.db

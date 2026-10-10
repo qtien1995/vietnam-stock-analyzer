@@ -178,6 +178,130 @@ def evaluate_vsa_price_action(latest: pd.Series, prev: pd.Series) -> Dict[str, A
     }
 
 
+def detect_advanced_patterns_and_vsa(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Phân tích kỹ thuật nâng cao:
+    1. Nhận diện Mô hình nền giá (Price Base Patterns: VCP Minervini, Nền phẳng Flat Base).
+    2. Hành vi nến & khối lượng VSA nâng cao (No Supply Test, Spring/Shakeout, SOS).
+    3. Các mốc Fibonacci Retracement then chốt (38.2%, 50%, 61.8%).
+    4. Vùng Cung Treo Lơ Lửng (Overhead Supply & Đỉnh cũ kẹp hàng).
+    """
+    if len(df) < 25:
+        return {
+            "pattern_name": "Đang tích lũy",
+            "pattern_verdict": "Cần thêm dữ liệu nến để xác định mẫu hình chuẩn.",
+            "vsa_signal": "Bình thường",
+            "vsa_signal_desc": "Cung cầu cân bằng tự nhiên.",
+            "overhead_supply": 0.0,
+            "fibo_382": 0.0,
+            "fibo_500": 0.0,
+            "fibo_618": 0.0
+        }
+
+    latest = df.iloc[-1]
+    close = float(latest["close"])
+    high = float(latest["high"])
+    low = float(latest["low"])
+    vol = float(latest["volume"])
+    vol_ma20 = float(latest.get("vol_ma20", vol)) if float(latest.get("vol_ma20", vol)) > 0 else vol
+
+    # 1. Fibonacci & Overhead Supply trong 60-120 phiên gần nhất
+    lookback = min(len(df), 120)
+    window = df.iloc[-lookback:]
+    h_max = float(window["high"].max())
+    l_min = float(window["low"].min())
+    diff = h_max - l_min if h_max > l_min else close * 0.1
+
+    fibo_382 = round(h_max - 0.382 * diff, 0)
+    fibo_500 = round(h_max - 0.500 * diff, 0)
+    fibo_618 = round(h_max - 0.618 * diff, 0)
+    overhead_supply = round(h_max, 0)
+
+    # 2. Nhận diện Mô hình nền giá (Base Pattern)
+    w20 = df.iloc[-20:]
+    h20 = float(w20["high"].max())
+    l20 = float(w20["low"].min())
+    range20_pct = round(((h20 - l20) / l20) * 100, 1) if l20 > 0 else 5.0
+
+    pattern_name = "Nền dao động tích lũy"
+    pattern_verdict = f"Giá dao động trong biên độ {range20_pct}% trong 20 phiên gần nhất."
+    
+    if len(df) >= 50:
+        w40 = df.iloc[-40:-20]
+        h40 = float(w40["high"].max())
+        l40 = float(w40["low"].min())
+        range40_pct = round(((h40 - l40) / l40) * 100, 1) if l40 > 0 else 10.0
+        
+        if range40_pct > range20_pct and range20_pct <= 9.0:
+            pattern_name = "Mô hình Thu hẹp Biến động (VCP - Mark Minervini)"
+            pattern_verdict = f"Độ biến động thu hẹp tích cực từ {range40_pct}% xuống {range20_pct}%, khối lượng cạn kiệt ở nhịp co thắt cuối trước điểm bùng nổ."
+        elif range20_pct <= 6.5:
+            pattern_name = "Nền giá phẳng siết chặt (Tight Flat Base)"
+            pattern_verdict = f"Biên độ dao động cực kỳ chặt chẽ ({range20_pct}%), lực cung cạn kiệt, sẵn sàng bứt phá khi có dòng tiền mồi."
+    elif range20_pct <= 6.5:
+        pattern_name = "Nền giá phẳng siết chặt (Tight Flat Base)"
+        pattern_verdict = f"Nền giá phẳng dao động hẹp ({range20_pct}%), lực cung bán suy giảm."
+
+    # 3. Hành vi nến VSA chuyên sâu
+    atr = float(latest.get("atr14", close * 0.025))
+    spread = high - low
+    is_up = close >= float(latest["open"])
+    vol_ratio = vol / vol_ma20 if vol_ma20 > 0 else 1.0
+
+    vsa_signal = "Thanh khoản ổn định"
+    vsa_signal_desc = "Cung cầu vận động tự nhiên theo nhịp điệu thị trường."
+
+    if spread <= atr * 0.85 and vol_ratio < 0.65:
+        vsa_signal = "Phiên Test Cung Cạn Kiệt (No Supply Test)"
+        vsa_signal_desc = "Biên độ nến hẹp kèm khối lượng teo tóp dưới 65% MA20, chứng minh nhỏ lẻ đã cạn lực bán, áp lực cung không còn."
+    elif low < float(latest.get("sup_20d", low)) and close >= float(latest.get("sup_20d", low)) and (close - low) > (high - close):
+        vsa_signal = "Phiên Rũ Bỏ Đáy Rút Chân (Spring / Shakeout)"
+        vsa_signal_desc = "Giá bị đạp thủng hỗ trợ trong phiên để ép nhỏ lẻ bán ra, sau đó kéo ngược đóng cửa cao nhất phiên. Bẫy gấu rũ bỏ kinh điển!"
+    elif is_up and vol_ratio >= 1.4:
+        vsa_signal = "Phiên Bùng Nổ Dòng Tiền Lớn (SOS - Sign of Strength)"
+        vsa_signal_desc = f"Nến xanh tăng dứt khoát kèm thanh khoản đột biến gấp {vol_ratio:.1f}x lần MA20 xác nhận Big Boys đạp ga vào tiền quyết liệt."
+
+    lookback_window = lookback
+    overhead_val = round(h_max, 0)
+    range40_val = range40_pct if 'range40_pct' in locals() else round(range20_pct * 1.5, 1)
+
+    return {
+        "pattern_name": pattern_name,
+        "pattern_verdict": pattern_verdict,
+        "range_20d_pct": range20_pct,
+        "vsa_signal": vsa_signal,
+        "vsa_signal_desc": vsa_signal_desc,
+        "swing_low": l_min,
+        "swing_high": h_max,
+        "overhead_supply": overhead_val,
+        "fibo_382": fibo_382,
+        "fibo_500": fibo_500,
+        "fibo_618": fibo_618,
+        "vcp": {
+            "vcp_stage": pattern_name,
+            "contractions": [f"Nhịp co thắt trước: ~{range40_val}%", f"Nhịp gần nhất: {range20_pct}%"],
+            "vcp_verdict": pattern_verdict
+        },
+        "vsa_signals": {
+            "signal_descriptions": [f"{vsa_signal}: {vsa_signal_desc}"],
+            "smart_money_action": "Đang âm thầm gom hàng và kiểm tra cung" if "Test" in vsa_signal or "Spring" in vsa_signal else ("Chủ động kích hoạt đà tăng giá (SOS)" if "SOS" in vsa_signal else "Vận động cung cầu tự nhiên")
+        },
+        "fibonacci": {
+            "swing_low": l_min,
+            "swing_high": h_max,
+            "fibo_382": fibo_382,
+            "fibo_500": fibo_500,
+            "fibo_618": fibo_618,
+            "current_fibo_zone": "Nằm trên vùng Fibo 38.2% (Nhịp sóng tăng rất khỏe)" if close >= fibo_382 else ("Vùng cân bằng giữa Fibo 38.2% và 50.0%" if close >= fibo_500 else "Vùng hỗ trợ Fibo 61.8% (Ngưỡng phòng thủ quan trọng)")
+        },
+        "overhead_supply_detail": {
+            "resistance_cluster": f"{overhead_val:,.0f} đ (Đỉnh cao nhất {lookback_window} phiên)",
+            "supply_intensity": "Thấp (Đã bứt phá đỉnh)" if close >= overhead_val else ("Vừa phải" if (overhead_val - close) / close < 0.08 else "Đáng kể (Cách đỉnh >8%)"),
+            "explanation": f"Vùng cản tâm lý của nhà đầu tư kẹp hàng đỉnh cũ quanh {overhead_val:,.0f} đ. {'Giá đã tiệm cận vùng đỉnh, lực cung chốt hòa vốn đang được hấp thụ tốt.' if close >= overhead_val * 0.95 else 'Cần theo dõi thêm thanh khoản khi giá tiến về kiểm tra vùng đỉnh này.'}"
+        }
+    }
+
+
 def analyze_technicals(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Tổng hợp phân tích kỹ thuật toàn diện từ chuỗi nến.
@@ -187,6 +311,7 @@ def analyze_technicals(df: pd.DataFrame) -> Dict[str, Any]:
             "ta_total_score": 50,
             "oneil": {"score": 50, "verdict": "THIẾU DỮ LIỆU", "reasons": []},
             "vsa": {"score": 50, "verdict": "THIẾU DỮ LIỆU", "reasons": []},
+            "advanced_ta": {},
             "indicators": {}
         }
 
@@ -196,6 +321,7 @@ def analyze_technicals(df: pd.DataFrame) -> Dict[str, Any]:
 
     oneil = evaluate_oneil_momentum(latest, prev)
     vsa = evaluate_vsa_price_action(latest, prev)
+    advanced_ta = detect_advanced_patterns_and_vsa(df_ind)
 
     # Tổng điểm TA (50% O'Neil Breakout, 50% VSA / Price Action)
     ta_total_score = int(oneil["score"] * 0.5 + vsa["score"] * 0.5)
@@ -204,6 +330,7 @@ def analyze_technicals(df: pd.DataFrame) -> Dict[str, Any]:
         "ta_total_score": ta_total_score,
         "oneil": oneil,
         "vsa": vsa,
+        "advanced_ta": advanced_ta,
         "indicators": {
             "close": float(latest["close"]),
             "ema20": float(latest["ema20"]),

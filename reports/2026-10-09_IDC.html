@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Báo cáo Chiến lược Toàn diện IDC | Vietnam Stock Analyzer</title>
+    <!-- Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #0a0e17;
+            --bg-card: #111827;
+            --bg-card-alt: #1a2333;
+            --border: #263345;
+            --border-highlight: #3b82f6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding-bottom: 60px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header Bar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 14, 23, 0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .report-time {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        /* Executive Header */
+        .hero-card {
+            background: linear-gradient(145deg, #131c2e, #0f172a);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .hero-left h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-left p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .price-badge-group {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .hero-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #10b981;
+        }
+
+        .hero-change {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #10b981;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .hero-action-box {
+            text-align: right;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid #3b82f6;
+            padding: 16px 22px;
+            border-radius: 14px;
+        }
+
+        .hero-action-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .hero-action-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #3b82f6;
+            margin-top: 2px;
+        }
+
+        .consensus-meter {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Section Layout */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 34px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #f8fafc;
+        }
+
+        .card-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .card-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 10px;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+        }
+
+        /* Bullet lists */
+        ul.bullet-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.bullet-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+            color: #cbd5e1;
+            line-height: 1.45;
+        }
+
+        ul.bullet-list li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+        }
+
+        /* Progress Bar */
+        .progress-bar-bg {
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .hero-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .hero-action-box {
+                text-align: left;
+            }
+            .card-grid-2, .card-grid-3 {
+                grid-template-columns: 1fr;
+            }
+            .hero-left h1 {
+                font-size: 1.8rem;
+            }
+            .container {
+                padding: 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div class="top-navbar">
+        <div class="brand-title">🏛️ VIETNAM STOCK ANALYZER &bull; BÁO CÁO NGHIÊN CỨU CHIẾN LƯỢC</div>
+        <div class="report-time">09/10/2026 23:31</div>
+    </div>
+
+    <div class="container">
+
+        <!-- EXECUTIVE HERO CARD -->
+        <div class="hero-card">
+            <div class="hero-header">
+                <div class="hero-left">
+                    <h1>
+                        IDC
+                        <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6;">HOSE</span>
+                        <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid #8b5cf6;">Bất động sản Khu công nghiệp</span>
+                    </h1>
+                    <p>Tổng Công ty IDICO - CTCP</p>
+                    <div class="price-badge-group">
+                        <span class="hero-price">35,500 đ</span>
+                        <span class="hero-change">+1.72%</span>
+                        <span style="font-size: 0.85rem; color: #94a3b8; margin-left: 10px;">Khối lượng: <b>1,792,900</b> CP (1.20x MA20)</span>
+                    </div>
+                </div>
+
+                <div class="hero-action-box">
+                    <div class="hero-action-label">Phán quyết Giám đốc Quản trị Rủi ro (CRO)</div>
+                    <div class="hero-action-title">MUA THĂM DÒ (TEST BUY)</div>
+                    <div class="consensus-meter">Độ đồng thuận Hội đồng AI: <b>75/100</b> điểm (5 Ủng hộ / 0 Quan sát / 1 Phản đối)</div>
+                </div>
+            </div>
+
+            <!-- Tách bạch 2 Kế hoạch: Đầu tư Giá trị vs Lướt sóng Kỹ thuật -->
+            <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                <!-- Box 1: Đầu tư Giá trị -->
+                <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 12px; padding: 18px;">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">
+                        <span>🏛️ ĐẦU TƯ GIÁ TRỊ (BUFFETT & GRAHAM)</span>
+                        <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #38bdf8;">RẺ / CÓ BIÊN AN TOÀN CAO</span>
+                    </div>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                        • Giá trị thực nội tại ước tính: <b style="color: #fff; font-size: 1.05rem;">75,366 đ</b><br>
+                        • Vùng gom an toàn (Biên an toàn &ge; 15%): <b style="color: #34d399; font-size: 1rem;">≤ 64,061 VND (Vùng gom an toàn: 56,524 - 64,061 VND)</b><br>
+                        • Cơ sở định giá: <i>P/E 6.8x; P/B 1.68x (BVPS 21,153 đ); Dòng tiền CFO Hạng A; ROE xuất sắc (24.6%), thể hiện lợi thế cạnh tranh con hào kinh tế bền vững.</i>
+                        <div style='margin-top: 8px; color: #38bdf8; font-size: 0.85rem;'>💡 <b>Lý giải chênh lệch thị giá vs giá trị thực:</b> Thị trường đang chiết khấu sâu do tâm lý thận trọng ngắn hạn. Tạo biên an toàn 52.9% so với giá trị thực (75,366 đ) cho nhà đầu tư tích sản.</div>
+                        
+                    </div>
+                </div>
+
+                <!-- Box 2: Lướt sóng Kỹ thuật -->
+                <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 12px; padding: 18px;">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: #fbbf24; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">
+                        <span>🏄 LƯỚT SÓNG NGẮN HẠN (SWING TRADING / KỸ THUẬT)</span>
+                        <span class="badge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid #fbbf24;">R:R 1.29:1</span>
+                    </div>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                        • Vùng mua lướt sóng: <b style="color: #38bdf8;">33,659 - 36,032 đ</b><br>
+                        • Cắt lỗ nghiêm ngặt (SL): <b style="color: #f87171;">33,015 đ (-7.0%)</b><br>
+                        • Chốt lời (Mục tiêu 1 &bull; 2): <b style="color: #34d399;">38,695 đ (+9.0%) &bull; 43,310 đ (+22.0%)</b><br>
+                        • Tỷ trọng giải ngân tối đa: <b>Max 15.0% tổng danh mục</b><br>
+                        • Kỷ luật giao dịch: <i>✅ An toàn kép: Vừa có hỗ trợ kỹ thuật nổ vol, vừa có biên an toàn cơ bản nâng đỡ (Rẻ hơn giá trị thực 52.9%).</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TẦNG 1: VĨ MÔ & CHU KỲ NGÀNH -->
+        <div class="section-title">🌐 TẦNG 1: BỐI CẢNH VĨ MÔ & CHU KỲ NGÀNH (MACRO & SECTOR MATRIX)</div>
+        <div class="card-grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <span>Định vị Chu kỳ Ngành: Bất động sản Khu công nghiệp</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981;">RẤT TÍCH CỰC (STRONG TAILWIND)</span>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Pha chu kỳ hiện tại:</span>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #fff; margin-top: 2px;">Tăng tốc mở rộng (Mid-Cycle Expansion)</div>
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">Hưởng lợi từ dòng vốn FDI thế hệ mới dịch chuyển vào công nghệ bán dẫn & điện tử; giá thuê đất giữ đà tăng 8-12%/năm tại các thủ phủ công nghiệp.</p>
+                </div>
+
+                <div style="margin-top: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                        <span style="color: var(--text-secondary);">Điểm số Gió xuôi Vĩ mô (Thuận buồm xuôi gió)</span>
+                        <span style="font-weight: 700; color: #10b981;">85/100</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: 85%; background: #10b981;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Động lực Vĩ mô Trọng tâm Hỗ trợ:</div>
+                    <ul class="bullet-list">
+                        <li>Dòng vốn FDI giải ngân thực tế liên tục lập đỉnh mới tại Việt Nam.</li><li>Nâng cấp quan hệ đối tác chiến lược toàn diện với Mỹ, Hàn Quốc, Nhật Bản thúc đẩy các đại bàng công nghệ (Nvidia, Foxconn, Amkor, Hana Micron) mở rộng nhà máy.</li><li>Giá thuê đất KCN bình quân tăng trưởng bền vững: Miền Bắc ~135-145 USD/m2/chu kỳ, Miền Nam ~160-180 USD/m2/chu kỳ.</li><li>Hạ tầng kết nối (các tuyến cao tốc và cảng nước sâu Cái Mép, Lạch Huyện) rút ngắn mạnh thời gian logistics.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>Trí tuệ Chu kỳ: Ray Dalio & Howard Marks</span>
+                    <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">CHU KỲ VĨ MÔ</span>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #a78bfa; margin-bottom: 4px;">Ray Dalio (Cỗ máy Kinh tế & Tín dụng):</div>
+                    <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">Theo chu kỳ vĩ mô hiện tại, ngành Bất động sản Khu công nghiệp đang ở pha 'Tăng tốc mở rộng (Mid-Cycle Expansion)'. Doanh nghiệp đang nhận được 'Gió xuôi chiều cực mạnh' (Tailwind) từ các yếu tố vĩ mô và dòng vốn tổ chức. Phù hợp để gia tăng tỷ trọng theo xu hướng lớn.</p>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">Howard Marks (Tâm lý Đám đông & Bẫy Chu kỳ):</div>
+                    <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">Howard Marks (Tâm lý Chu kỳ & Định giá): Khi ngành ở pha Tăng tốc mở rộng (Mid-Cycle Expansion), thị trường đang phản ánh đúng tốc độ mở rộng. Hãy tập trung vào việc liệu dòng tiền kinh doanh (CFO) có chuyển hóa tương xứng với tốc độ tăng trưởng doanh thu hay không.</p>
+                </div>
+
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px; margin-top: 12px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Chỉ số Đặc thù Cần Giám sát Kỹ:</div>
+                    <ul class="bullet-list">
+                        <li>Quỹ đất thương phẩm sẵn sàng cho thuê (Net Leasable Land Bank) có pháp lý sạch.</li><li>Tỷ lệ lấp đầy (Occupancy Rate) hiện hữu.</li><li>Doanh thu chưa thực hiện dài hạn (Unearned Revenue) — thước đo 'Của để dành' thu tiền 1 lần từ khách thuê.</li><li>Tiến độ đền bù giải phóng mặt bằng và chi phí tiền sử dụng đất mới theo Luật Đất đai.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TẦNG 2: MÔ HÌNH KINH DOANH CỐT LÕI & CHI TIẾT TỪNG DỊCH VỤ -->
+        <div class="section-title">🏢 TẦNG 2: MÔ HÌNH KINH DOANH CỐT LÕI & CƠ CHẾ SINH TIỀN TỪ DỊCH VỤ</div>
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <span>Bóc tách Phân khúc Hoạt động (Core Business Breakdown)</span>
+                <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">CƠ CẤU DOANH THU & LỢI NHUẬN</span>
+            </div>
+            <div style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 14px; line-height: 1.6;">
+                <b>Tóm lược mô hình hoạt động:</b> Tập đoàn phát triển hạ tầng và Khu công nghiệp (KCN) hàng đầu Việt Nam hoạt động theo mô hình tích hợp khép kín: (1) Quỹ đất KCN sạch quy mô lớn tại các thủ phủ FDI (Long An, Bà Rịa - Vũng Tàu, Bắc Ninh, Thái Bình) tạo dòng tiền đột biến từ cho thuê đất 50 năm; (2) Độc quyền phân phối điện lưới và thủy điện nội khu cho hàng trăm nhà máy KCN tạo 'cỗ máy in tiền mặt' đều đặn hàng tháng; (3) Cho thuê nhà xưởng xây sẵn (RBF) và thu phí BOT đường bộ tạo nguồn thu ổn định phòng thủ quanh năm.
+            </div>
+            <div class="table-responsive" style="margin-bottom: 18px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mảng kinh doanh</th>
+                            <th style="text-align: right;">% Doanh thu</th>
+                            <th style="text-align: right;">% Lợi nhuận gộp</th>
+                            <th style="text-align: right;">Biên lãi gộp</th>
+                            <th>Vai trò chiến lược</th>
+                            <th>Điểm nhấn triển vọng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+        <tr>
+            <td style="font-weight: 600; color: #f1f5f9;">Cho thuê đất Khu công nghiệp (Hạ tầng hoàn thiện 50 năm)</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">43.5%</td>
+            <td style="text-align: right; color: #34d399; font-weight: 600;">65.0%</td>
+            <td style="text-align: right; color: #fbbf24; font-weight: 600;">58.5%</td>
+            <td><span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4);">Ngòi nổ Lợi nhuận Đột biến & Thặng dư Dòng tiền</span></td>
+            <td style="font-size: 0.84rem; color: #94a3b8;">Quỹ đất thương phẩm sẵn sàng cho thuê còn lại hơn 580 ha. Giá thuê đất KCN duy trì đà tăng 8-12%/năm tại các vùng kinh tế trọng điểm phía Nam (Long An, Bà Rịa - Vũng Tàu). Khách thuê trả tiền mặt lớn giúp thặng dư tiền gửi dồi dào.</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600; color: #f1f5f9;">Kinh doanh, Phân phối & Truyền tải Điện KCN</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">39.0%</td>
+            <td style="text-align: right; color: #34d399; font-weight: 600;">18.5%</td>
+            <td style="text-align: right; color: #fbbf24; font-weight: 600;">11.5%</td>
+            <td><span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4);">Con bò sữa dòng tiền (Cash Cow) đều đặn hàng tháng</span></td>
+            <td style="font-size: 0.84rem; color: #94a3b8;">Sản lượng điện tiêu thụ tăng trưởng lũy kế theo tỷ lệ lấp đầy của các KCN. Tiền điện được thu hàng tháng, tuyệt đối không có rủi ro nợ xấu vì nhà máy không thể ngừng sản xuất.</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600; color: #f1f5f9;">Cho thuê Nhà xưởng xây sẵn (RBF) & Kho bãi tiêu chuẩn</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">8.5%</td>
+            <td style="text-align: right; color: #34d399; font-weight: 600;">10.0%</td>
+            <td style="text-align: right; color: #fbbf24; font-weight: 600;">46.0%</td>
+            <td><span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4);">Dòng tiền cho thuê định kỳ gối đầu</span></td>
+            <td style="font-size: 0.84rem; color: #94a3b8;">Giá thuê đạt từ 4.2 - 5.2 USD/m²/tháng; tỷ lệ lấp đầy trung bình trên 90%. Dự kiến mở rộng thêm 100.000 - 150.000 m² sàn xưởng cho thuê tại Hựu Thạnh và Cầu Nghìn.</td>
+        </tr>
+        
+        <tr>
+            <td style="font-weight: 600; color: #f1f5f9;">Thu phí giao thông BOT & Cung cấp Nước sạch, Xử lý nước thải</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">9.0%</td>
+            <td style="text-align: right; color: #34d399; font-weight: 600;">6.5%</td>
+            <td style="text-align: right; color: #fbbf24; font-weight: 600;">24.0%</td>
+            <td><span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.4);">Nguồn thu phụ trợ phòng thủ</span></td>
+            <td style="font-size: 0.84rem; color: #94a3b8;">Trạm thu phí BOT An Sương - An Lạc có lưu lượng xe tải và container cực lớn, mang lại dòng tiền mặt đều đặn hàng ngày; dịch vụ nước sạch gắn liền với chu kỳ vận hành của KCN.</td>
+        </tr>
+        
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="font-size: 0.95rem; font-weight: 700; color: #38bdf8; margin: 16px 0 10px 0;">
+                🔎 Chi tiết Dịch vụ là gì? Bán cho ai? Cơ chế thu tiền thực tế ra sao:
+            </div>
+            <div>
+                
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="font-weight: 700; color: #38bdf8; font-size: 0.95rem;">
+                    #1. Cho thuê đất Khu công nghiệp (Hạ tầng hoàn thiện 50 năm) <span style="font-size: 0.8rem; color: #94a3b8; font-weight: normal;">(Chiếm 43.5% DT • 65.0% Lãi gộp)</span>
+                </div>
+                <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">Biên lãi 58.5%</span>
+            </div>
+            <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                <b>Cơ chế hoạt động & tạo tiền:</b> Cho các tập đoàn FDI và doanh nghiệp sản xuất trong và ngoài nước thuê đất công nghiệp đã đền bù, giải phóng mặt bằng sạch và hoàn thiện hạ tầng kỹ thuật (đường nội bộ, trạm xử lý nước thải, cấp thoát nước) trong thời hạn lên đến 50 năm. Doanh nghiệp thu tiền 1 lần hoặc định kỳ hàng năm.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="font-weight: 700; color: #38bdf8; font-size: 0.95rem;">
+                    #2. Kinh doanh, Phân phối & Truyền tải Điện KCN <span style="font-size: 0.8rem; color: #94a3b8; font-weight: normal;">(Chiếm 39.0% DT • 18.5% Lãi gộp)</span>
+                </div>
+                <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">Biên lãi 11.5%</span>
+            </div>
+            <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                <b>Cơ chế hoạt động & tạo tiền:</b> IDICO sở hữu độc quyền trạm biến áp và mạng lưới lưới điện trung - hạ thế tại KCN Nhơn Trạch (Đồng Nai) và KCN Hựu Thạnh (Long An). Mua điện từ EVN kết hợp tự phát điện từ 2 nhà máy thủy điện Đak Mi 3 (63MW) và Srok Phu Miêng (51MW), sau đó bán lại cho các nhà máy sản xuất trong KCN.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="font-weight: 700; color: #38bdf8; font-size: 0.95rem;">
+                    #3. Cho thuê Nhà xưởng xây sẵn (RBF) & Kho bãi tiêu chuẩn <span style="font-size: 0.8rem; color: #94a3b8; font-weight: normal;">(Chiếm 8.5% DT • 10.0% Lãi gộp)</span>
+                </div>
+                <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">Biên lãi 46.0%</span>
+            </div>
+            <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                <b>Cơ chế hoạt động & tạo tiền:</b> Xây dựng các block nhà xưởng tiền chế tiêu chuẩn cao từ 1.000m² đến 5.000m² đáp ứng ngay nhu cầu lắp đặt máy móc sản xuất nhanh cho các doanh nghiệp vừa và nhỏ, doanh nghiệp phụ trợ với hợp đồng thuê linh hoạt từ 3 đến 5 năm.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="font-weight: 700; color: #38bdf8; font-size: 0.95rem;">
+                    #4. Thu phí giao thông BOT & Cung cấp Nước sạch, Xử lý nước thải <span style="font-size: 0.8rem; color: #94a3b8; font-weight: normal;">(Chiếm 9.0% DT • 6.5% Lãi gộp)</span>
+                </div>
+                <span class="badge" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">Biên lãi 24.0%</span>
+            </div>
+            <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                <b>Cơ chế hoạt động & tạo tiền:</b> Vận hành và thu phí trạm BOT Quốc lộ 1A đoạn An Sương - An Lạc (tuyến huyết mạch cửa ngõ phía Tây TP.HCM kết nối các tỉnh miền Tây) cùng dịch vụ cung cấp nước sạch công nghiệp và xử lý nước thải đạt chuẩn cho các nhà máy KCN.
+            </div>
+        </div>
+        
+            </div>
+        </div>
+
+        <!-- TẦNG 3: DANH MỤC DỰ ÁN TRỌNG ĐIỂM & TIẾN ĐỘ THỰC TẾ -->
+        <div class="section-title">🏗️ TẦNG 3: DANH MỤC DỰ ÁN TRỌNG ĐIỂM & TIẾN ĐỘ THỰC TẾ (KEY PROJECTS & LEGAL AUDIT)</div>
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <span>Tiến độ Triển khai, Đóng góp Lợi nhuận & Rà soát Vướng mắc Pháp lý / GPMB</span>
+                <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">PROJECT PIPELINE</span>
+            </div>
+            <div style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 14px;">
+                Bảng theo dõi các dự án động lực đóng góp dòng tiền trong ngắn hạn và danh mục dự án gối đầu cho chu kỳ tăng trưởng dài hạn:
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tên Dự án</th>
+                            <th>Quy mô</th>
+                            <th>Hiện trạng thực tế</th>
+                            <th>Đóng góp Lợi nhuận</th>
+                            <th>Pháp lý / Giải phóng mặt bằng (GPMB)</th>
+                            <th style="text-align: center;">Đánh giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr>
+                <td style="font-weight: 700; color: #f1f5f9;">Khu công nghiệp Hựu Thạnh</td>
+                <td style="color: #38bdf8; font-weight: 600;">524.1 ha (Diện tích đất thương phẩm còn lại ~120 - 130 ha)</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Đang khai thác & Bàn giao đất mạnh mẽ</td>
+                <td style="color: #34d399; font-size: 0.85rem; font-weight: 500;">Đóng góp 40-50% tổng lợi nhuận KCN của IDC giai đoạn 2024-2027. Giá thuê đạt mức cao kỷ lục 145 - 155 USD/m²/chu kỳ thuê.</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Đã hoàn tất đền bù giải phóng mặt bằng 100%, hạ tầng hoàn thiện. Không có vướng mắc pháp lý lớn. Rủi ro duy nhất là tiến độ quyết định đầu tư thực tế từ các tập đoàn FDI lớn trong bối cảnh địa chính trị.</td>
+                <td style="text-align: center;"><span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">TÍCH CỰC</span></td>
+            </tr>
+            
+            <tr>
+                <td style="font-weight: 700; color: #f1f5f9;">KCN Phú Mỹ II & Phú Mỹ II Mở rộng</td>
+                <td style="color: #38bdf8; font-weight: 600;">999 ha (Đã lấp đầy trên 88-90%, diện tích còn lại ~40 - 50 ha)</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Giai đoạn cuối chu kỳ cho thuê</td>
+                <td style="color: #34d399; font-size: 0.85rem; font-weight: 500;">Giá thuê đạt 130 - 140 USD/m², tạo dòng tiền thu nốt diện tích còn lại và duy trì nguồn doanh thu điện/nước nội khu cực lớn.</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Quỹ đất thương phẩm còn lại ít. Doanh nghiệp đang chuyển dần trọng tâm sang khai thác dịch vụ hậu cần cảng và phân phối điện ổn định.</td>
+                <td style="text-align: center;"><span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b;">TIẾN ĐỘ BÌNH THƯỜNG</span></td>
+            </tr>
+            
+            <tr>
+                <td style="font-weight: 700; color: #f1f5f9;">Khu công nghiệp Cầu Nghìn</td>
+                <td style="color: #38bdf8; font-weight: 600;">184.1 ha (Đất thương phẩm ~120 ha)</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Hoàn thiện hạ tầng & Đang thu hút nhà đầu tư</td>
+                <td style="color: #34d399; font-size: 0.85rem; font-weight: 500;">Giá thuê quanh 85 - 95 USD/m², đóng góp lợi nhuận gối đầu từ năm 2025-2026 khi thị trường KCN miền Bắc thiếu hụt nguồn cung sạch.</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Tốc độ lấp đầy chậm hơn khu vực miền Nam. Cần tuyến đường cao tốc ven biển Hải Phòng - Thái Bình hoàn thành toàn bộ để tối ưu kết nối logistics.</td>
+                <td style="text-align: center;"><span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b;">TIẾN ĐỘ BÌNH THƯỜNG</span></td>
+            </tr>
+            
+            <tr>
+                <td style="font-weight: 700; color: #f1f5f9;">KCN Quế Võ II (Mở rộng Giai đoạn 2)</td>
+                <td style="color: #38bdf8; font-weight: 600;">277.5 ha (Dự án mở rộng đón sóng FDI công nghệ cao)</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Đang hoàn thiện thủ tục pháp lý & Phương án bồi thường</td>
+                <td style="color: #34d399; font-size: 0.85rem; font-weight: 500;">Kỳ vọng giá thuê đạt trên 130 - 150 USD/m² nhờ vị trí chiến lược cạnh các nhà máy Foxconn, Samsung, Canon.</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Đang trong giai đoạn hoàn tất phê duyệt chủ trương và phương án giải phóng mặt bằng. Cần theo dõi tiến độ đền bù đất nông nghiệp của địa phương.</td>
+                <td style="text-align: center;"><span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">TÍCH CỰC</span></td>
+            </tr>
+            
+            <tr>
+                <td style="font-weight: 700; color: #f1f5f9;">Dự án Gối đầu: KCN Tân Phước 1</td>
+                <td style="color: #38bdf8; font-weight: 600;">470 ha (Tổng vốn đầu tư đăng ký ~5.936 tỷ đồng)</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Đã được Thủ tướng phê duyệt chủ trương đầu tư (Tháng 5/2024)</td>
+                <td style="color: #34d399; font-size: 0.85rem; font-weight: 500;">Động lực tăng trưởng chiến lược dài hạn cho chu kỳ 2026-2030 khi KCN Hựu Thạnh dần lấp đầy.</td>
+                <td style="color: #cbd5e1; font-size: 0.85rem;">Đang triển khai công tác đo đạc, lập phương án bồi thường hỗ trợ tái định cư. Nguy cơ chi phí đền bù đất tăng theo bảng giá đất mới của Luật Đất đai 2024, đòi hỏi chuẩn bị nguồn vốn đối ứng lớn.</td>
+                <td style="text-align: center;"><span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b;">TIẾN ĐỘ BÌNH THƯỜNG</span></td>
+            </tr>
+            
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TẦNG 4: SỨC KHỎE TÀI CHÍNH & BÓC TÁCH DÒNG TIỀN THẬT -->
+        <div class="section-title">🔬 TẦNG 4: SỨC KHỎE BÁO CÁO TÀI CHÍNH & BÓC TÁCH DÒNG TIỀN THẬT</div>
+        <div class="card-grid-3" style="margin-bottom: 20px;">
+            <div class="card" style="border-left: 4px solid #10b981;">
+                <div class="card-header">
+                    <span>Chất lượng Lợi nhuận</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">HẠNG A</span>
+                </div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: #10b981;">XUẤT SẮC (DÒNG TIỀN THẬT DỒI DÀO)</div>
+                <p style="font-size: 0.82rem; color: #94a3b8; margin-top: 6px;">CFO (2,506,712,374,440 đ) vượt trội so với LNST (2,171,345,778,631 đ) - Tỷ lệ 1.15x. Tiền mặt thực thu lớn hơn lợi nhuận kế toán.</p>
+                <div style="margin-top: 10px; font-size: 0.85rem;">
+                    Tỷ lệ Tiền thật / Lãi kế toán (CFO / LNST): <b style="color: #38bdf8;">1.15x</b>
+                    <br><span style="font-size: 0.78rem; color: #64748b;">(Tỷ lệ &ge; 1.0x nghĩa là lãi bao nhiêu tiền mặt về bấy nhiêu)</span>
+                </div>
+            </div>
+
+            <div class="card" style="border-left: 4px solid #10b981;">
+                <div class="card-header">
+                    <span>Altman Z''-Score (Nguy cơ Phá sản)</span>
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #10b981;">SAFE</span>
+                </div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: #10b981;">4.81 điểm</div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: #fff; margin-top: 2px;">VÙNG AN TOÀN CAO (SAFE ZONE)</div>
+                <p style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">Chỉ số Altman Z''-Score đạt 4.81 (> 2.60). Xác suất phá sản / kiệt quệ tài chính trong 2 năm tới là cực thấp.</p>
+            </div>
+
+            <div class="card" style="border-left: 4px solid #3b82f6;">
+                <div class="card-header">
+                    <span>Piotroski F-Score (Độ khỏe Tài chính)</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #3b82f6;">5/9 ĐIỂM</span>
+                </div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: #3b82f6;">5/9</div>
+                <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px; line-height: 1.6;">
+                    ROA (Sinh lời trên tài sản): <b>9.2%</b><br>
+                    ROE (Sinh lời trên vốn chủ): <b>24.6%</b><br>
+                    Nợ vay / Vốn CSH: <b>0.6x</b>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ Dòng tiền & Cờ đỏ -->
+        <div class="card-grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <span>So sánh Dòng tiền thật (CFO) vs LNST Kế toán (Tỷ VNĐ)</span>
+                    <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">4 QUÝ GẦN NHẤT</span>
+                </div>
+                <div style="height: 240px; position: relative;">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 10px;">
+                    Cột xanh dương: Lợi nhuận sau thuế &bull; Cột xanh lá: Tiền kinh doanh thực thu (CFO) &bull; Đường vàng: Dòng tiền tự do (FCF)
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>Rà soát Cờ đỏ Kế toán (Forensic Audit)</span>
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">CẢNH BÁO RỦI RO</span>
+                </div>
+                <ul class="bullet-list" style="margin-bottom: 16px;">
+                    <li style='color: #34d399;'>✅ Không phát hiện cờ đỏ tài chính nghiêm trọng về dòng tiền.</li>
+                </ul>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Chỉ tiêu Dòng tiền</th>
+                                <th style="text-align: right;">Giá trị (VND)</th>
+                                <th>Ý nghĩa thực tế</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tiền kinh doanh thật (CFO 4 quý)</td>
+                                <td style="text-align: right; font-weight: 700; color: #34d399;">2,506,712,374,440 đ</td>
+                                <td style="font-size: 0.8rem; color: #94a3b8;">Tiền mặt thực tế thu về từ bán hàng</td>
+                            </tr>
+                            <tr>
+                                <td>Đầu tư mua sắm TSCĐ (CapEx 4 quý)</td>
+                                <td style="text-align: right; color: #f87171;">2,352,542,479,836 đ</td>
+                                <td style="font-size: 0.8rem; color: #94a3b8;">Tiền chi ra mở rộng hạ tầng, nhà xưởng</td>
+                            </tr>
+                            <tr>
+                                <td>Dòng tiền tự do (FCF 4 quý)</td>
+                                <td style="text-align: right; font-weight: 700; color: #34d399;">154,169,894,604 đ</td>
+                                <td style="font-size: 0.8rem; color: #94a3b8;">Tiền còn lại để trả cổ tức sau khi đã tái đầu tư</td>
+                            </tr>
+                            <tr>
+                                <td>Lợi nhuận sau thuế (LNST 4 quý)</td>
+                                <td style="text-align: right; color: #38bdf8;">2,171,345,778,631 đ</td>
+                                <td style="font-size: 0.8rem; color: #94a3b8;">Lợi nhuận ghi nhận trên sổ sách kế toán</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TẦNG 5: KIỂM TOÁN BAN LÃNH ĐẠO, TÍNH MINH BẠCH & CÔNG TY SÂN SAU -->
+        <div class="section-title">👥 TẦNG 5: KIỂM TOÁN BAN LÃNH ĐẠO, TÍNH MINH BẠCH & RADAR CÔNG TY SÂN SAU</div>
+        <div class="card-grid-2" style="margin-bottom: 20px;">
+            <div class="card">
+                <div class="card-header">
+                    <span>Kiểm toán Đạo đức & Tính Minh bạch Ban Điều hành</span>
+                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #10b981;">G-SCORE 80/100</span>
+                </div>
+                <div style="font-size: 1rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">
+                    MINH BẠCH RẤT CAO
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+                    • <b>Đánh giá Ban lãnh đạo:</b> Chủ tịch HĐQT: Nguyễn Thị Như Mai (Chủ tịch Hội đồng Quản trị/Thành viên Hội đồng Quản trị) | Tổng Giám đốc: Đặng Việt Dũng (Phó Tổng Giám đốc). Ban điều hành nắm giữ 2.7% cổ phần (THẤP). Không phát hiện dấu hiệu sử dụng công ty sân sau để rút ruột hay chuyển giá. Dòng tiền kinh doanh gắn liền với tài sản và hoạt động thực tế. ✅ Dòng tiền bán hàng thực thu (CFO) dương rất lớn (>500 tỷ), chứng minh doanh nghiệp thu tiền tươi thóc thật, không bị ứ đọng vốn ở công ty sân sau.<br>
+                    • <b>Cam kết cùng cổ đông (Skin in the game):</b> 2.72% cổ phần (THẤP)<br>
+                    • <b>Chủ tịch:</b> Nguyễn Thị Như Mai (Chủ tịch Hội đồng Quản trị/Thành viên Hội đồng Quản trị) &bull; <b>Tổng Giám đốc:</b> Đặng Việt Dũng (Phó Tổng Giám đốc)
+                </div>
+
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 12px; margin-top: 10px;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: #34d399;">💵 Bằng chứng Tiền thật qua Lịch sử Cổ tức:</span>
+                    <p style="font-size: 0.84rem; color: #cbd5e1; margin-top: 4px; line-height: 1.5;">✅ Dòng tiền bán hàng thực thu (CFO) dương rất lớn (>500 tỷ), chứng minh doanh nghiệp thu tiền tươi thóc thật, không bị ứ đọng vốn ở công ty sân sau.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span>Radar Rủi ro Công ty Sân sau & Rút ruột Vốn</span>
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #34d399;">MỨC ĐỘ RỦI RO: 1/5</span>
+                </div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #34d399; margin-bottom: 8px;">
+                    Không phát hiện dấu hiệu sử dụng công ty sân sau để rút ruột hay chuyển giá. Dòng tiền kinh doanh gắn liền với tài sản và hoạt động thực tế.
+                </div>
+                <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 14px;">
+                    • <b>Cảnh báo Tăng vốn ảo & Trái phiếu nội bộ:</b> MINH BẠCH / KHÔNG CÓ DẤU HIỆU LUÂN CHUYỂN VỐN BẤT THƯỜNG<br>
+                    • <b>Quy mô hệ sinh thái:</b> 22 công ty con, 5 công ty liên kết<br>
+                    • <b>Tỷ lệ cho vay bên liên quan:</b> 0.0% tổng tài sản
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Top Cổ đông Nắm giữ Lớn</th>
+                                <th style="text-align: right;">Tỷ lệ sở hữu</th>
+                                <th style="text-align: right;">Số lượng CP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty Cổ phần Tập đoàn S.S.G</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">22.5%</td>
+            <td style="text-align: right; color: #94a3b8;">85,387,500 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty TNHH Sản Xuất Và Thương Mại Bách Việt</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">11.93%</td>
+            <td style="text-align: right; color: #94a3b8;">45,265,495 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty TNHH Kinh Doanh Và Cho Thuê Nhà Tân Bách Việt</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">2.91%</td>
+            <td style="text-align: right; color: #94a3b8;">11,031,950 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Đặng Việt Dũng</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">2.53%</td>
+            <td style="text-align: right; color: #94a3b8;">9,614,000 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Hanoi Investments Holdings Limited</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 600;">1.21%</td>
+            <td style="text-align: right; color: #94a3b8;">4,005,500 CP</td>
+        </tr>
+        
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TẦNG 6: PHÂN TÍCH KỸ THUẬT NÂNG CAO -->
+        <div class="section-title">📈 TẦNG 6: PHÂN TÍCH KỸ THUẬT NÂNG CAO (VCP, VSA, FIBONACCI & OVERHEAD SUPPLY)</div>
+        <div class="card-grid-2" style="margin-bottom: 20px;">
+            <!-- Box 1: VCP Minervini & VSA -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Mô hình Thu hẹp Biến động VCP & Hành vi Nến VSA</span>
+                    <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">MÔ HÌNH GIÁ VÀ KHỐI LƯỢNG</span>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8;">Mô hình VCP Minervini (Thu hẹp độ biến động):</div>
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 2px;">Nền dao động tích lũy</div>
+                    <div style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px; line-height: 1.5;">
+                        • Chuỗi thu hẹp biên độ: <b style="color: #fbbf24;">Nhịp co thắt trước: ~16.7% &rarr; Nhịp gần nhất: 23.0%</b><br>
+                        • Đánh giá Minervini: <i>Giá dao động trong biên độ 23.0% trong 20 phiên gần nhất.</i>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; margin-top: 12px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #34d399; margin-bottom: 6px;">Đọc Dấu vết Dòng tiền Lớn (VSA - Smart Money Signals):</div>
+                    <ul class="bullet-list">
+                        <li>Thanh khoản ổn định: Cung cầu vận động tự nhiên theo nhịp điệu thị trường.</li>
+                    </ul>
+                    <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 6px;">
+                        Hành động Cá mập / Tay to: <b style="color: #fff;">Vận động cung cầu tự nhiên</b>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Box 2: Fibonacci & Vùng kẹp hàng Overhead Supply -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Mốc Hỗ trợ Fibonacci & Vùng Cung Kẹp Hàng Đỉnh Cũ</span>
+                    <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">VÙNG GIÁ QUAN TRỌNG</span>
+                </div>
+                <div style="margin-bottom: 14px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 4px;">Mốc Hỗ trợ Fibonacci Retracement (Nhịp sóng gần nhất):</div>
+                    <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
+                        • Đáy sóng: <b>29,100 đ</b> &bull; Đỉnh sóng: <b>44,240 đ</b><br>
+                        • Fibo 38.2%: <b style="color: #34d399;">38,457 đ</b> (Hỗ trợ nhịp sóng khỏe)<br>
+                        • Fibo 50.0%: <b style="color: #fbbf24;">36,670 đ</b> (Mốc cân bằng cung cầu)<br>
+                        • Fibo 61.8%: <b style="color: #f87171;">34,883 đ</b> (Hỗ trợ vàng sống còn)<br>
+                        • Vị trí hiện tại: <i>Vùng hỗ trợ Fibo 61.8% (Ngưỡng phòng thủ quan trọng)</i>
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; margin-top: 12px;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #f87171; margin-bottom: 4px;">Áp lực Vùng Cung Kẹp Hàng Đỉnh Cũ (Overhead Supply):</div>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5;">
+                        • Vùng kẹp hàng: <b style="color: #fca5a5;">44,240 đ (Đỉnh cao nhất 120 phiên)</b><br>
+                        • Áp lực bán tiềm tàng: <b style="color: #f87171;">Đáng kể (Cách đỉnh >8%)</b><br>
+                        • Chi tiết: <i>Vùng cản tâm lý của nhà đầu tư kẹp hàng đỉnh cũ quanh 44,240 đ. Cần theo dõi thêm thanh khoản khi giá tiến về kiểm tra vùng đỉnh này.</i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TẦNG 7: BÀN TRÒN HỘI ĐỒNG PHẢN BIỆN AI ĐA TRƯỜNG PHÁI -->
+        <div class="section-title">🏛️ TẦNG 7: BÀN TRÒN HỘI ĐỒNG PHẢN BIỆN AI ĐA TRƯỜNG PHÁI (COUNCIL ROUNDTABLE)</div>
+        
+        <!-- Bảng biểu quyết tổng hợp -->
+        <div class="card" style="margin-bottom: 20px; background: linear-gradient(145deg, #162032, #0f172a);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 14px; margin-bottom: 12px;">
+                <div>
+                    <div style="font-size: 1.15rem; font-weight: 800; color: #fff;">KẾT QUẢ BIỂU QUYẾT 6 THÀNH VIÊN HỘI ĐỒNG AI</div>
+                    <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 2px;">
+                        Độ đồng thuận tổng hợp: <b style="color: #38bdf8; font-size: 1.05rem;">75/100 điểm</b> &bull; Kết luận: <b style="color: #34d399;">THEO DÕI</b>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; font-size: 0.85rem; padding: 6px 12px;">🟢 5 TÁN THÀNH MUA</span>
+                    <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.85rem; padding: 6px 12px;">🟡 0 THEO DÕI</span>
+                    <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; font-size: 0.85rem; padding: 6px 12px;">🔴 1 PHẢN ĐỐI TRÁNH</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Khối tranh biện đối đầu (Clash of Perspectives) -->
+        
+            <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 14px; padding: 18px; margin-bottom: 16px;">
+                <div style="font-weight: 700; color: #f87171; font-size: 0.95rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <span>⚔️ ĐỐI ĐẦU TRANH BIỆN #1: Định giá Tài sản ròng (P/B) vs Động lực Tăng trưởng Dự án Mới</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 14px;">
+                    <div style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border-left: 3px solid #38bdf8;">
+                        <div style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; margin-bottom: 4px;">Phe Giá trị (Buffett) & Phòng thủ vốn (Taleb)</div>
+                        <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">"Thị giá hiện tại (35,500 đ) cao hơn giá trị sổ sách ròng BVPS (21,153 đ, P/B 1.68x). Cần chiết khấu an toàn hơn và phải đặt Stop Loss chặt chẽ tại 33,015 đ (-7.0%)."</div>
+                    </div>
+                    <div style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border-left: 3px solid #fbbf24;">
+                        <div style="font-size: 0.82rem; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">Phe Tăng trưởng (Lynch) & Dòng tiền Kỹ thuật (O'Neil, VSA)</div>
+                        <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">"Doanh nghiệp sở hữu quỹ đất và dự án trọng điểm tạo tiền lớn trong tương lai, hành vi nến kiểm tra cung cạn kiệt, dòng tiền lớn chưa thoát hàng. Giá trị sổ sách chưa phản ánh hết tiềm năng dự án mới."</div>
+                    </div>
+                </div>
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 12px;">
+                    <span style="font-weight: 700; color: #34d399; font-size: 0.85rem;">🛡️ Phán quyết Điều hòa của Chief Risk Officer (CRO):</span>
+                    <p style="font-size: 0.85rem; color: #e2e8f0; margin-top: 4px; line-height: 1.5;">Cho phép mở vị thế giải ngân thăm dò từng phần (tối đa 15.0% NAV) để đón đầu nhịp tăng, nhưng bắt buộc tuân thủ cắt lỗ kỷ luật tại 33,015 đ (-7.0%), không gồng lỗ dưới mọi hình thức.</p>
+                </div>
+            </div>
+            
+
+        <!-- Lưới Card 6 Chuyên gia AI -->
+        <div style="font-size: 1rem; font-weight: 700; color: #38bdf8; margin: 24px 0 12px 0;">
+            📋 Ý kiến Chi tiết Từng Chuyên gia Hội đồng & Điều kiện Mất hiệu lực:
+        </div>
+        <div class="card-grid-3">
+            
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.8rem;">🏛️</span>
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 1rem;">Warren Buffett & Charlie Munger</div>
+                            <div style="font-size: 0.78rem; color: #94a3b8;">Đầu tư Giá trị & Con hào kinh tế</div>
+                        </div>
+                    </div>
+                    <span class="badge" style="background: rgba(255,255,255,0.06); color: #10b981; border: 1px solid #10b981; font-size: 0.75rem;">
+                        MUA TÍCH SẢN (100/100)
+                    </span>
+                </div>
+                
+                <div style="margin-bottom: 10px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                    <b style="color: #38bdf8;">Luận điểm cốt lõi:</b> Đánh giá doanh nghiệp theo giá trị tài sản ròng và khả năng sinh tiền thật. Giá trị thực hợp lý ước tính: 75,366 đ.
+                </div>
+
+                <ul class="bullet-list" style="margin-bottom: 12px; font-size: 0.84rem;"><li style='margin-bottom: 4px;'>ROE xuất sắc (24.6%), thể hiện lợi thế cạnh tranh con hào kinh tế bền vững.</li><li style='margin-bottom: 4px;'>Cấu trúc tài chính rất an toàn, nợ/vốn chỉ 0.60x.</li><li style='margin-bottom: 4px;'>Giá trị sổ sách tài sản (BVPS): 21,153 đ/CP. Thị giá đang giao dịch ở mức P/B 1.68x (So với giá trị thực ước tính 75,366 đ).</li><li style='margin-bottom: 4px;'>Kiểm định dòng tiền thật: CFO (2,506,712,374,440 đ) vượt trội so với LNST (2,171,345,778,631 đ) - Tỷ lệ 1.15x. Tiền mặt thực thu lớn hơn lợi nhuận kế toán.</li></ul>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; margin-top: 10px; font-size: 0.82rem; color: #f87171; line-height: 1.5;">
+                <b>⚠️ Điều kiện mất hiệu lực:</b> Biên an toàn bị phá vỡ nếu doanh nghiệp có dấu hiệu chuyển vốn sang công ty sân sau mờ ám, hoặc dòng tiền kinh doanh (CFO) âm kéo dài quá 2 quý.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.8rem;">🚀</span>
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 1rem;">Peter Lynch & Philip Fisher</div>
+                            <div style="font-size: 0.78rem; color: #94a3b8;">Tăng trưởng & Mô hình hoạt động</div>
+                        </div>
+                    </div>
+                    <span class="badge" style="background: rgba(255,255,255,0.06); color: #10b981; border: 1px solid #10b981; font-size: 0.75rem;">
+                        MUA TĂNG TRƯỞNG (90/100)
+                    </span>
+                </div>
+                
+                <div style="margin-bottom: 10px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                    <b style="color: #38bdf8;">Luận điểm cốt lõi:</b> Đánh giá mô hình kinh doanh bóc tách phân khúc, tiềm năng mở rộng các dự án gối đầu và biên lợi nhuận.
+                </div>
+
+                <ul class="bullet-list" style="margin-bottom: 12px; font-size: 0.84rem;"><li style='margin-bottom: 4px;'>Mô hình hoạt động cốt lõi: Tập đoàn phát triển hạ tầng và Khu công nghiệp (KCN) hàng đầu Việt Nam hoạt động theo mô hình tích hợp khép kín: (1) Quỹ đất KCN sạch quy mô lớn tại các thủ phủ FDI (Long An, Bà Rịa - Vũng Tàu, Bắc Ninh, Thái Bình) tạo dòng tiền đột biến từ cho thuê đất 50 năm; (2) Độc quyền phân phối điện lưới và thủy điện nội khu cho hàng trăm nhà máy KCN tạo 'cỗ máy in tiền mặt' đều đặn hàng tháng; (3) Cho thuê nhà xưởng xây sẵn (RBF) và thu phí BOT đường bộ tạo nguồn thu ổn định phòng thủ quanh năm.</li><li style='margin-bottom: 4px;'>Động lực dự án gối đầu: Dự án 'Khu công nghiệp Hựu Thạnh' (Huyện Bến Lức, Tỉnh Long An (Giáp ranh TP.HCM)) - Đóng góp 40-50% tổng lợi nhuận KCN của IDC giai đoạn 2024-2027. Giá thuê đạt mức cao kỷ lục 145 - 155 USD/m²/chu kỳ thuê.</li><li style='margin-bottom: 4px;'>Chỉ số PEG cực kỳ hấp dẫn (0.46 <= 0.7) với tốc độ tăng trưởng 15.0%.</li></ul>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; margin-top: 10px; font-size: 0.82rem; color: #f87171; line-height: 1.5;">
+                <b>⚠️ Điều kiện mất hiệu lực:</b> Tăng trưởng doanh thu và lợi nhuận cốt lõi suy giảm dưới 10% hoặc biên lợi nhuận gộp bị bóp nghẹt do mất lợi thế cạnh tranh ngành.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.8rem;">📈</span>
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 1rem;">William O'Neil & Mark Minervini</div>
+                            <div style="font-size: 0.78rem; color: #94a3b8;">Kỹ thuật Xu hướng & Điểm bùng nổ</div>
+                        </div>
+                    </div>
+                    <span class="badge" style="background: rgba(255,255,255,0.06); color: #fbbf24; border: 1px solid #fbbf24; font-size: 0.75rem;">
+                        CHỜ TÍCH LŨY THÊM (55/100)
+                    </span>
+                </div>
+                
+                <div style="margin-bottom: 10px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                    <b style="color: #38bdf8;">Luận điểm cốt lõi:</b> Tìm kiếm mẫu hình tích lũy thu hẹp biến động, điểm mua Pocket Pivot / Breakout khi khối lượng bùng nổ xác nhận.
+                </div>
+
+                <ul class="bullet-list" style="margin-bottom: 12px; font-size: 0.84rem;"><li style='margin-bottom: 4px;'>Mô hình nến kỹ thuật: Nền dao động tích lũy. Giá dao động trong biên độ 23.0% trong 20 phiên gần nhất.</li><li style='margin-bottom: 4px;'>Giá nằm trong xu hướng tăng mạnh: Giá > EMA20 > EMA50.</li><li style='margin-bottom: 4px;'>Khối lượng giao dịch tăng tích cực (1.2x lần MA20).</li><li style='margin-bottom: 4px;'>Thanh khoản hiện tại: Gấp 1.20x lần khối lượng trung bình 20 phiên (MA20).</li></ul>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; margin-top: 10px; font-size: 0.82rem; color: #f87171; line-height: 1.5;">
+                <b>⚠️ Điều kiện mất hiệu lực:</b> Giá đóng cửa gãy đường xu hướng ngắn hạn EMA20 hoặc chạm ngưỡng cắt lỗ kỷ luật 33,015 đ (-7.0%).
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.8rem;">🌊</span>
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 1rem;">Richard Wyckoff & Tom Williams</div>
+                            <div style="font-size: 0.78rem; color: #94a3b8;">Dòng tiền Lớn & Wyckoff VSA</div>
+                        </div>
+                    </div>
+                    <span class="badge" style="background: rgba(255,255,255,0.06); color: #10b981; border: 1px solid #10b981; font-size: 0.75rem;">
+                        DÒNG TIỀN VÀO (TÍCH CỰC) (85/100)
+                    </span>
+                </div>
+                
+                <div style="margin-bottom: 10px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                    <b style="color: #38bdf8;">Luận điểm cốt lõi:</b> Quan sát hành vi test cung cạn kiệt của nhà tạo lập để giải ngân an toàn cùng dòng tiền thông minh.
+                </div>
+
+                <ul class="bullet-list" style="margin-bottom: 12px; font-size: 0.84rem;"><li style='margin-bottom: 4px;'>Pha chu kỳ dòng tiền: Pha Markup (Đang đẩy giá mạnh)</li><li style='margin-bottom: 4px;'>Hành vi nến & khối lượng: Thanh khoản ổn định. Cung cầu vận động tự nhiên theo nhịp điệu thị trường.</li><li style='margin-bottom: 4px;'>Nến tăng thân dài kèm vol lớn xác nhận dòng tiền đẩy giá quyết liệt.</li><li style='margin-bottom: 4px;'>Chỉ số RSI (78.0) đang tiến sâu vào vùng quá mua, chú ý rủi ro rung lắc ngắn hạn.</li></ul>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; margin-top: 10px; font-size: 0.82rem; color: #f87171; line-height: 1.5;">
+                <b>⚠️ Điều kiện mất hiệu lực:</b> Xuất hiện phiên nến giảm mạnh thân dài kèm khối lượng lớn đột biến xác nhận dòng tiền lớn (Big Boys) phân phối xả hàng.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.8rem;">🌐</span>
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 1rem;">Ray Dalio & Howard Marks</div>
+                            <div style="font-size: 0.78rem; color: #94a3b8;">Vĩ mô & Chu kỳ Ngành</div>
+                        </div>
+                    </div>
+                    <span class="badge" style="background: rgba(255,255,255,0.06); color: #10b981; border: 1px solid #10b981; font-size: 0.75rem;">
+                        RẤT TÍCH CỰC (STRONG TAILWIND) (85/100)
+                    </span>
+                </div>
+                
+                <div style="margin-bottom: 10px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                    <b style="color: #38bdf8;">Luận điểm cốt lõi:</b> Đánh giá vị thế ngành trong chu kỳ kinh tế lớn, tận dụng gió xuôi vĩ mô để gia tăng xác suất thành công.
+                </div>
+
+                <ul class="bullet-list" style="margin-bottom: 12px; font-size: 0.84rem;"><li style='margin-bottom: 4px;'>Chu kỳ ngành & Vĩ mô: Ngành Bất động sản Khu công nghiệp đang ở pha 'Tăng tốc mở rộng (Mid-Cycle Expansion)'. Điểm gió xuôi vĩ mô: 85/100 (RẤT TÍCH CỰC (STRONG TAILWIND)).</li><li style='margin-bottom: 4px;'>Góc nhìn chu kỳ kinh tế (Ray Dalio): Theo chu kỳ vĩ mô hiện tại, ngành Bất động sản Khu công nghiệp đang ở pha 'Tăng tốc mở rộng (Mid-Cycle Expansion)'. Doanh nghiệp đang nhận được 'Gió xuôi chiều cực mạnh' (Tailwind) từ các yếu tố vĩ mô và dòng vốn tổ chức. Phù hợp để gia tăng tỷ trọng theo xu hướng lớn.</li><li style='margin-bottom: 4px;'>Tâm lý thị trường & Định giá (Howard Marks): Howard Marks (Tâm lý Chu kỳ & Định giá): Khi ngành ở pha Tăng tốc mở rộng (Mid-Cycle Expansion), thị trường đang phản ánh đúng tốc độ mở rộng. Hãy tập trung vào việc liệu dòng tiền kinh doanh (CFO) có chuyển hóa tương xứng với tốc độ tăng trưởng doanh thu hay không.</li></ul>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; margin-top: 10px; font-size: 0.82rem; color: #f87171; line-height: 1.5;">
+                <b>⚠️ Điều kiện mất hiệu lực:</b> Dòng vốn đầu tư đảo chiều, môi trường lãi suất đảo chiều thắt chặt hoặc các chính sách pháp lý quy hoạch ngành bị nghẽn lại.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.8rem;">🛡️</span>
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 1rem;">Nassim Taleb & Chief Risk Officer</div>
+                            <div style="font-size: 0.78rem; color: #94a3b8;">Quản trị Rủi ro & Pre-Mortem</div>
+                        </div>
+                    </div>
+                    <span class="badge" style="background: rgba(255,255,255,0.06); color: #38bdf8; border: 1px solid #38bdf8; font-size: 0.75rem;">
+                        MUA THĂM DÒ (TEST BUY) (71/100)
+                    </span>
+                </div>
+                
+                <div style="margin-bottom: 10px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                    <b style="color: #38bdf8;">Luận điểm cốt lõi:</b> Bảo toàn vốn là trên hết: Tỷ lệ Lợi nhuận/Rủi ro R:R đạt 1.29:1. Cắt lỗ kỷ luật không thương lượng.
+                </div>
+
+                <ul class="bullet-list" style="margin-bottom: 12px; font-size: 0.84rem;"><li style='margin-bottom: 4px;'>Kế hoạch phòng thủ vốn: Cắt lỗ tuyệt đối tại 33,015 đ (-7.0%). Tỷ trọng giải ngân an toàn: Tối đa 15.0% NAV.</li><li style='margin-bottom: 4px;'>Kiểm toán rủi ro thao túng: ĐỊNH GIÁ HỢP LÝ (FAIR VALUE) (Cấp 2/5).</li><li style='margin-bottom: 4px;'>Kịch bản xấu nhất (Pre-Mortem): Nếu thị trường chung điều chỉnh mạnh hoặc dự án chậm bàn giao, vùng đệm hỗ trợ cứng nằm quanh 75,366 đ.</li></ul>
+            </div>
+            
+            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; margin-top: 10px; font-size: 0.82rem; color: #f87171; line-height: 1.5;">
+                <b>⚠️ Điều kiện mất hiệu lực:</b> Tuyệt đối không phá vỡ kỷ luật vị thế, không gồng lỗ hay trung bình giá xuống khi cổ phiếu vi phạm ngưỡng cắt lỗ.
+            </div>
+        </div>
+        
+        </div>
+
+        <!-- Báo cáo Thảo luận Chi tiết Toàn văn (Details Accordion) -->
+        
+        <details style="margin-top: 24px; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
+            <summary style="cursor: pointer; font-weight: 700; color: #94a3b8; font-size: 0.9rem;">
+                📜 Xem Toàn văn Báo cáo Thảo luận Chi tiết của Ban Điều phối Hội đồng AI &darr;
+            </summary>
+            <div style="margin-top: 14px; font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                <h4 style="color: #38bdf8; margin: 18px 0 8px 0;">1. 🌐 Góc nhìn Vĩ mô & Chu kỳ Ngành (Ray Dalio & Howard Marks)
+* **Ngành nghề:** **Bất động sản Khu công nghiệp** — **Pha chu kỳ:** `Tăng tốc mở rộng (Mid-Cycle Expansion)`
+* **Điểm số Gió xuôi Vĩ mô (Tailwind Score):** **85/100** (RẤT TÍCH CỰC (STRONG TAILWIND))
+* **Nhận định Cỗ máy Vĩ mô (Ray Dalio):** Theo chu kỳ vĩ mô hiện tại, ngành Bất động sản Khu công nghiệp đang ở pha 'Tăng tốc mở rộng (Mid-Cycle Expansion)'. Doanh nghiệp đang nhận được 'Gió xuôi chiều cực mạnh' (Tailwind) từ các yếu tố vĩ mô và dòng vốn tổ chức. Phù hợp để gia tăng tỷ trọng theo xu hướng lớn.
+* **Nhận định Tâm lý & Bẫy Định giá (Howard Marks):** Howard Marks (Tâm lý Chu kỳ & Định giá): Khi ngành ở pha Tăng tốc mở rộng (Mid-Cycle Expansion), thị trường đang phản ánh đúng tốc độ mở rộng. Hãy tập trung vào việc liệu dòng tiền kinh doanh (CFO) có chuyển hóa tương xứng với tốc độ tăng trưởng doanh thu hay không.
+* **Động lực vĩ mô chính:**
+  - Dòng vốn FDI giải ngân thực tế liên tục lập đỉnh mới tại Việt Nam.
+  - Nâng cấp quan hệ đối tác chiến lược toàn diện với Mỹ, Hàn Quốc, Nhật Bản thúc đẩy các đại bàng công nghệ (Nvidia, Foxconn, Amkor, Hana Micron) mở rộng nhà máy.
+  - Giá thuê đất KCN bình quân tăng trưởng bền vững: Miền Bắc ~135-145 USD/m2/chu kỳ, Miền Nam ~160-180 USD/m2/chu kỳ.
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">2. 🏛️ Góc nhìn Warren Buffett (Đầu tư Giá trị & Định giá Khối tài sản ròng)
+* **Phán quyết:** **MUA TÍCH SẢN** (Điểm số: 100/100)
+* **Luận điểm cốt lõi về Tài sản & Con hào kinh tế:**
+  - ROE xuất sắc (24.6%), thể hiện lợi thế cạnh tranh con hào kinh tế bền vững.
+  - Cấu trúc tài chính rất an toàn, nợ/vốn chỉ 0.60x.
+  - Thị giá rất hấp dẫn với P/E 6.8x.
+  - **Khối tài sản ròng thực tế (BVPS):** 21,153 VND/CP. Thị giá hiện tại (35,500 VND) tương ứng P/B **1.68x**.
+  - Hệ số P/B ở mức 1.68x, tương xứng với hiệu quả sinh lời trên tài sản (ROE 24.6%).
+  - Thị giá phản ánh đúng quy mô tài sản và không có dấu hiệu bị bơm thổi bất thường.
+  - *Giá trị hợp lý ước tính:* 75,366 VND (Biên an toàn: 52.9%)
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">3. 🔬 Bóc tách Dòng tiền Thật & Kiểm định Kiệt quệ Tài chính (Cash Flow Forensic)
+* **Chất lượng Lợi nhuận:** **Hạng A: XUẤT SẮC (DÒNG TIỀN THẬT DỒI DÀO)**
+  - **Dòng tiền thuần HĐKD (CFO TTM):** `2,506,712,374,440 VND` vs **LNST kế toán (TTM):** `2,171,345,778,631 VND` (Tỷ lệ CFO/LNST: `1.15x`)
+  - **Chi tiêu vốn (CapEx TTM):** `2,352,542,479,836 VND` | **Dòng tiền tự do (FCF):** `154,169,894,604 VND`
+  - *Đánh giá FCF:* Dương lớn (154,169,894,604 đ). Doanh nghiệp tự chủ tài chính hoàn toàn sau khi đầu tư mở rộng CapEx.
+* **Chỉ số Kiệt quệ Tài chính Altman Z''-Score (Emerging Markets):** **4.81** (VÙNG AN TOÀN CAO (SAFE ZONE))
+  - *Ý nghĩa:* Chỉ số Altman Z''-Score đạt 4.81 (> 2.60). Xác suất phá sản / kiệt quệ tài chính trong 2 năm tới là cực thấp.
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">4. 📈 Góc nhìn Peter Lynch & Bóc tách Hoạt động Cốt lõi (Core Business)
+* **Phán quyết:** **MUA TĂNG TRƯỞNG** (Điểm số: 90/100)
+* **Mô hình hoạt động cốt lõi:** Tập đoàn phát triển hạ tầng và Khu công nghiệp (KCN) hàng đầu Việt Nam hoạt động theo mô hình tích hợp khép kín: (1) Quỹ đất KCN sạch quy mô lớn tại các thủ phủ FDI (Long An, Bà Rịa - Vũng Tàu, Bắc Ninh, Thái Bình) tạo dòng tiền đột biến từ cho thuê đất 50 năm; (2) Độc quyền phân phối điện lưới và thủy điện nội khu cho hàng trăm nhà máy KCN tạo 'cỗ máy in tiền mặt' đều đặn hàng tháng; (3) Cho thuê nhà xưởng xây sẵn (RBF) và thu phí BOT đường bộ tạo nguồn thu ổn định phòng thủ quanh năm.
+* **Bóc tách Cơ cấu Phân khúc Kinh doanh (Segment Breakdown):**
+  * **Cho thuê đất Khu công nghiệp (Hạ tầng hoàn thiện 50 năm):** Chiếm **43.5% Doanh thu**, đóng góp **65.0% Lợi nhuận gộp** (Biên lãi gộp: `58.5%`).
+    - *Vai trò:* Ngòi nổ Lợi nhuận Đột biến & Thặng dư Dòng tiền | *Trạng thái:* Đang cho thuê rất tích cực
+    - *Điểm nhấn:* Quỹ đất thương phẩm sẵn sàng cho thuê còn lại hơn 580 ha. Giá thuê đất KCN duy trì đà tăng 8-12%/năm tại các vùng kinh tế trọng điểm phía Nam (Long An, Bà Rịa - Vũng Tàu). Khách thuê trả tiền mặt lớn giúp thặng dư tiền gửi dồi dào.
+    - *Rủi ro:* Tiến độ bàn giao đất phụ thuộc vào tốc độ cấp giấy chứng nhận đầu tư (IRC) của khách thuê và chu kỳ dòng vốn FDI toàn cầu.
+  * **Kinh doanh, Phân phối & Truyền tải Điện KCN:** Chiếm **39.0% Doanh thu**, đóng góp **18.5% Lợi nhuận gộp** (Biên lãi gộp: `11.5%`).
+    - *Vai trò:* Con bò sữa dòng tiền (Cash Cow) đều đặn hàng tháng | *Trạng thái:* Cực kỳ ổn định
+    - *Điểm nhấn:* Sản lượng điện tiêu thụ tăng trưởng lũy kế theo tỷ lệ lấp đầy của các KCN. Tiền điện được thu hàng tháng, tuyệt đối không có rủi ro nợ xấu vì nhà máy không thể ngừng sản xuất.
+    - *Rủi ro:* Biên lợi nhuận gộp phụ thuộc vào chênh lệch giá mua điện đầu vào từ EVN và chu kỳ thủy văn của các nhà máy thủy điện.
+  * **Cho thuê Nhà xưởng xây sẵn (RBF) & Kho bãi tiêu chuẩn:** Chiếm **8.5% Doanh thu**, đóng góp **10.0% Lợi nhuận gộp** (Biên lãi gộp: `46.0%`).
+    - *Vai trò:* Dòng tiền cho thuê định kỳ gối đầu | *Trạng thái:* Mở rộng diện tích
+    - *Điểm nhấn:* Giá thuê đạt từ 4.2 - 5.2 USD/m²/tháng; tỷ lệ lấp đầy trung bình trên 90%. Dự kiến mở rộng thêm 100.000 - 150.000 m² sàn xưởng cho thuê tại Hựu Thạnh và Cầu Nghìn.
+    - *Rủi ro:* Cần vốn đầu tư xây dựng ban đầu (CapEx) và chịu sự cạnh tranh từ các quỹ đầu tư chuyên nghiệp như BW Industrial, KCN Vietnam.
+  * **Thu phí giao thông BOT & Cung cấp Nước sạch, Xử lý nước thải:** Chiếm **9.0% Doanh thu**, đóng góp **6.5% Lợi nhuận gộp** (Biên lãi gộp: `24.0%`).
+    - *Vai trò:* Nguồn thu phụ trợ phòng thủ | *Trạng thái:* Thu tiền đều đặn
+    - *Điểm nhấn:* Trạm thu phí BOT An Sương - An Lạc có lưu lượng xe tải và container cực lớn, mang lại dòng tiền mặt đều đặn hàng ngày; dịch vụ nước sạch gắn liền với chu kỳ vận hành của KCN.
+    - *Rủi ro:* Thời hạn hợp đồng BOT có giới hạn và phải duy trì chi phí duy tu, bảo dưỡng định kỳ tuyến đường.
+
+* **Chất lượng tăng trưởng & Hệ số PEG:**
+  - Chỉ số PEG cực kỳ hấp dẫn (0.46 <= 0.7) với tốc độ tăng trưởng 15.0%.
+  - Thiếu dữ liệu so sánh tăng trưởng doanh thu/lợi nhuận theo quý.
+  - *Hệ số định giá PEG:* 0.46x
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">5. 🚀 Góc nhìn William O'Neil & Mark Minervini (CANSLIM & Xu hướng giá)
+* **Phán quyết:** **CHỜ TÍCH LŨY THÊM** (Điểm số: 55/100)
+* **Luận điểm cốt lõi:**
+  - Giá nằm trong xu hướng tăng mạnh: Giá > EMA20 > EMA50.
+  - Khối lượng giao dịch tăng tích cực (1.2x lần MA20).
+  - Giá đang vận động tích lũy trong nền giá dưới kháng cự 35,800.
+  - *Khối lượng giao dịch:* Gấp 1.20x lần mức trung bình 20 phiên
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">6. 📊 Góc nhìn Price Action & Wyckoff VSA (Dòng tiền lớn)
+* **Phán quyết:** **DÒNG TIỀN VÀO (TÍCH CỰC)** (Điểm số: 85/100)
+* **Pha chu kỳ thị trường:** Pha Markup (Đang đẩy giá mạnh)
+* **Luận điểm cốt lõi:**
+  - Nến tăng thân dài kèm vol lớn xác nhận dòng tiền đẩy giá quyết liệt.
+  - Chỉ số RSI (78.0) đang tiến sâu vào vùng quá mua, chú ý rủi ro rung lắc ngắn hạn.
+  - *Chỉ số RSI 14:* 78.0
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">7. 👥 Bóc tách Quản trị Doanh nghiệp, Cổ đông & Mạng lưới Công ty con (Corporate Governance & Shell Radar)
+* **Điểm Quản trị (G-Score):** **80/100** (QUẢN TRỊ MINH BẠCH & AN TOÀN (EXEMPLARY))
+* **Cơ cấu Sở hữu & Cổ đông:**
+  - **Mô hình:** Sở hữu đan xen Công ty riêng & Trôi nổi cao (Complex Insider Shell)
+  - *Tỷ lệ trôi nổi (Free Float):* `70.0%` | *Khối ngoại:* `14.61%` | *Nhà nước:* `0.0%`
+  - *Đặc điểm:* Lãnh đạo và nhóm cổ đông lớn nắm giữ qua nhiều công ty TNHH cá nhân/liên quan (Hanoi Investments Holdings Limited), cổ phiếu trôi nổi ngoài thị trường cao (70.0%).
+  - Cổ đông: **Công ty Cổ phần Tập đoàn S.S.G** nắm **22.5%** (85,387,500 CP)
+  - Cổ đông: **Công ty TNHH Sản Xuất Và Thương Mại Bách Việt** nắm **11.93%** (45,265,495 CP)
+  - Cổ đông: **Công ty TNHH Kinh Doanh Và Cho Thuê Nhà Tân Bách Việt** nắm **2.91%** (11,031,950 CP)
+  - Cổ đông: **Đặng Việt Dũng** nắm **2.53%** (9,614,000 CP)
+  - Cổ đông: **Hanoi Investments Holdings Limited** nắm **1.21%** (4,005,500 CP)
+* **Hội đồng Quản trị & Ban Điều hành:**
+  - **Chủ tịch HĐQT:** Nguyễn Thị Như Mai (Chủ tịch Hội đồng Quản trị/Thành viên Hội đồng Quản trị)
+  - **Tổng Giám đốc (CEO):** Đặng Việt Dũng (Phó Tổng Giám đốc)
+  - **Mức độ cam kết vốn (Skin in the game):** `2.72%` — THẤP (Ban lãnh đạo chỉ nắm giữ 2.7% vốn điều lệ, mức độ gắn kết tài sản cá nhân với công ty ở mức thấp.)
+* **Mạng lưới Công ty con & Radar Tăng vốn ảo / Trái phiếu hệ sinh thái:**
+  - **Quy mô mạng lưới:** 22 công ty con & 5 công ty liên kết (MẠNG LƯỚI ĐA TẦNG PHỨC TẠP (COMPLEX CONGLOMERATE WEB)).
+  - **Phán quyết Radar:** **MINH BẠCH / KHÔNG CÓ DẤU HIỆU LUÂN CHUYỂN VỐN BẤT THƯỜNG**
+  - Cấu trúc sở hữu và các khoản phải thu ở ngưỡng an toàn của ngành.
+
+<h4 style="color: #38bdf8; margin: 18px 0 8px 0;">8. ⚖️ Phán quyết của Chief Risk Officer (Giám đốc Quản trị rủi ro & Radar Thao túng)
+* **TÍN HIỆU THỰC THI:** **MUA THĂM DÒ (TEST BUY)** (Độ đồng thuận: 75/100 điểm)
+* **Radar Phát hiện Thao túng / Bẫy giá trị:** **Cấp độ 2/5: ĐỊNH GIÁ HỢP LÝ (FAIR VALUE)**
+* **Kiểm định Chất lượng Tài sản:** Lành mạnh
+  - Bộ đệm tiền mặt an toàn (30.7% tổng tài sản, ~7,221,432,288,789 VND).
+* **Kế hoạch hành động cụ thể:**
+  * **Vùng mua khuyến nghị (Buy Zone):** `33,659 - 36,032` VND
+  * **Điểm cắt lỗ nghiêm ngặt (Stop Loss):** `33,015` VND (Chặn lỗ tối đa `-7.0%`)
+  * **Tỷ trọng phân bổ tối đa:** `15.0% NAV` (Nguyên tắc bảo toàn vốn cá nhân)
+  * **Mục tiêu chốt lời 1 (TP1):** `38,695` VND (`+9.0%`)
+  * **Mục tiêu chốt lời 2 (TP2):** `43,310` VND (`+22.0%`)
+  * **Tỷ lệ Risk / Reward (R:R):** `1.29:1` (Đạt chuẩn an toàn vốn)
+
+            </div>
+        </details>
+        
+
+        <!-- Footer -->
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border); line-height: 1.6;">
+            Báo cáo phân tích chiến lược được khởi tạo tự động bởi Hệ thống <b>Vietnam Stock Analyzer</b>.<br>
+            <i>Lưu ý: Báo cáo đóng vai trò tham mưu hỗ trợ quyết định khách quan dựa trên dữ liệu báo cáo tài chính và thuật toán phân tích, không phải lời kêu gọi đầu tư hay cam kết sinh lời. Quyết định mua bán cuối cùng thuộc về nhà đầu tư.</i>
+        </div>
+
+    </div>
+
+    <!-- Script Vẽ Biểu đồ Chart.js Dòng tiền thật -->
+    <script>
+        const ctx = document.getElementById('cashFlowChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ["2025-Q3", "2025-Q4", "2026-Q1", "2026-Q2"],
+                datasets: [
+                    {
+                        label: 'Lợi nhuận sau thuế kế toán (Tỷ đ)',
+                        data: [841.8, 449.1, 270.6, 609.8],
+                        backgroundColor: 'rgba(56, 189, 248, 0.7)',
+                        borderColor: '#38bdf8',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Tiền kinh doanh thật - CFO (Tỷ đ)',
+                        data: [1541.5, 970.2, 197.5, -202.5],
+                        backgroundColor: 'rgba(52, 211, 153, 0.7)',
+                        borderColor: '#34d399',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        type: 'line',
+                        label: 'Dòng tiền tự do - FCF (Tỷ đ)',
+                        data: [647.8, -330.2, -74.3, -316.0],
+                        borderColor: '#fbbf24',
+                        backgroundColor: '#fbbf24',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#94a3b8',
+                            font: { size: 11 }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', font: { size: 11 } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

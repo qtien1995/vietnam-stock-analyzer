@@ -27,6 +27,7 @@ class InvestmentCouncil:
         self.lynch_prompt = _load_prompt("lynch.md")
         self.oneil_prompt = _load_prompt("oneil.md")
         self.vsa_prompt = _load_prompt("vsa.md")
+        self.dalio_prompt = _load_prompt("dalio_marks.md")
         self.cro_prompt = _load_prompt("cro_arbiter.md")
 
     def deliberate(
@@ -133,14 +134,20 @@ class InvestmentCouncil:
             except Exception:
                 ai_deliberation = ""
 
-        # Nếu không có LLM hoặc AI trả về trống, sử dụng bộ giải trình định lượng chuẩn mực
+        # Nếu không có LLM hoặc offline, tự động fallback sang Engine định lượng quy chuẩn
         if not ai_deliberation:
             ai_deliberation = self._generate_rule_based_deliberation(symbol, quote, fa, ta, trade_setup)
+
+        # Xây dựng dữ liệu cấu trúc trực quan cho Hội đồng AI (6 chuyên gia)
+        structured_council = self._build_structured_council(symbol, quote, fa, ta, trade_setup)
 
         return {
             "symbol": symbol,
             "context_data": context_data,
-            "council_report": ai_deliberation
+            "council_report": ai_deliberation,
+            "members": structured_council["members"],
+            "voting_summary": structured_council["voting_summary"],
+            "clash_of_perspectives": structured_council["clash_of_perspectives"]
         }
 
     def _generate_rule_based_deliberation(
@@ -160,8 +167,22 @@ class InvestmentCouncil:
         val_warning = fa.get("valuation_warning", "")
         asset_val = fa.get("asset_valuation", {})
         seg_data = fa.get("segments", {})
+        macro = fa.get("macro", {})
+        cf = fa.get("cash_flow", {})
+        fin = fa.get("ratios", {})
 
-        report = f"""### 1. 🏛️ Góc nhìn Warren Buffett (Đầu tư Giá trị & Định giá Khối tài sản ròng)
+        report = f"""### 1. 🌐 Góc nhìn Vĩ mô & Chu kỳ Ngành (Ray Dalio & Howard Marks)
+* **Ngành nghề:** **{macro.get('sector_name', 'Chưa rõ')}** — **Pha chu kỳ:** `{macro.get('cycle_phase', 'Bình thường')}`
+* **Điểm số Gió xuôi Vĩ mô (Tailwind Score):** **{macro.get('tailwind_score', 70)}/100** ({macro.get('sentiment', 'TRUNG TÍNH')})
+* **Nhận định Cỗ máy Vĩ mô (Ray Dalio):** {macro.get('dalio_verdict', 'N/A')}
+* **Nhận định Tâm lý & Bẫy Định giá (Howard Marks):** {macro.get('marks_verdict', 'N/A')}
+* **Động lực vĩ mô chính:**
+"""
+        for md in macro.get("macro_drivers", [])[:3]:
+            report += f"  - {md}\n"
+        report += "\n"
+
+        report += f"""### 2. 🏛️ Góc nhìn Warren Buffett (Đầu tư Giá trị & Định giá Khối tài sản ròng)
 * **Phán quyết:** **{buffett.get('verdict', 'QUAN SÁT')}** (Điểm số: {buffett.get('score', 0)}/100)
 * **Luận điểm cốt lõi về Tài sản & Con hào kinh tế:**
 """
@@ -189,7 +210,25 @@ class InvestmentCouncil:
             report += f"  - ⚠️ *Cảnh báo định giá:* {val_warning}\n"
         report += "\n"
 
-        report += f"""### 2. 📈 Góc nhìn Peter Lynch & Bóc tách Hoạt động Cốt lõi (Core Business)
+        # Bóc tách Dòng tiền Thật & Altman Z-Score
+        cfo_val = cf.get("cfo_ttm", 0)
+        np_val = cf.get("ttm_profit") or fin.get("ttm_profit", 0)
+        fcf_val = cf.get("fcf_ttm", 0)
+        capex_val = cf.get("capex_ttm", 0)
+
+        report += f"""### 3. 🔬 Bóc tách Dòng tiền Thật & Kiểm định Kiệt quệ Tài chính (Cash Flow Forensic)
+* **Chất lượng Lợi nhuận:** **Hạng {cf.get('quality_grade', 'B')}: {cf.get('quality_verdict', 'LÀNH MẠNH')}**
+  - **Dòng tiền thuần HĐKD (CFO TTM):** `{cfo_val:,.0f} VND` vs **LNST kế toán (TTM):** `{np_val:,.0f} VND` (Tỷ lệ CFO/LNST: `{cf.get('earnings_quality_ratio', 1.0):.2f}x`)
+  - **Chi tiêu vốn (CapEx TTM):** `{capex_val:,.0f} VND` | **Dòng tiền tự do (FCF):** `{fcf_val:,.0f} VND`
+  - *Đánh giá FCF:* {cf.get('fcf_verdict', 'N/A')}
+* **Chỉ số Kiệt quệ Tài chính Altman Z''-Score (Emerging Markets):** **{cf.get('altman_z', 0):.2f}** ({cf.get('z_verdict', 'AN TOÀN')})
+  - *Ý nghĩa:* {cf.get('z_desc', 'N/A')}
+"""
+        for rf in cf.get("red_flags", []):
+            report += f"  - ⚠️ {rf}\n"
+        report += "\n"
+
+        report += f"""### 4. 📈 Góc nhìn Peter Lynch & Bóc tách Hoạt động Cốt lõi (Core Business)
 * **Phán quyết:** **{lynch.get('verdict', 'THEO DÕI')}** (Điểm số: {lynch.get('score', 0)}/100)
 * **Mô hình hoạt động cốt lõi:** {seg_data.get('business_model_summary', 'N/A')}
 * **Bóc tách Cơ cấu Phân khúc Kinh doanh (Segment Breakdown):**
@@ -207,7 +246,7 @@ class InvestmentCouncil:
             report += f"  - {r}\n"
         report += f"  - *Hệ số định giá PEG:* {lynch.get('peg', 1.0)}x\n\n"
 
-        report += f"""### 3. 🚀 Góc nhìn William O'Neil & Mark Minervini (CANSLIM & Xu hướng giá)
+        report += f"""### 5. 🚀 Góc nhìn William O'Neil & Mark Minervini (CANSLIM & Xu hướng giá)
 * **Phán quyết:** **{oneil.get('verdict', 'QUAN SÁT')}** (Điểm số: {oneil.get('score', 0)}/100)
 * **Luận điểm cốt lõi:**
 """
@@ -217,7 +256,7 @@ class InvestmentCouncil:
             report += "  - ⚠️ *Cảnh báo xu hướng:* Giá đang nằm dưới EMA20 và EMA50, tuyệt đối không bắt dao rơi khi chưa xuất hiện nến tạo đáy đảo chiều.\n"
         report += f"  - *Khối lượng giao dịch:* Gấp {oneil.get('vol_ratio', 1.0):.2f}x lần mức trung bình 20 phiên\n\n"
 
-        report += f"""### 4. 📊 Góc nhìn Price Action & Wyckoff VSA (Dòng tiền lớn)
+        report += f"""### 6. 📊 Góc nhìn Price Action & Wyckoff VSA (Dòng tiền lớn)
 * **Phán quyết:** **{vsa.get('verdict', 'TRUNG LẬP')}** (Điểm số: {vsa.get('score', 0)}/100)
 * **Pha chu kỳ thị trường:** {vsa.get('phase', 'Tích lũy')}
 * **Luận điểm cốt lõi:**
@@ -228,7 +267,7 @@ class InvestmentCouncil:
             report += f"  - ⚠️ *Dòng tiền ngoại:* Khối ngoại bán ròng đột biến {quote.get('foreign_net_vol', 0):,.0f} CP, cần chờ hấp thụ hết cung giá rẻ.\n"
         report += f"  - *Chỉ số RSI 14:* {vsa.get('rsi', 50)}\n\n"
 
-        report += f"""### 5. 👥 Bóc tách Quản trị Doanh nghiệp, Cổ đông & Mạng lưới Công ty con (Corporate Governance & Shell Radar)
+        report += f"""### 7. 👥 Bóc tách Quản trị Doanh nghiệp, Cổ đông & Mạng lưới Công ty con (Corporate Governance & Shell Radar)
 * **Điểm Quản trị (G-Score):** **{gov.get('g_score', 'N/A')}/100** ({gov.get('g_rating', 'N/A')})
 * **Cơ cấu Sở hữu & Cổ đông:**
   - **Mô hình:** {own.get('structure', 'N/A')}
@@ -254,7 +293,7 @@ class InvestmentCouncil:
             report += f"  - {cnote}\n"
         report += "\n"
 
-        report += f"""### 6. ⚖️ Phán quyết của Chief Risk Officer (Giám đốc Quản trị rủi ro & Radar Thao túng)
+        report += f"""### 8. ⚖️ Phán quyết của Chief Risk Officer (Giám đốc Quản trị rủi ro & Radar Thao túng)
 * **TÍN HIỆU THỰC THI:** **{trade_setup.get('action')}** (Độ đồng thuận: {trade_setup.get('consensus_score')}/100 điểm)
 * **Radar Phát hiện Thao túng / Bẫy giá trị:** **Cấp độ {asset_val.get('manipulation_risk_level', 1)}/5: {asset_val.get('manipulation_verdict', 'AN TOÀN')}**
 * **Kiểm định Chất lượng Tài sản:** {asset_val.get('asset_quality_verdict', 'Lành mạnh')}
@@ -271,4 +310,206 @@ class InvestmentCouncil:
   * **Tỷ lệ Risk / Reward (R:R):** `{trade_setup.get('risk_reward_ratio')}:1` (Đạt chuẩn an toàn vốn)
 """
         return report
+
+    def _build_structured_council(
+        self,
+        symbol: str,
+        quote: Dict[str, Any],
+        fa: Dict[str, Any],
+        ta: Dict[str, Any],
+        trade_setup: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Tạo dữ liệu chi tiết cho 6 chuyên gia Hội đồng phục vụ hiển thị UI card và biểu quyết."""
+        current_price = trade_setup.get("current_price", quote.get("price", 0.0))
+        fair_price = trade_setup.get("fair_price", current_price)
+        buffett = fa.get("buffett", {})
+        lynch = fa.get("lynch", {})
+        oneil = ta.get("oneil", {})
+        vsa = ta.get("vsa", {})
+        macro = fa.get("macro", {})
+        cf = fa.get("cash_flow", {})
+        fin = fa.get("ratios", {})
+        asset_val = fa.get("asset_valuation", {})
+        gov = fa.get("governance", {})
+        lead = gov.get("leadership", {})
+        seg_data = fa.get("segments", {})
+        adv_ta = ta.get("advanced_ta", {})
+
+        # 1. Warren Buffett & Charlie Munger
+        b_score = buffett.get("score", 50)
+        b_verdict = buffett.get("verdict", "CHỜ CHIẾT KHẤU")
+        b_color = "#10b981" if "MUA" in b_verdict else ("#fbbf24" if "QUAN SÁT" in b_verdict or "CHỜ" in b_verdict else "#f87171")
+        b_args = []
+        b_args.extend(buffett.get("reasons", [])[:2])
+        bvps = asset_val.get("bvps", 0)
+        pb = asset_val.get("pb", 1.0)
+        b_args.append(f"Giá trị sổ sách tài sản (BVPS): {bvps:,.0f} đ/CP. Thị giá đang giao dịch ở mức P/B {pb}x (So với giá trị thực ước tính {fair_price:,.0f} đ).")
+        if cf.get("quality_verdict"):
+            b_args.append(f"Kiểm định dòng tiền thật: {cf.get('quality_desc', '')}")
+        b_invalid = "Biên an toàn bị phá vỡ nếu doanh nghiệp có dấu hiệu chuyển vốn sang công ty sân sau mờ ám, hoặc dòng tiền kinh doanh (CFO) âm kéo dài quá 2 quý."
+
+        # 2. Peter Lynch & Philip Fisher
+        l_score = lynch.get("score", 50)
+        l_verdict = lynch.get("verdict", "THEO DÕI")
+        l_color = "#10b981" if "MUA" in l_verdict or "TĂNG" in l_verdict else ("#38bdf8" if "THEO DÕI" in l_verdict else "#f87171")
+        l_args = []
+        if seg_data.get("business_model_summary"):
+            l_args.append(f"Mô hình hoạt động cốt lõi: {seg_data.get('business_model_summary')}")
+        projects = seg_data.get("projects", [])
+        if projects:
+            p0 = projects[0]
+            l_args.append(f"Động lực dự án gối đầu: Dự án '{p0.get('name')}' ({p0.get('location')}) - {p0.get('profit_contribution')}")
+        l_args.extend(lynch.get("reasons", [])[:2])
+        l_invalid = "Tăng trưởng doanh thu và lợi nhuận cốt lõi suy giảm dưới 10% hoặc biên lợi nhuận gộp bị bóp nghẹt do mất lợi thế cạnh tranh ngành."
+
+        # 3. William O'Neil & Mark Minervini
+        o_score = oneil.get("score", 50)
+        o_verdict = oneil.get("verdict", "CHỜ TÍCH LŨY")
+        o_color = "#10b981" if "MUA" in o_verdict else ("#fbbf24" if "CHỜ" in o_verdict or "QUAN SÁT" in o_verdict else "#f87171")
+        o_args = []
+        pattern_name = adv_ta.get("pattern_name", "Nền dao động")
+        pattern_desc = adv_ta.get("pattern_verdict", "")
+        o_args.append(f"Mô hình nến kỹ thuật: {pattern_name}. {pattern_desc}")
+        o_args.extend(oneil.get("reasons", [])[:2])
+        vol_r = oneil.get("vol_ratio", 1.0)
+        o_args.append(f"Thanh khoản hiện tại: Gấp {vol_r:.2f}x lần khối lượng trung bình 20 phiên (MA20).")
+        o_invalid = f"Giá đóng cửa gãy đường xu hướng ngắn hạn EMA20 hoặc chạm ngưỡng cắt lỗ kỷ luật {trade_setup.get('stop_loss', 0):,.0f} đ (-{trade_setup.get('stop_loss_pct', 7.0)}%)."
+
+        # 4. Richard Wyckoff & Tom Williams
+        w_score = vsa.get("score", 50)
+        w_verdict = vsa.get("verdict", "TRUNG LẬP")
+        w_color = "#10b981" if "VÀO" in w_verdict or "TÍCH CỰC" in w_verdict else ("#38bdf8" if "TRUNG LẬP" in w_verdict else "#f87171")
+        w_args = []
+        w_args.append(f"Pha chu kỳ dòng tiền: {vsa.get('phase', 'Tích lũy')}")
+        vsa_sig = adv_ta.get("vsa_signal", "Bình thường")
+        vsa_sig_desc = adv_ta.get("vsa_signal_desc", "")
+        w_args.append(f"Hành vi nến & khối lượng: {vsa_sig}. {vsa_sig_desc}")
+        w_args.extend(vsa.get("reasons", [])[:2])
+        w_invalid = "Xuất hiện phiên nến giảm mạnh thân dài kèm khối lượng lớn đột biến xác nhận dòng tiền lớn (Big Boys) phân phối xả hàng."
+
+        # 5. Ray Dalio & Howard Marks
+        d_score = macro.get("tailwind_score", 70)
+        d_sentiment = macro.get("sentiment", "TRUNG TÍNH")
+        d_color = "#10b981" if d_score >= 80 else ("#38bdf8" if d_score >= 65 else "#fbbf24")
+        d_args = []
+        d_args.append(f"Chu kỳ ngành & Vĩ mô: Ngành {macro.get('sector_name')} đang ở pha '{macro.get('cycle_phase')}'. Điểm gió xuôi vĩ mô: {d_score}/100 ({d_sentiment}).")
+        d_args.append(f"Góc nhìn chu kỳ kinh tế (Ray Dalio): {macro.get('dalio_verdict', 'N/A')}")
+        d_args.append(f"Tâm lý thị trường & Định giá (Howard Marks): {macro.get('marks_verdict', 'N/A')}")
+        d_invalid = "Dòng vốn đầu tư đảo chiều, môi trường lãi suất đảo chiều thắt chặt hoặc các chính sách pháp lý quy hoạch ngành bị nghẽn lại."
+
+        # 6. Nassim Nicholas Taleb & CRO
+        t_sl = trade_setup.get("stop_loss_pct", 7.0)
+        t_score = max(30, int(85 - t_sl * 2))
+        t_action = trade_setup.get("action", "QUAN SÁT")
+        t_color = "#10b981" if "MUA MẠNH" in t_action else ("#38bdf8" if "MUA" in t_action else ("#fbbf24" if "THEO DÕI" in t_action else "#f87171"))
+        t_args = []
+        t_args.append(f"Kế hoạch phòng thủ vốn: Cắt lỗ tuyệt đối tại {trade_setup.get('stop_loss', 0):,.0f} đ (-{t_sl}%). Tỷ trọng giải ngân an toàn: Tối đa {trade_setup.get('max_position_size_pct', 10.0):.1f}% NAV.")
+        t_args.append(f"Kiểm toán rủi ro thao túng: {asset_val.get('manipulation_verdict')} (Cấp {asset_val.get('manipulation_risk_level', 1)}/5).")
+        t_args.append(f"Kịch bản xấu nhất (Pre-Mortem): Nếu thị trường chung điều chỉnh mạnh hoặc dự án chậm bàn giao, vùng đệm hỗ trợ cứng nằm quanh {trade_setup.get('fair_price', current_price):,.0f} đ.")
+        t_invalid = "Tuyệt đối không phá vỡ kỷ luật vị thế, không gồng lỗ hay trung bình giá xuống khi cổ phiếu vi phạm ngưỡng cắt lỗ."
+
+        members = [
+            {
+                "id": "buffett",
+                "name": "Warren Buffett & Charlie Munger",
+                "role_title": "Đầu tư Giá trị & Con hào kinh tế",
+                "badge": "🏛️ GIÁ TRỊ",
+                "stance": b_verdict,
+                "stance_color": b_color,
+                "score": b_score,
+                "core_thesis": f"Đánh giá doanh nghiệp theo giá trị tài sản ròng và khả năng sinh tiền thật. Giá trị thực hợp lý ước tính: {fair_price:,.0f} đ.",
+                "arguments": b_args,
+                "invalidation": b_invalid
+            },
+            {
+                "id": "lynch",
+                "name": "Peter Lynch & Philip Fisher",
+                "role_title": "Tăng trưởng & Mô hình hoạt động",
+                "badge": "🚀 TĂNG TRƯỞNG",
+                "stance": l_verdict,
+                "stance_color": l_color,
+                "score": l_score,
+                "core_thesis": "Đánh giá mô hình kinh doanh bóc tách phân khúc, tiềm năng mở rộng các dự án gối đầu và biên lợi nhuận.",
+                "arguments": l_args,
+                "invalidation": l_invalid
+            },
+            {
+                "id": "oneil",
+                "name": "William O'Neil & Mark Minervini",
+                "role_title": "Kỹ thuật Xu hướng & Điểm bùng nổ",
+                "badge": "📈 KỸ THUẬT",
+                "stance": o_verdict,
+                "stance_color": o_color,
+                "score": o_score,
+                "core_thesis": "Tìm kiếm mẫu hình tích lũy thu hẹp biến động, điểm mua Pocket Pivot / Breakout khi khối lượng bùng nổ xác nhận.",
+                "arguments": o_args,
+                "invalidation": o_invalid
+            },
+            {
+                "id": "wyckoff",
+                "name": "Richard Wyckoff & Tom Williams",
+                "role_title": "Dòng tiền Lớn & Wyckoff VSA",
+                "badge": "🌊 DÒNG TIỀN VSA",
+                "stance": w_verdict,
+                "stance_color": w_color,
+                "score": w_score,
+                "core_thesis": "Quan sát hành vi test cung cạn kiệt của nhà tạo lập để giải ngân an toàn cùng dòng tiền thông minh.",
+                "arguments": w_args,
+                "invalidation": w_invalid
+            },
+            {
+                "id": "dalio_marks",
+                "name": "Ray Dalio & Howard Marks",
+                "role_title": "Vĩ mô & Chu kỳ Ngành",
+                "badge": "🌐 VĨ MÔ & CHU KỲ",
+                "stance": d_sentiment,
+                "stance_color": d_color,
+                "score": d_score,
+                "core_thesis": "Đánh giá vị thế ngành trong chu kỳ kinh tế lớn, tận dụng gió xuôi vĩ mô để gia tăng xác suất thành công.",
+                "arguments": d_args,
+                "invalidation": d_invalid
+            },
+            {
+                "id": "taleb_cro",
+                "name": "Nassim Taleb & Chief Risk Officer",
+                "role_title": "Quản trị Rủi ro & Pre-Mortem",
+                "badge": "🛡️ BẢO VỆ VỐN",
+                "stance": t_action,
+                "stance_color": t_color,
+                "score": t_score,
+                "core_thesis": f"Bảo toàn vốn là trên hết: Tỷ lệ Lợi nhuận/Rủi ro R:R đạt {trade_setup.get('risk_reward_ratio')}:1. Cắt lỗ kỷ luật không thương lượng.",
+                "arguments": t_args,
+                "invalidation": t_invalid
+            }
+        ]
+
+        bull_votes = [m for m in members if "MUA" in m["stance"] or "TÍCH CỰC" in m["stance"] or "TĂNG" in m["stance"]]
+        bear_votes = [m for m in members if "CHỜ" in m["stance"] or "QUAN SÁT" in m["stance"] or "CẢNH BÁO" in m["stance"] or "TRÁNH" in m["stance"]]
+
+        clash_items = [
+            {
+                "topic": "Định giá Tài sản ròng (P/B) vs Động lực Tăng trưởng Dự án Mới",
+                "side_a": {
+                    "speaker": "Phe Giá trị (Buffett) & Phòng thủ vốn (Taleb)",
+                    "argument": f"Thị giá hiện tại ({trade_setup.get('current_price', 0):,.0f} đ) cao hơn giá trị sổ sách ròng BVPS ({asset_val.get('bvps', 0):,.0f} đ, P/B {asset_val.get('pb', 1.0)}x). Cần chiết khấu an toàn hơn và phải đặt Stop Loss chặt chẽ tại {trade_setup.get('stop_loss', 0):,.0f} đ (-{t_sl}%)."
+                },
+                "side_b": {
+                    "speaker": "Phe Tăng trưởng (Lynch) & Dòng tiền Kỹ thuật (O'Neil, VSA)",
+                    "argument": f"Doanh nghiệp sở hữu quỹ đất và dự án trọng điểm tạo tiền lớn trong tương lai, hành vi nến kiểm tra cung cạn kiệt, dòng tiền lớn chưa thoát hàng. Giá trị sổ sách chưa phản ánh hết tiềm năng dự án mới."
+                },
+                "cro_synthesis": f"Cho phép mở vị thế giải ngân thăm dò từng phần (tối đa {trade_setup.get('max_position_size_pct', 10.0):.1f}% NAV) để đón đầu nhịp tăng, nhưng bắt buộc tuân thủ cắt lỗ kỷ luật tại {trade_setup.get('stop_loss', 0):,.0f} đ (-{t_sl}%), không gồng lỗ dưới mọi hình thức."
+            }
+        ]
+
+        return {
+            "members": members,
+            "voting_summary": {
+                "bull_count": len(bull_votes),
+                "bear_count": len(bear_votes),
+                "consensus_score": trade_setup.get("consensus_score", 65),
+                "action": trade_setup.get("action", "QUAN SÁT")
+            },
+            "clash_of_perspectives": clash_items
+        }
+
 

@@ -194,8 +194,12 @@ def get_financial_data(symbol: str) -> dict:
             if (time.time() - mtime) < 7 * 86400:
                 with open(cache_file, "r", encoding="utf-8") as f:
                     cached_data = json.load(f)
-                    # Nếu cache đầy đủ dữ liệu tài sản mới thì dùng
-                    if cached_data.get("bvps") is not None and cached_data.get("total_assets") is not None:
+                    # Nếu cache đầy đủ dữ liệu tài sản và dòng tiền mới thì dùng
+                    if (
+                        cached_data.get("bvps") is not None 
+                        and cached_data.get("total_assets") is not None 
+                        and cached_data.get("cfo_ttm") is not None
+                    ):
                         return cached_data
         except Exception:
             pass
@@ -214,8 +218,12 @@ def get_financial_data(symbol: str) -> dict:
         "short_term_debt": None,
         "long_term_debt": None,
         "owners_equity": None,
+        "retained_earnings": None,
+        "short_term_liabilities": None,
+        "working_capital": None,
         "ttm_revenue": None,
         "ttm_profit": None,
+        "ebit_ttm": None,
         "pe": None,
         "pb": None,
         "roe": None,
@@ -233,11 +241,26 @@ def get_financial_data(symbol: str) -> dict:
         "ncavps": None,
         "latest_quarter": None,
         "cash_buffer_ratio": None,
-        "illiquid_assets_ratio": None
+        "illiquid_assets_ratio": None,
+        "cfo_ttm": None,
+        "cfo_latest_q": None,
+        "capex_ttm": None,
+        "fcf_ttm": None,
+        "cfi_ttm": None,
+        "cff_ttm": None,
+        "quarterly_cash_flows": [],
+        "earnings_quality_ratio": None
     }
     
     try:
         from vnstock import Vnstock
+        api_key = os.getenv("VNSTOCK_API_KEY", "")
+        if api_key:
+            try:
+                import vnai
+                vnai.setup_api_key(api_key)
+            except Exception:
+                pass
         stock = Vnstock().stock(symbol=symbol, source="VCI")
         
         # 1. Lấy thông tin cổ phiếu lưu hành & Vốn hóa từ overview
@@ -310,10 +333,17 @@ def get_financial_data(symbol: str) -> dict:
                 lt_debt = find_bs_item(["vay dài hạn", "long_term_debt"])
                 eq = find_bs_item(["owners_equity", "vốn chủ sở hữu"])
                 
+                st_liab = find_bs_item(["short_term_liabilities", "nợ ngắn hạn"])
+                retained_eq = find_bs_item(["undistributed_earnings", "lợi nhuận sau thuế chưa phân phối", "lợi nhuận giữ lại"])
+                
                 result["total_debt"] = st_debt + lt_debt
                 result["short_term_debt"] = st_debt
                 result["long_term_debt"] = lt_debt
                 result["owners_equity"] = eq
+                result["short_term_liabilities"] = st_liab
+                result["retained_earnings"] = retained_eq
+                if result.get("current_assets") and st_liab > 0:
+                    result["working_capital"] = result["current_assets"] - st_liab
                 
                 if eq > 0:
                     result["debt_to_equity"] = round((st_debt + lt_debt) / eq, 2)
@@ -362,6 +392,14 @@ def get_financial_data(symbol: str) -> dict:
                 if result["ttm_profit"] == 0.0:
                     result["ttm_profit"] = sum_inc_item(["net_profit_loss_after_tax", "lợi nhuận sau thuế"])
 
+                # EBIT TTM
+                ebit = sum_inc_item(["operating_profit", "lợi nhuận thuần từ hoạt động kinh doanh", "ebit"])
+                if ebit == 0.0:
+                    pbt = sum_inc_item(["profit_before_tax", "lợi nhuận trước thuế"])
+                    inte = sum_inc_item(["interest_expense", "chi phí lãi vay"])
+                    ebit = pbt + inte
+                result["ebit_ttm"] = ebit
+
                 # Tính tăng trưởng cùng kỳ (YoY)
                 if len(q_cols_inc_sorted) >= 5:
                     newest_q = q_cols_inc_sorted[0]
@@ -391,6 +429,70 @@ def get_financial_data(symbol: str) -> dict:
                 # Biên lợi nhuận TTM
                 if result.get("ttm_revenue") and result["ttm_revenue"] > 0 and result["ttm_profit"] is not None:
                     result["net_margin"] = round((result["ttm_profit"] / result["ttm_revenue"]) * 100, 2)
+        except Exception:
+            pass
+
+        # 4. Lấy Báo Cáo Lưu Chuyển Tiền Tệ (Cash Flow Statement)
+        try:
+            cf_df = stock.finance.cash_flow(period="quarter")
+            if cf_df is not None and not cf_df.empty:
+                q_cols_cf = [c for c in cf_df.columns if "-" in str(c) or "Q" in str(c)]
+                q_cols_cf_sorted = sorted(q_cols_cf, reverse=True)
+                recent_4q_cf = q_cols_cf_sorted[:4]
+
+                def get_quarterly_cf_series(keyword_list):
+                    for idx, row in cf_df.iterrows():
+                        text = (str(row.get("item", "")) + " " + str(row.get("item_id", "")) + " " + str(row.get("item_en", ""))).lower()
+                        for kw in keyword_list:
+                            if kw.lower() in text:
+                                return {q: clean_val(row.get(q)) or 0.0 for q in recent_4q_cf}
+                    return {}
+
+                cfo_series = get_quarterly_cf_series(["net_cash_inflows_outflows_from_operating_activities", "lưu chuyển tiền tệ ròng từ các hoạt động sản xuất kinh doanh", "lưu chuyển tiền thuần từ hoạt động kinh doanh"])
+                capex_series = get_quarterly_cf_series(["purchases_of_fixed_assets", "mua sắm, xây dựng tscđ", "tiền chi để mua sắm"])
+                cfi_series = get_quarterly_cf_series(["net_cash_inflows_outflows_from_investing_activities", "lưu chuyển tiền thuần từ hoạt động đầu tư"])
+                cff_series = get_quarterly_cf_series(["net_cash_inflows_outflows_from_financing_activities", "lưu chuyển tiền thuần từ hoạt động tài chính"])
+
+                cfo_total = sum(cfo_series.values())
+                capex_total = abs(sum(capex_series.values()))
+                cfi_total = sum(cfi_series.values())
+                cff_total = sum(cff_series.values())
+
+                result["cfo_ttm"] = cfo_total
+                result["capex_ttm"] = capex_total
+                result["fcf_ttm"] = cfo_total - capex_total
+                result["cfi_ttm"] = cfi_total
+                result["cff_ttm"] = cff_total
+                if recent_4q_cf:
+                    result["cfo_latest_q"] = cfo_series.get(recent_4q_cf[0], 0.0)
+
+                # Thu thập chuỗi 4 quý để vẽ chart so sánh Dòng tiền thật vs Lợi nhuận
+                quarterly_records = []
+                for q in reversed(recent_4q_cf): # Sắp xếp từ quá khứ đến gần nhất
+                    q_cfo = cfo_series.get(q, 0.0)
+                    q_capex = abs(capex_series.get(q, 0.0))
+                    # Tìm lợi nhuận tương ứng quý q
+                    q_np = 0.0
+                    if inc_df is not None and not inc_df.empty:
+                        for _, row in inc_df.iterrows():
+                            text = (str(row.get("item", "")) + " " + str(row.get("item_id", "")) + " " + str(row.get("item_en", ""))).lower()
+                            if "attributable_to_parent_company" in text or "cổ đông của công ty mẹ" in text or "lợi nhuận sau thuế" in text:
+                                v = clean_val(row.get(q))
+                                if v is not None:
+                                    q_np = v
+                                    break
+                    quarterly_records.append({
+                        "quarter": q,
+                        "cfo": q_cfo,
+                        "capex": q_capex,
+                        "fcf": q_cfo - q_capex,
+                        "net_profit": q_np
+                    })
+                result["quarterly_cash_flows"] = quarterly_records
+
+                # Chất lượng lợi nhuận
+                if result.get("ttm_profit") and result["ttm_profit"] != 0:
+                    result["earnings_quality_ratio"] = round(cfo_total / result["ttm_profit"], 2)
         except Exception:
             pass
 
@@ -531,13 +633,15 @@ def get_governance_data(symbol: str) -> Dict[str, Any]:
         except Exception:
             pass
 
-    except Exception:
+    except (Exception, SystemExit, BaseException) as e:
+        # Khi vnstock báo Rate limit hoặc SystemExit, tiếp tục với dữ liệu sẵn có
         pass
 
-    # Lưu cache
+    # Lưu cache nếu có dữ liệu hợp lệ
     try:
-        with open(cache_file, "w", encoding="utf-8") as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
+        if result.get("shareholders") or result.get("officers") or result.get("subsidiaries") or result.get("overview"):
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(result, f, ensure_ascii=False, indent=2)
     except Exception:
         pass
 
@@ -556,7 +660,7 @@ def get_all_tickers_realtime() -> list:
     for exchange in ["hose", "hnx", "upcom"]:
         url = f"https://iboard-query.ssi.com.vn/stock/exchange/{exchange}"
         try:
-            r = requests.get(url, headers=HEADERS, timeout=5)
+            r = requests.get(url, headers=HEADERS, timeout=10)
             if r.status_code == 200:
                 data = r.json().get("data", [])
                 for item in data:

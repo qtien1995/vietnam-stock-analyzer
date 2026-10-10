@@ -1,4 +1,5 @@
 from typing import Dict, Any, List, Optional
+from config import LEGAL_RISK_TICKERS
 
 
 def analyze_governance_and_ownership(
@@ -135,10 +136,9 @@ def analyze_governance_and_ownership(
     legal_governance_flags = []
     com_group = ov.get("com_group_code", "").upper()
     
-    if sym == "BCG":
-        legal_governance_flags.append("🚨 BIẾN CỐ PHÁP LÝ THƯỢNG TẦNG: Cựu Chủ tịch HĐQT kiêm nhà sáng lập Nguyễn Hồ Nam bị khởi tố hình sự.")
-        legal_governance_flags.append("⚠️ VI PHẠM CÔNG BỐ THÔNG TIN: Chậm nộp BCTC kiểm toán kéo dài dẫn đến đình chỉ giao dịch và hủy niêm yết bắt buộc trên HOSE.")
-        legal_governance_flags.append("📉 KHỦNG HOẢNG NIỀM TIN: Ban điều hành mới phải thay thế khẩn cấp, bộ phận tài chính kế toán bị xáo trộn nghiêm trọng.")
+    if sym in LEGAL_RISK_TICKERS:
+        for flag in LEGAL_RISK_TICKERS[sym]:
+            legal_governance_flags.append(flag)
     elif com_group in ["OTC", "UPCOM_SUSPENDED"]:
         legal_governance_flags.append("⚠️ Cảnh báo sàn giao dịch: Cổ phiếu thuộc diện OTC hoặc hạn chế giao dịch do vi phạm quy chế công bố thông tin.")
 
@@ -174,7 +174,7 @@ def analyze_governance_and_ownership(
     # Tiêu chí nhận diện rủi ro tăng vốn ảo / tài sản trên giấy tờ
     is_circular_shell = (
         (sub_count >= 6 and receivables_ratio >= 30.0 and debt_to_cash >= 4.0) or
-        (sym == "BCG") or
+        (sym in LEGAL_RISK_TICKERS and receivables_ratio >= 25.0) or
         (illiquid_ratio >= 45.0 and sub_count >= 8 and debt_to_cash >= 5.0)
     )
 
@@ -227,17 +227,47 @@ def analyze_governance_and_ownership(
 
     if g_score >= 80:
         g_rating = "QUẢN TRỊ MINH BẠCH & AN TOÀN (EXEMPLARY)"
+        integrity_verdict = "MINH BẠCH RẤT CAO"
+        shell_risk_desc = "Không phát hiện dấu hiệu sử dụng công ty sân sau để rút ruột hay chuyển giá. Dòng tiền kinh doanh gắn liền với tài sản và hoạt động thực tế."
     elif g_score >= 60:
         g_rating = "QUẢN TRỊ ĐẠT CHUẨN (ADEQUATE)"
+        integrity_verdict = "ĐẠT CHUẨN MINH BẠCH"
+        shell_risk_desc = "Cơ cấu hệ sinh thái có nhiều công ty thành viên nhưng phục vụ mục đích mở rộng dự án KCN/hạ tầng cụ thể, rủi ro sân sau ở mức thấp."
     elif g_score >= 40:
         g_rating = "RỦI RO QUẢN TRỊ ĐÁNG NGỜ (QUESTIONABLE)"
+        integrity_verdict = "CÓ DẤU HIỆU CẦN GIÁM SÁT CHẶT CHẼ"
+        shell_risk_desc = "Có các giao dịch ủy thác đầu tư, hợp tác kinh doanh hoặc cho vay nội bộ với các bên liên quan cần kiểm tra thuyết minh BCTC."
     else:
         g_rating = "🚨 BÁO ĐỘNG ĐỎ: RỦI RO QUẢN TRỊ NGHIÊM TRỌNG (HIGH RISK)"
+        integrity_verdict = "🚨 NGUY HIỂM: NGUY CƠ RÚT RUỘT & SÂN SAU"
+        shell_risk_desc = "Cảnh báo cao độ: Dấu hiệu mạng lưới công ty sân sau dày đặc, dòng vốn bị luân chuyển lòng vòng, lợi nhuận trên giấy."
+
+    # Đánh giá bằng chứng tiền thật (Cổ tức & Tiền mặt)
+    cash_flow_quality = fin.get("cash_flow", {}) if isinstance(fin.get("cash_flow"), dict) else {}
+    cfo_ttm_val = fin.get("cfo_ttm") or 0.0
+    dividend_evidence = ""
+    if cfo_ttm_val > 500_000_000_000:
+        dividend_evidence = "✅ Dòng tiền bán hàng thực thu (CFO) dương rất lớn (>500 tỷ), chứng minh doanh nghiệp thu tiền tươi thóc thật, không bị ứ đọng vốn ở công ty sân sau."
+    elif cfo_ttm_val < 0:
+        dividend_evidence = "⚠️ Dòng tiền CFO âm, tiền kinh doanh chưa thực thu về tài khoản, cần theo dõi kỹ các khoản phải thu đối tác."
+    else:
+        dividend_evidence = "Dòng tiền kinh doanh ở mức trung bình, cân bằng với nhu cầu vốn lưu động."
+
+    # Tổng hợp phân tích Ban Lãnh đạo chi tiết bằng tiếng Việt
+    leadership_analysis_vi = (
+        f"Chủ tịch HĐQT: {chairman} | Tổng Giám đốc: {ceo}. "
+        f"Ban điều hành nắm giữ {insider_total_pct:.1f}% cổ phần ({skin_in_game_verdict}). "
+        f"{shell_risk_desc} {dividend_evidence}"
+    )
 
     return {
         "symbol": sym,
         "g_score": g_score,
         "g_rating": g_rating,
+        "integrity_verdict": integrity_verdict,
+        "shell_risk_desc": shell_risk_desc,
+        "dividend_evidence": dividend_evidence,
+        "leadership_analysis_vi": leadership_analysis_vi,
         "ownership": {
             "free_float_pct": free_float_pct,
             "foreigner_pct": foreigner_pct,

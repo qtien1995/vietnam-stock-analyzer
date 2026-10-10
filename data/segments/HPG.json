@@ -1,0 +1,39 @@
+{
+  "company_name": "Công ty Cổ phần Tập đoàn Hòa Phát",
+  "business_model_summary": "Tập đoàn công nghiệp sản xuất thép tích hợp khép kín từ thượng nguồn (quặng sắt, than mỡ) đến hạ nguồn (HRC, thép xây dựng, ống thép, tôn mạ), kết hợp nông nghiệp và BĐS KCN.",
+  "segments": [
+    {
+      "name": "Thép & Sản phẩm gang thép (Thép XD, HRC, Ống, Tôn)",
+      "rev_share_pct": 92.5,
+      "gross_profit_share_pct": 91.0,
+      "gross_margin_pct": 14.5,
+      "role": "Trụ cột cốt lõi & Con hào kinh tế",
+      "strategic_role": "CORE_MOAT",
+      "status": "Phục hồi chu kỳ mạnh mẽ",
+      "highlights": "Dung Quất 1 tối ưu công suất, Dung Quất 2 nâng công suất HRC thêm 5.6 triệu tấn, dẫn đầu thị phần thép Việt Nam.",
+      "risks": "Biến động giá quặng sắt, giá than cốc và áp lực cạnh tranh từ thép cuộn cán nóng giá rẻ Trung Quốc."
+    },
+    {
+      "name": "Nông nghiệp (Thức ăn chăn nuôi, Heo, Bò, Trứng gà)",
+      "rev_share_pct": 5.0,
+      "gross_profit_share_pct": 5.5,
+      "gross_margin_pct": 15.0,
+      "role": "Dòng tiền bổ trợ",
+      "strategic_role": "CASH_COW",
+      "status": "Tích cực",
+      "highlights": "Thị phần bò Úc và trứng gà sạch dẫn đầu miền Bắc, biên lãi ổn định.",
+      "risks": "Dịch bệnh chăn nuôi và giá nguyên liệu thức ăn nhập khẩu."
+    },
+    {
+      "name": "Bất động sản & Điện máy gia dụng",
+      "rev_share_pct": 2.5,
+      "gross_profit_share_pct": 3.5,
+      "gross_margin_pct": 20.0,
+      "role": "Tiềm năng dài hạn",
+      "strategic_role": "FUTURE_BET",
+      "status": "Tích lũy",
+      "highlights": "Hệ thống BĐS Khu công nghiệp (Yên Mỹ, Phố Nối A) tỷ lệ lấp đầy cao; mở rộng sản xuất container và điện lạnh.",
+      "risks": "Quy mô đóng góp hiện tại còn nhỏ so với mảng thép."
+    }
+  ]
+}

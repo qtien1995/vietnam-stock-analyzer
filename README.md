@@ -24,36 +24,51 @@ vietnam-stock-analyzer/
 │
 ├── README.md                  # Tài liệu hướng dẫn tổng quan và vận hành cho Người & AI
 ├── ARCHITECTURE.md            # Tài liệu kiến trúc chuyên sâu, công thức định lượng
+├── AGENTS.md                  # Quy chế hoạt động của Hội đồng tham mưu AI
 ├── requirements.txt           # Thư viện phụ thuộc Python
 ├── .env                       # File cấu hình bí mật cục bộ (API keys, Telegram, Watchlist)
 ├── .env.example               # File cấu hình mẫu
 │
-├── main.py                    # Entry point chính chạy CLI (--mode scan hoặc --mode analyze)
+├── main.py                    # Entry point chính chạy CLI (--mode scan, analyze, compare...)
 ├── config.py                  # Load biến môi trường và thiết lập ngưỡng giao dịch
+├── run_bot.bat                # Khởi động Telegram Interactive Bot 24/7
+├── run_daily_radar.bat        # Batch script quét thị trường tự động hàng ngày
 │
 ├── core/                      # Bộ máy tính toán định lượng cốt lõi
 │   ├── __init__.py
-│   ├── data_loader.py         # Lấy giá realtime SSI/DNSE, nến OHLCV và BCTC
-│   ├── fa_engine.py           # Tính Piotroski F-Score (0-9), Buffett Moat, Lynch PEG
-│   ├── ta_engine.py           # Tính EMA, RSI, MACD, Volume Spike, O'Neil Breakout, VSA
-│   └── risk_manager.py        # Tính Buy Zone, Stop Loss (<= 7%), Take Profit 1 & 2, R:R
+│   ├── data_loader.py         # Lấy giá realtime, nến OHLCV, BCTC & dữ liệu ngành
+│   ├── fa_engine.py           # Tính Piotroski F-Score, DuPont, CAMELS ngân hàng, Moat, PEG
+│   ├── ta_engine.py           # EMA, RSI, MACD, Volume Spike, O'Neil Breakout, Wyckoff VSA
+│   ├── risk_manager.py        # Buy Zone, Stop Loss (<= 7%), Take Profit, Kelly & Position Sizing
+│   ├── macro_engine.py        # Phân tích chu kỳ vĩ mô, lãi suất, tỷ giá, tín dụng
+│   ├── governance_analyzer.py # Đánh giá quản trị doanh nghiệp, giao dịch nội bộ
+│   ├── segment_analyzer.py    # Bóc tách cơ cấu phân khúc kinh doanh cốt lõi (Core Segments)
+│   ├── html_report_generator.py # Xuất báo cáo HTML đồ họa chuyên nghiệp, biểu đồ tương tác
+│   ├── stock_service.py       # Facade Service thống nhất phục vụ CLI & Telegram Bot
+│   └── performance_tracker.py # Theo dõi hiệu suất khuyến nghị và kiểm toán danh mục
 │
 ├── ai/                        # Tầng kết nối AI linh hoạt
 │   ├── __init__.py
-│   ├── llm_router.py          # Unified AI Client: Hỗ trợ Gemini, OpenAI, Claude, Ollama, Offline
-│   ├── council.py             # Điều phối 4 góc nhìn huyền thoại + 1 Trọng tài rủi ro
+│   ├── llm_router.py          # Unified AI Client: Gemini, OpenAI, Claude, Ollama, Offline
+│   ├── council.py             # Hội đồng 5 góc nhìn: Giá trị, Tăng trưởng, TA, Vĩ mô, CRO Arbiter
 │   └── prompts/               # Bộ Prompt chuẩn hóa dưới dạng Markdown độc lập
-│       ├── buffett.md         # Prompt góc nhìn Warren Buffett
-│       ├── lynch.md           # Prompt góc nhìn Peter Lynch
-│       ├── oneil.md           # Prompt góc nhìn William O'Neil (CANSLIM)
-│       ├── vsa.md             # Prompt góc nhìn Price Action & Wyckoff VSA
-│       └── cro_arbiter.md     # Prompt Giám đốc Quản trị rủi ro (CRO)
+│       ├── buffett.md         # Warren Buffett (Giá trị & Moat)
+│       ├── lynch.md           # Peter Lynch (Tăng trưởng & PEG)
+│       ├── oneil.md           # William O'Neil (CANSLIM & Momentum)
+│       ├── vsa.md             # Wyckoff & VSA (Khối lượng & Xu hướng)
+│       ├── dalio_marks.md     # Ray Dalio & Howard Marks (Vĩ mô & Chu kỳ)
+│       └── cro_arbiter.md     # Chief Risk Officer (Trọng tài phản biện & Quản trị rủi ro)
 │
 ├── alerts/                    # Kênh gửi cảnh báo
 │   ├── __init__.py
-│   └── telegram_bot.py        # Module gửi tín hiệu tức thì về Telegram khi có điểm mua/bán
+│   ├── telegram_bot.py        # Module gửi tín hiệu và file báo cáo về Telegram
+│   └── telegram_interactive_bot.py # Bot Telegram tương tác 2 chiều với menu nút bấm
 │
-└── reports/                   # Nơi tự động lưu trữ các file báo cáo phân tích (.md)
+├── data/                      # Lưu trữ dữ liệu
+│   ├── segments/              # Hồ sơ bóc tách phân khúc kinh doanh chi tiết (.json)
+│   └── market.db              # SQLite Database lưu trữ cục bộ
+│
+└── reports/                   # Tự động lưu trữ các file báo cáo (.html & .md)
 ```
 
 ---
