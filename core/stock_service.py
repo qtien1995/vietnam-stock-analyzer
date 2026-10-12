@@ -4,7 +4,7 @@ Chịu trách nhiệm toàn bộ logic nghiệp vụ cốt lõi:
 - Quét và sàng lọc toàn thị trường (Market Screener)
 - Phân tích chuyên sâu 1 mã (Full, FA-only, TA-only)
 - Điều phối lưu trữ Database và sinh báo cáo HTML/Alerts
-Được dùng chung bởi CLI (main.py) và Telegram Bot (telegram_interactive_bot.py).
+Được dùng bởi CLI (main.py) và hệ thống cảnh báo Telegram 1 chiều (alerts/telegram_bot.py).
 """
 
 import time

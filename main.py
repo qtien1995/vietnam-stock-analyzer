@@ -514,9 +514,9 @@ def main():
     )
     parser.add_argument(
         "--mode", "-m",
-        choices=["dashboard", "analyze", "scan", "macro", "fa", "ta", "track", "bot"],
+        choices=["dashboard", "analyze", "scan", "macro", "fa", "ta", "track"],
         default=None,
-        help="Chế độ hoạt động:\n  dashboard: Cập nhật & Mở Dashboard Offline trên Microsoft Edge\n  analyze: Soi sâu 1 mã (FA + TA + Timing Engine)\n  scan: Quét toàn bộ TTCK tìm top nổ vol\n  macro: Xem ma trận Vĩ mô & Hàng hóa thế giới\n  fa: Chỉ phân tích Cơ bản (BCTC)\n  ta: Chỉ phân tích Kỹ thuật (Chart)\n  track: PDCA - Đánh giá hiệu suất khuyến nghị quá khứ\n  bot: Chạy Telegram Bot"
+        help="Chế độ hoạt động:\n  dashboard: Cập nhật & Mở Dashboard Offline trên Microsoft Edge\n  analyze: Soi sâu 1 mã (FA + TA + Timing Engine)\n  scan: Quét toàn bộ TTCK tìm top nổ vol\n  macro: Xem ma trận Vĩ mô & Hàng hóa thế giới\n  fa: Chỉ phân tích Cơ bản (BCTC)\n  ta: Chỉ phân tích Kỹ thuật (Chart)\n  track: PDCA - Đánh giá hiệu suất khuyến nghị quá khứ"
     )
     parser.add_argument(
         "--ticker", "-t",
@@ -565,13 +565,13 @@ def main():
         render_macro_terminal()
     elif mode == "scan":
         run_market_screener(top_n=args.top, sector_filter=args.sector)
+        if send_alert:
+            from alerts.telegram_bot import send_telegram_radar
+            send_telegram_radar(top_n=args.top, sector_filter=args.sector)
     elif mode == "track":
         from core.performance_tracker import evaluate_all_recommendations, render_performance_terminal_dashboard
         perf_data = evaluate_all_recommendations()
         render_performance_terminal_dashboard(perf_data)
-    elif mode == "bot":
-        from alerts.telegram_interactive_bot import start_interactive_bot
-        start_interactive_bot()
     elif mode == "fa":
         analyze_single_ticker(symbol=ticker, mode="fa", send_alert=send_alert)
     elif mode == "ta":

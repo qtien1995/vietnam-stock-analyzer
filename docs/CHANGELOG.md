@@ -70,3 +70,16 @@
   4. `tests/unit/test_risk_manager.py`: 3 bài test kiểm định Setup Validation Gate, downtrend disqualification, biên sàn HOSE/HNX/UPCoM.
   5. `tests/unit/test_segment_analyzer.py`: 2 bài test kiểm định hồ sơ BCTC kiểm chứng vs mã chưa kiểm chứng.
   6. `tests/unit/test_ta_engine.py`: 5 bài test kiểm định miền giá trị các chỉ báo, O'Neil, VSA, Fibonacci, chuỗi nến rỗng/ngắn.
+
+---
+
+### 7. Tinh giản Telegram Alert 1 Chiều & Loại bỏ Bot 2 Chiều (1-Way Notification Streamlining)
+- **Bắn file HTML & Cảnh báo 1 chiều trực tiếp (`alerts/telegram_bot.py`):**
+  - Chuyển đổi toàn bộ luồng Telegram sang cơ chế **bắn thông báo 1 chiều** thẳng về tài khoản cá nhân của người dùng (`TELEGRAM_CHAT_ID`).
+  - Tự động đính kèm file báo cáo HTML (`send_telegram_document`) sau mỗi lần phân tích cổ phiếu, cho phép chạm vào mở xem offline trên điện thoại/máy tính mà không phụ thuộc Internet.
+  - Bổ sung hàm `send_telegram_radar()` gửi kết quả quét Top cổ phiếu nổ Vol 1 chiều thẳng vào Telegram mà không có bất kỳ nút bấm khảo sát hay inline callback nào.
+- **Loại bỏ triệt để Bot 2 chiều:**
+  - Gỡ bỏ `alerts/telegram_interactive_bot.py` và tập lệnh `run_bot.bat`.
+  - Loại bỏ menu chọn chat, inline button callbacks, và lệnh `--mode bot` khỏi `main.py`.
+  - Cập nhật `run_daily_radar.bat` sang sử dụng trực tiếp cơ chế bắn 1 chiều `send_telegram_radar`.
+

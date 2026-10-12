@@ -59,6 +59,41 @@ def record_sent_alert(target_chat_id: str | int, symbol: str):
     _save_alert_cache(cache)
 
 
+def send_telegram_message(
+    text: str,
+    chat_id: Optional[str | int] = None,
+    parse_mode: Optional[str] = "Markdown"
+) -> bool:
+    """
+    Gửi tin nhắn 1 chiều qua Telegram Bot (không kèm nút bấm/menu tương tác).
+    """
+    target_chat_id = chat_id or TELEGRAM_CHAT_ID
+    if not TELEGRAM_ENABLED or not TELEGRAM_BOT_TOKEN or not target_chat_id:
+        return False
+
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": str(target_chat_id),
+        "text": text,
+    }
+    if parse_mode:
+        payload["parse_mode"] = parse_mode
+
+    try:
+        r = requests.post(url, json=payload, timeout=15)
+        if r.status_code != 200 and parse_mode:
+            # Fallback nếu lỗi cú pháp Markdown
+            payload.pop("parse_mode", None)
+            r = requests.post(url, json=payload, timeout=15)
+        if r.status_code == 200:
+            return True
+        else:
+            print(f"⚠️ Telegram API response: {r.status_code} - {r.text}")
+            return False
+    except Exception as e:
+        print(f"❌ Lỗi gửi tin nhắn Telegram: {e}")
+        return False
+
 
 def send_telegram_document(
     file_path: str | Path,
@@ -66,15 +101,16 @@ def send_telegram_document(
     chat_id: Optional[str | int] = None
 ) -> bool:
     """
-    Gửi file tài liệu (HTML report, PDF, log...) trực tiếp qua Telegram Bot bằng API sendDocument.
-    Cho phép người dùng bấm vào mở trực tiếp trên di động hoặc máy tính.
+    Gửi file tài liệu (HTML report, PDF, log...) 1 chiều trực tiếp về Telegram cá nhân.
+    Cho phép người dùng bấm vào mở trực tiếp trên di động hoặc máy tính (xem offline Edge mượt mà).
     """
     target_chat_id = chat_id or TELEGRAM_CHAT_ID
-    if not TELEGRAM_BOT_TOKEN or not target_chat_id:
+    if not TELEGRAM_ENABLED or not TELEGRAM_BOT_TOKEN or not target_chat_id:
         return False
 
     path = Path(file_path)
     if not path.exists():
+        print(f"⚠️ Không tìm thấy file để gửi: {file_path}")
         return False
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument"
@@ -82,9 +118,9 @@ def send_telegram_document(
         with open(path, "rb") as f:
             files = {"document": (path.name, f, "text/html")}
             data = {"chat_id": str(target_chat_id), "caption": caption}
-            r = requests.post(url, data=data, files=files, timeout=25)
+            r = requests.post(url, data=data, files=files, timeout=30)
             if r.status_code == 200:
-                print(f"📄 Đã gửi file báo cáo HTML ({path.name}) trực tiếp về Telegram!")
+                print(f"📄 Đã bắn file báo cáo HTML ({path.name}) 1 chiều về Telegram cá nhân!")
                 return True
             else:
                 print(f"⚠️ Telegram sendDocument error: {r.status_code} - {r.text}")
@@ -103,14 +139,12 @@ def send_telegram_alert(
     chat_id: Optional[str | int] = None,
     timing_data: Optional[Dict[str, Any]] = None
 ) -> bool:
-
     """
-    Gửi cảnh báo tín hiệu giao dịch phân tách bạch 2 TRƯỜNG PHÁI:
+    Gửi cảnh báo tín hiệu giao dịch 1 chiều về Telegram cá nhân:
     1. VÙNG MUA ĐẦU TƯ GIÁ TRỊ (Tích sản / Biên an toàn - Warren Buffett & Graham)
-       Kèm Định giá thực, lý do và cảnh báo nếu thị giá đang vượt quá giá trị thực.
     2. VÙNG MUA LƯỚT SÓNG NGẮN HẠN (Swing / Kỹ thuật - O'Neil & Wyckoff)
-       Dành cho người lướt sóng theo đà dòng tiền kèm Cắt lỗ, Chốt lời, R:R và kỷ luật.
-    3. ĐÍNH KÈM FILE HTML BÁO CÁO TRỰC QUAN để mở ngay trên điện thoại và máy tính.
+    3. TỰ ĐỘNG BẮN KÈM FILE HTML BÁO CÁO để mở xem offline trên điện thoại và máy tính.
+    Hoàn toàn 1 chiều, không menu chọn chat, không nút bấm tương tác.
     """
     target_chat_id = chat_id or TELEGRAM_CHAT_ID
     if not TELEGRAM_ENABLED or not TELEGRAM_BOT_TOKEN or not target_chat_id:
@@ -118,7 +152,7 @@ def send_telegram_alert(
 
     # Cơ chế kiểm tra chống gửi đúp liên tiến trình lưu file (Persistent De-duplication 90s)
     if is_duplicate_alert(target_chat_id, symbol, cooldown_seconds=90.0):
-        print(f"⏱️ Đã chặn cảnh báo gửi đúp cho mã {symbol} (vừa gửi trong vòng 90 giây trước trên toàn hệ thống).")
+        print(f"⏱️ Đã chặn cảnh báo gửi đúp cho mã {symbol} (vừa gửi trong vòng 90 giây trước).")
         return True
 
     action = trade_setup.get("action", "THEO DÕI")
@@ -194,52 +228,71 @@ def send_telegram_alert(
             f"━━━━━━━━━━━━━━━━━━\n"
             f"⚡ *3. ĐỘNG CƠ THỜI ĐIỂM (TIMING PREDICTION):*\n"
             f"• *Phán quyết:* *{timing_data.get('timing_verdict', 'THEO DÕI')}*\n"
-            f"• 🚀 *Khi nào tăng:* Xác suất `{surge.get('probability_pct', 50)}%` | Khung thời gian: `{surge.get('timing_window', 'N/A')}`\n"
+            f"• 🚀 *Khi nào tăng:* Xác suất `{surge.get('probability_pct', 50)}%` | Khung: `{surge.get('timing_window', 'N/A')}`\n"
             f"  _(Xác nhận khi vượt mốc {surge.get('trigger_pivot_price', 0):,.0f} đ kèm Vol > 1.3x MA20)_\n"
             f"• ⚠️ *Khi nào sập:* Rủi ro `{crash.get('risk_probability_pct', 20)}%` | Mức vi phạm: `{crash.get('failure_trigger_level', 0):,.0f} đ`\n"
         )
 
-    # Link báo cáo HTML
+    # Thông báo file báo cáo HTML đính kèm
     if html_report_path:
-
         html_p = Path(html_report_path)
         message += (
             f"━━━━━━━━━━━━━━━━━━\n"
             f"🌐 *BÁO CÁO HTML TRỰC QUAN (MOBILE & DESKTOP):*\n"
-            f"• Đã đính kèm file `{html_p.name}` bên dưới!\n"
-            f"• *Mẹo:* Chạm vào file đính kèm trên Telegram để mở xem ngay báo cáo tương tác Chart.js đa tầng.\n"
+            f"• Đã bắn đính kèm file `{html_p.name}` bên dưới!\n"
+            f"• *Mẹo:* Mở trực tiếp trên Edge hoặc trình duyệt điện thoại để xem biểu đồ SVG offline không cần mạng.\n"
         )
 
-    # 1. Gửi tin nhắn Text qua Telegram
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": str(target_chat_id),
-        "text": message,
-        "parse_mode": "Markdown",
-    }
+    # 1. Gửi tin nhắn Text 1 chiều qua Telegram
+    send_success = send_telegram_message(message, chat_id=target_chat_id)
+    if send_success:
+        print("📲 Đã bắn cảnh báo tín hiệu giao dịch 1 chiều về Telegram cá nhân!")
+        record_sent_alert(target_chat_id, symbol)
 
-    send_success = False
-    try:
-        r = requests.post(url, json=payload, timeout=12)
-        if r.status_code != 200:
-            # Fallback nếu lỗi markdown entity
-            payload.pop("parse_mode", None)
-            r = requests.post(url, json=payload, timeout=12)
-        if r.status_code == 200:
-            print("📲 Đã gửi cảnh báo tín hiệu giao dịch về Telegram cá nhân!")
-            send_success = True
-            record_sent_alert(target_chat_id, symbol)
-        else:
-            print(f"⚠️ Telegram API response: {r.status_code} - {r.text}")
-    except Exception as e:
-        print(f"❌ Lỗi gửi tin nhắn Telegram: {e}")
-
-    # 2. Gửi đính kèm file HTML trực tiếp nếu có
+    # 2. Gửi đính kèm file HTML trực tiếp 1 chiều nếu có
     if html_report_path and Path(html_report_path).exists():
         send_telegram_document(
             file_path=html_report_path,
-            caption=f"🌐 Báo cáo chiến lược toàn diện: {symbol} | Vietnam Stock Analyzer",
+            caption=f"🌐 Báo cáo chiến lược: {symbol} | Vietnam Stock Analyzer",
             chat_id=target_chat_id
         )
 
     return send_success
+
+
+def send_telegram_radar(
+    top_n: int = 10,
+    sector_filter: Optional[str] = None,
+    chat_id: Optional[str | int] = None
+) -> bool:
+    """
+    Quét thị trường và gửi báo cáo Top N siêu cổ phiếu 1 chiều về Telegram cá nhân (không nút bấm/menu tương tác).
+    """
+    target_chat_id = chat_id or TELEGRAM_CHAT_ID
+    if not TELEGRAM_ENABLED or not TELEGRAM_BOT_TOKEN or not target_chat_id:
+        print("ℹ️ Telegram chưa được kích hoạt trong .env (TELEGRAM_ENABLED=false hoặc thiếu token/chat_id).")
+        return False
+
+    from core.stock_service import run_screener
+    filter_label = f" (Ngành: {sector_filter})" if sector_filter else ""
+    print(f"⏳ Đang quét thị trường tìm Top {top_n} để gửi Telegram 1 chiều...")
+    results = run_screener(top_n=top_n, sector_filter=sector_filter)
+    if not results:
+        return send_telegram_message("❌ Radar thị trường: Không tìm thấy mã nào thỏa mãn tiêu chí lọc hôm nay.", chat_id=target_chat_id)
+
+    msg = f"🏆 *TOP {len(results)} SIÊU CỔ PHIẾU HÔM NAY*{filter_label}\n"
+    msg += f"━━━━━━━━━━━━━━━━━━\n"
+    for idx, r in enumerate(results, 1):
+        act_icon = "🟢" if "MUA" in r.get("action", "") else ("🟡" if "THEO DÕI" in r.get("action", "") else "🔴")
+        msg += f"{idx}. *{r['symbol']}* ({r.get('exchange', '')}) - `{r.get('price', 0):,.0f} đ` ({r.get('change_pct', 0):+.1f}%)\n"
+        msg += f"   🏷️ Ngành: _{r.get('sector_name', 'Doanh nghiệp')}_\n"
+        msg += f"   {act_icon} Khuyến nghị: *{r.get('action', 'THEO DÕI')}* (Vùng mua: `{r.get('buy_zone', '')}`)\n"
+        msg += f"   🎯 Đ.Thuận: `{r.get('consensus_score', 0)}/100` | FA: `F{r.get('f_score', 0)}/9` (CFO: {r.get('cfo_grade', 'B')}) | Vol: `{r.get('vol_ratio', 1.0):.2f}x`\n\n"
+
+    msg += f"━━━━━━━━━━━━━━━━━━\n"
+    msg += f"💡 _Báo cáo quét thị trường tự động 1 chiều từ Vietnam Stock Analyzer._"
+    
+    success = send_telegram_message(msg, chat_id=target_chat_id)
+    if success:
+        print("📲 Đã bắn báo cáo Radar thị trường 1 chiều về Telegram cá nhân!")
+    return success
