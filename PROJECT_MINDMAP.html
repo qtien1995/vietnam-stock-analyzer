@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ Đồ Tư Duy Dự Án - Vietnam Stock Analyzer</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #090d16;
+      --bg-secondary: #0f172a;
+      --bg-card: #131e36;
+      --bg-card-hover: #1e293b;
+      --border-color: #243452;
+      --border-accent: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent-blue: #38bdf8;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+      --accent-indigo: #6366f1;
+      --font-sans: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      line-height: 1.6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(180deg, #0f172a 0%, rgba(15, 23, 42, 0.9) 100%);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #0284c7, #10b981);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+    }
+
+    .brand-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      background: linear-gradient(90deg, #38bdf8, #a7f3d0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-pro {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .badge-live {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* TOP STATS BAR */
+    .stats-ribbon {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .stat-pill {
+      background: rgba(19, 30, 54, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stat-pill .num {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .stat-pill .label {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.2;
+    }
+
+    /* NAV CONTROLS */
+    .view-toggle {
+      display: flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 3px;
+    }
+
+    .toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-btn.active {
+      background: var(--accent-blue);
+      color: #04101e;
+      box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* MAIN CONTAINER */
+    .main-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* TOOLBAR */
+    .canvas-toolbar {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 8px 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      background: rgba(2, 6, 23, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      padding: 7px 12px 7px 32px;
+      font-size: 13px;
+      width: 220px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-blue);
+      width: 280px;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+
+    .tool-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tool-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+      border-color: var(--accent-blue);
+    }
+
+    /* D3 CANVAS */
+    #mindmap-container {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 50%, #0d1527 0%, #080d1a 100%);
+      cursor: grab;
+      position: relative;
+    }
+
+    #mindmap-container:active {
+      cursor: grabbing;
+    }
+
+    /* D3 ELEMENTS STYLING */
+    .link {
+      fill: none;
+      stroke-opacity: 0.5;
+      stroke-width: 2px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .link:hover {
+      stroke-opacity: 0.95;
+      stroke-width: 3.5px;
+    }
+
+    .node {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .node circle {
+      stroke-width: 2.5px;
+      transition: all 0.3s ease;
+    }
+
+    .node:hover circle {
+      transform: scale(1.15);
+      stroke-width: 3.5px;
+      filter: drop-shadow(0 0 12px currentColor);
+    }
+
+    .node text {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
+      fill: var(--text-main);
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+      transition: all 0.2s ease;
+    }
+
+    .node:hover text {
+      fill: #ffffff;
+      font-weight: 700;
+    }
+
+    .node--root text {
+      font-size: 16px;
+      font-weight: 800;
+      fill: #38bdf8;
+    }
+
+    .node--branch text {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .node-badge {
+      fill: #0f172a;
+      stroke-width: 1.5;
+    }
+
+    .node-badge-text {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    .node-highlight circle {
+      stroke: #f43f5e !important;
+      stroke-width: 5px !important;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { filter: drop-shadow(0 0 4px #f43f5e); }
+      50% { filter: drop-shadow(0 0 20px #f43f5e); }
+      100% { filter: drop-shadow(0 0 4px #f43f5e); }
+    }
+
+    /* RIGHT DRAWER - DETAIL INSPECTOR */
+    .detail-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 440px;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      background: rgba(2, 6, 23, 0.4);
+    }
+
+    .drawer-title-area h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .drawer-category {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .drawer-close {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .drawer-close:hover {
+      background: rgba(244, 63, 94, 0.2);
+      color: var(--accent-rose);
+      border-color: var(--accent-rose);
+    }
+
+    .drawer-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .drawer-section {
+      margin-bottom: 24px;
+    }
+
+    .drawer-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .drawer-desc {
+      font-size: 14px;
+      color: var(--text-main);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+      line-height: 1.6;
+    }
+
+    .drawer-subitems {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .drawer-subitem {
+      background: rgba(2, 6, 23, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      transition: border-color 0.2s;
+    }
+
+    .drawer-subitem:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .drawer-subitem .bullet {
+      color: var(--accent-blue);
+      font-weight: bold;
+    }
+
+    .code-chip {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #334155;
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: #38bdf8;
+      margin-top: 6px;
+    }
+
+    /* DEEP DIVE VIEW (TAB 2) */
+    #doc-view-container {
+      display: none;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 40px;
+      background: var(--bg-primary);
+    }
+
+    .doc-content {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .doc-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .doc-hero h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #38bdf8, #6ee7b7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .doc-hero p {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 850px;
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .bento-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 24px;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bento-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-icon-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .card-checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .card-checklist li {
+      font-size: 12.5px;
+      color: #cbd5e1;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-checklist li span.check {
+      color: var(--accent-emerald);
+      font-weight: bold;
+    }
+
+    /* FOOTER BAR */
+    footer {
+      background: #0b1120;
+      border-top: 1px solid var(--border-color);
+      padding: 8px 24px;
+      font-size: 11px;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-blue);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand-area">
+      <div class="brand-logo">🏛️</div>
+      <div>
+        <div class="brand-title">VIETNAM STOCK ANALYZER</div>
+        <div class="brand-subtitle">
+          <span>Kiến trúc Sơ đồ Tư duy (Mindmap Architecture)</span>
+          <span class="badge badge-pro">Zero-Server</span>
+          <span class="badge badge-live">Edge Offline Dashboard</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS RIBBON -->
+    <div class="stats-ribbon">
+      <div class="stat-pill">
+        <div class="num">7</div>
+        <div class="label">Phân hệ<br>Trọng yếu</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">10+</div>
+        <div class="label">Hàng hóa & Vĩ mô<br>(Dầu, Vàng, FED...)</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">⚡</div>
+        <div class="label">Timing Matrix<br>(Khi Nào Tăng / Sập)</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">6</div>
+        <div class="label">Chuyên gia AI<br>Tham mưu</div>
+      </div>
+      <div class="stat-pill">
+        <div class="num">🌐</div>
+        <div class="label">Offline Edge<br>+ Telegram Push</div>
+      </div>
+    </div>
+
+    <!-- VIEW TOGGLE -->
+    <div class="view-toggle">
+      <button class="toggle-btn active" id="btn-mindmap" onclick="switchView('mindmap')">
+        <span>🧠</span> Sơ đồ Tư duy
+      </button>
+      <button class="toggle-btn" id="btn-doc" onclick="switchView('doc')">
+        <span>📖</span> Báo cáo Chi tiết
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+
+    <!-- TOOLBAR (MINDMAP VIEW) -->
+    <div class="canvas-toolbar" id="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="Tìm tính năng, chỉ số, file..." oninput="handleSearch()">
+      </div>
+      <button class="tool-btn" onclick="expandAllNodes()"><span>📂</span> Mở tất cả</button>
+      <button class="tool-btn" onclick="collapseAllNodes()"><span>📁</span> Thu gọn</button>
+      <button class="tool-btn" onclick="resetZoom()"><span>🎯</span> Căn giữa</button>
+      <button class="tool-btn" onclick="zoomIn()"><span>➕</span></button>
+      <button class="tool-btn" onclick="zoomOut()"><span>➖</span></button>
+    </div>
+
+    <!-- SVG CANVAS CONTAINER -->
+    <div id="mindmap-container">
+      <svg id="mindmap-svg" width="100%" height="100%"></svg>
+    </div>
+
+    <!-- DETAIL INSPECTOR DRAWER -->
+    <div class="detail-drawer" id="detailDrawer">
+      <div class="drawer-header">
+        <div class="drawer-title-area">
+          <h3 id="drawerNodeTitle">Tên Mục</h3>
+          <div class="drawer-category" id="drawerNodeCat">Phân hệ</div>
+        </div>
+        <button class="drawer-close" onclick="closeDrawer()">✕</button>
+      </div>
+      <div class="drawer-body">
+        <div class="drawer-section">
+          <div class="drawer-section-title">📌 Vai trò & Mục đích</div>
+          <div class="drawer-desc" id="drawerNodeDesc">Mô tả chi tiết mục...</div>
+        </div>
+
+        <div class="drawer-section" id="drawerSubSection">
+          <div class="drawer-section-title">🧩 Các Tính Năng & Chỉ Số Cốt Lõi</div>
+          <ul class="drawer-subitems" id="drawerSubList"></ul>
+        </div>
+
+        <div class="drawer-section" id="drawerSourceSection">
+          <div class="drawer-section-title">💻 File Mã Nguồn Phụ Trách</div>
+          <div class="code-chip" id="drawerSourceFile">core/...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: DETAILED ARCHITECTURE GUIDE -->
+    <div id="doc-view-container">
+      <div class="doc-content">
+        <div class="doc-hero">
+          <h1>🏛️ DỰ ÁN LÀM ĐƯỢC GÌ? (7 PHÂN HỆ THỰC CHIẾN TINH GỌN)</h1>
+          <p>
+            <strong>Vietnam Stock Analyzer</strong> là cỗ máy phân tích chứng khoán cục bộ offline (Edge Terminal), 
+            được xây dựng riêng cho nhà đầu tư tại thị trường Việt Nam (HOSE, HNX, UPCoM). Hệ thống giải quyết trọn vẹn 3 bài toán sống còn: 
+            <strong>Chọn mã tiềm năng (FA 7 tầng & Vĩ mô hàng hóa), Chọn thời điểm bùng nổ (TA Wyckoff VSA & Timing Matrix khi nào tăng/sập), 
+            và Quản trị vốn thép bảo toàn vốn (Cắt lỗ &le; 7%, R:R &ge; 2:1)</strong>.
+          </p>
+        </div>
+
+        <div class="bento-grid">
+          <!-- BENTO 1 -->
+          <div class="bento-card">
+            <div class="card-icon-title">
+              <div class="card-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">🎯</div>
+              <div class="card-title">1. Tổng Quan & Triết Lý</div>
+            </div>
+            <div class="card-desc">
+              Tham mưu đầu tư độc lập, minh bạch và kỷ luật cao độ. AI đóng vai trò phản biện, quyết định thuộc về nhà đầu tư.
+            </div>
+            <ul class="card-checklist">
+              <li><span class="check">✓</span> <span><strong>Local-First:</strong> Bảo mật tuyệt đối danh mục và số liệu cá nhân trên máy.</span></li>
+              <li><span class="check">✓</span> <span><strong>Zero-Server:</strong> Không chạy server nền hay mở cửa sổ console .bat phiền phức.</span></li>
+              <li><span class="check">✓</span> <span><strong>Triệt tiêu Hallucination:</strong> Định lượng số liệu trước, AI chỉ đọc số thật.</span></li>
+              <li><span class="check">✓</span> <span><strong>Kỷ luật thép:</strong> R:R &ge; 2:1, Stop Loss &le; 7% (1 phiên sàn HOSE).</span></li>
+            </ul>
+          </div>
+
+          <!-- BENTO 2 -->
+          <div class="bento-card">
+            <div class="card-icon-title">
+              <div class="card-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">📡</div>
+              <div class="card-title">2. Tầng Dữ Liệu Realtime</div>
+            </div>
+            <div class="card-desc">
+              Hệ thống lấy dữ liệu tự động, tốc độ cao, hoàn toàn miễn phí từ các cổng mở của CTCK lớn.
+            </div>
+            <ul class="card-checklist">
+              <li><span class="check">✓</span> <span><strong>Giá trong phiên:</strong> SSI iBoard & DNSE lấy giá khớp, vol, khối ngoại.</span></li>
+              <li><span class="check">✓</span> <span><strong>BCTC nhiều năm:</strong> TCBS & vnstock tải tự động bảng CĐKT, KQKD, LCTT.</span></li>
+              <li><span class="check">✓</span> <span><strong>Fallback 3 tầng:</strong> Đảm bảo hệ thống không bao giờ gián đoạn khi 1 nguồn lỗi.</span></li>
+              <li><span class="check">✓</span> <span><strong>SQLite cục bộ:</strong> Tự động backup an toàn trước mọi thay đổi lớn.</span></li>
+            </ul>
+          </div>
+
+          <!-- BENTO 3 -->
+          <div class="bento-card">
+            <div class="card-icon-title">
+              <div class="card-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">🔬</div>
+              <div class="card-title">3. FA & Vĩ Mô Hàng Hóa Toàn Cầu</div>
+            </div>
+            <div class="card-desc">
+              Soi sâu mọi ngóc ngách BCTC kết hợp nhịp đập biến số vĩ mô quốc tế (FED, CPI, Dầu, Vàng, Cao su...).
+            </div>
+            <ul class="card-checklist">
+              <li><span class="check">✓</span> <span><strong>Radar Hàng Hóa Toàn Cầu:</strong> Theo dõi Dầu Brent, Vàng SJC, Cao su TSR20, Thép HRC, Urea, Fed rate, USD/VND.</span></li>
+              <li><span class="check">✓</span> <span><strong>Piotroski F-Score (0-9):</strong> Đo lường sức khỏe tài chính toàn diện.</span></li>
+              <li><span class="check">✓</span> <span><strong>Bóc tách Dòng tiền thật:</strong> So sánh CFO vs LNST, FCF, Altman Z''-Score.</span></li>
+              <li><span class="check">✓</span> <span><strong>Radar Tăng vốn ảo & Bẫy giá trị:</strong> Nhận diện mạng lưới holding che giấu nợ.</span></li>
+            </ul>
+          </div>
+
+          <!-- BENTO 4 -->
+          <div class="bento-card">
+            <div class="card-icon-title">
+              <div class="card-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">⚡</div>
+              <div class="card-title">4. TA & Động Cơ Dự Báo Thời Điểm (Timing Matrix)</div>
+            </div>
+            <div class="card-desc">
+              Dự đoán chính xác khi nào cổ phiếu sẽ bùng nổ tăng giá và khi nào tiềm ẩn nguy cơ sập gãy.
+            </div>
+            <ul class="card-checklist">
+              <li><span class="check">✓</span> <span><strong>Kịch bản Bứt Phá (Khi Nào Tăng):</strong> VSA Cạn cung (No Supply), Spring, Macro lag 1-3 phiên, Mốc Pivot kích hoạt kèm Vol &ge; 1.3x.</span></li>
+              <li><span class="check">✓</span> <span><strong>Kịch bản Rủi Ro (Khi Nào Sập):</strong> Phân phối ngầm Upthrust, Phân kỳ âm RSI/MACD, Bẫy "Tin ra là bán", Mức giá vi phạm (Failure Level).</span></li>
+              <li><span class="check">✓</span> <span><strong>Xác suất định lượng (%):</strong> Dự báo cụ thể khung thời gian T+1 đến T+5 cho từng vị thế.</span></li>
+            </ul>
+          </div>
+
+          <!-- BENTO 5 -->
+          <div class="bento-card">
+            <div class="card-icon-title">
+              <div class="card-icon" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">🛡️</div>
+              <div class="card-title">5. Quản Trị Rủi Ro & Trade Setup</div>
+            </div>
+            <div class="card-desc">
+              Không có kế hoạch quản trị rủi ro thì không mở vị thế. Bảo toàn vốn là ưu tiên số một.
+            </div>
+            <ul class="card-checklist">
+              <li><span class="check">✓</span> <span><strong>Vùng Mua Tối Ưu:</strong> Buy Zone được tính toán chặt quanh nền hỗ trợ.</span></li>
+              <li><span class="check">✓</span> <span><strong>Cắt Lỗ Kỷ Luật:</strong> max(Support, Entry - 1.5*ATR), tuyệt đối &le; 7%.</span></li>
+              <li><span class="check">✓</span> <span><strong>Mục tiêu Chốt Lời:</strong> TP1 (+12%), TP2 (+20%), TP3 (+35%).</span></li>
+              <li><span class="check">✓</span> <span><strong>Quyền Trọng Tài CRO:</strong> Phủ quyết tín hiệu Mua nếu rủi ro quá lớn.</span></li>
+            </ul>
+          </div>
+
+          <!-- BENTO 6 -->
+          <div class="bento-card">
+            <div class="card-icon-title">
+              <div class="card-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">🤖</div>
+              <div class="card-title">6. Hội Đồng Tham Mưu 6 AI</div>
+            </div>
+            <div class="card-desc">
+              Tranh luận đa góc nhìn giữa các huyền thoại đầu tư để tìm ra điểm đồng thuận và mâu thuẫn.
+            </div>
+            <ul class="card-checklist">
+              <li><span class="check">✓</span> <span><strong>Buffett & Munger:</strong> Định giá Moat, ROE, Quản trị, Biên an toàn &ge; 20%.</span></li>
+              <li><span class="check">✓</span> <span><strong>Peter Lynch:</strong> Tăng trưởng GARP, Hệ số PEG (PEG &le; 0.7 siêu rẻ).</span></li>
+              <li><span class="check">✓</span> <span><strong>William O'Neil:</strong> CANSLIM, Sức mạnh giá RS, Breakout nền giá.</span></li>
+              <li><span class="check">✓</span> <span><strong>Dalio & Marks & CRO:</strong> Cỗ máy vĩ mô, chu kỳ tâm lý & trọng tài rủi ro.</span></li>
+            </ul>
+          </div>
+
+          <!-- BENTO 7 -->
+          <div class="bento-card">
+            <div class="card-icon-title">
+              <div class="card-icon" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">💻</div>
+              <div class="card-title">7. Giao Diện Edge Offline Dashboard & Telegram Push</div>
+            </div>
+            <div class="card-desc">
+              Trải nghiệm người dùng không cần server, mở trực tiếp trên Microsoft Edge và nhận báo cáo về điện thoại.
+            </div>
+            <ul class="card-checklist">
+              <li><span class="check">✓</span> <span><strong>DASHBOARD.html:</strong> Mở trực tiếp trên Edge bằng 1 click (chuẩn file:///...), không cần chạy ngầm server.</span></li>
+              <li><span class="check">✓</span> <span><strong>Báo cáo HTML Chuyên Sâu:</strong> Chart.js so sánh Dòng tiền vs LNST, Radar Hàng hóa và Timing Matrix.</span></li>
+              <li><span class="check">✓</span> <span><strong>Telegram Push 1-Chiều:</strong> Tự động bắn file HTML đính kèm và tóm tắt chiến lược về điện thoại khi chạy lệnh.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>🏛️ <strong>Vietnam Stock Analyzer</strong> &bull; Hệ thống Phân tích Cục bộ Đa AI &bull; Tuân thủ quy chế AGENTS.md</div>
+    <div>Nhấn vào từng nút trên Sơ đồ tư duy để mở chi tiết &bull; Sử dụng chuột để Phóng to / Thu nhỏ / Kéo di chuyển</div>
+  </footer>
+
+  <!-- SCRIPT DATA & MINDMAP RENDERER -->
+  <script>
+    // DỮ LIỆU SƠ ĐỒ TƯ DUY 7 PHÂN HỆ HOÀN CHỈNH
+    const mindmapData = {
+      name: "🏛️ VIETNAM STOCK ANALYZER",
+      category: "Root System",
+      desc: "Hệ thống Phân tích Chứng khoán Cục bộ Đa AI dành cho thị trường Việt Nam (HOSE, HNX, UPCoM). Zero-Server, Edge Offline Dashboard kết hợp Phân tích Cơ bản (FA 7 tầng), Vĩ mô Hàng hóa, Kỹ thuật Wyckoff VSA, Động cơ Dự báo Thời điểm (Timing Matrix) và Telegram Push 1-chiều.",
+      source: "main.py & config.py",
+      children: [
+        {
+          name: "1. 🎯 Tổng Quan & Triết Lý",
+          category: "Philosophy & Principles",
+          desc: "Hội đồng Tham mưu Đầu tư cá nhân minh bạch, trung thực, độc lập. Không tự đặt lệnh, tuyệt đối tuân thủ kỷ luật bảo toàn vốn.",
+          source: "AGENTS.md & README.md",
+          children: [
+            {
+              name: "Mục Tiêu & Phạm Vi",
+              category: "Core Scope",
+              desc: "Hỗ trợ nhà đầu tư cá nhân nghiên cứu chuyên sâu cổ phiếu 3 sàn HOSE, HNX, UPCoM với dữ liệu chính xác và khuyến nghị có giải thích cặn kẽ.",
+              details: [
+                "Phân tích cơ bản (FA) để CHỌN MÃ tốt",
+                "Phân tích kỹ thuật (TA) để CHỌN THỜI ĐIỂM vào lệnh chuẩn",
+                "Quản trị rủi ro để BẢO TOÀN VỐN trong mọi chu kỳ thị trường",
+                "Tuyệt đối không tự động đặt lệnh hay yêu cầu mật khẩu tài khoản"
+              ]
+            },
+            {
+              name: "Kiến Trúc Zero-Server & Local-First",
+              category: "Architecture",
+              desc: "Toàn bộ hệ thống chạy trên máy tính cá nhân. Mở trực tiếp Dashboard trên Microsoft Edge mà không cần server hay file .bat chạy ngầm.",
+              details: [
+                "Không gửi lịch sử danh mục cá nhân lên bất kỳ máy chủ bên ngoài nào",
+                "Mở file DASHBOARD.html và các báo cáo HTML bằng Microsoft Edge chuẩn file:///...",
+                "Cấu hình qua file .env bí mật, tự động ẩn token nhạy cảm"
+              ]
+            },
+            {
+              name: "AI-Agnostic (Đa Mô Hình AI)",
+              category: "AI Integration",
+              desc: "Không bị khóa vào một nhà cung cấp AI cụ thể. Có thể linh hoạt hoán đổi giữa các mô hình hàng đầu thế giới chỉ bằng 1 dòng cấu hình.",
+              details: [
+                "Google Gemini (gemini-2.5-flash / gemini-pro)",
+                "OpenAI (ChatGPT gpt-4o / gpt-4o-mini)",
+                "Anthropic Claude (claude-3-5-sonnet)",
+                "Local AI Ollama (Llama 3, Qwen 2.5 chạy offline)",
+                "Chế độ Offline Rule-Based thuần toán học (không tốn chi phí API)"
+              ]
+            },
+            {
+              name: "Định Lượng Trước - AI Sau",
+              category: "Data Integrity",
+              desc: "Triệt tiêu hoàn toàn ảo giác (hallucination) của AI. Toàn bộ chỉ số tài chính, giá và khối lượng được tính toán bằng Python trước, sau đó AI chỉ đóng vai trò tranh luận dựa trên số liệu thực tế đã kiểm chứng.",
+              details: [
+                "Số liệu phải có nguồn gốc từ BCTC và bảng giá khớp lệnh",
+                "Tuyệt đối cấm AI bịa đặt số liệu hay trích dẫn sai sự thật",
+                "Phân định rõ ràng: Sự kiện thực tế - Suy luận - Giả định"
+              ]
+            },
+            {
+              name: "Kỷ Luật Quản Trị Thép",
+              category: "Risk Discipline",
+              desc: "Bộ quy tắc bất di bất dịch trong giao dịch để tồn tại lâu dài trên thị trường chứng khoán Việt Nam.",
+              details: [
+                "Cắt lỗ nghiêm ngặt: Stop Loss tối đa 7% (1 phiên sàn HOSE)",
+                "Tỷ lệ Lợi nhuận / Rủi ro: Bắt buộc R:R >= 2:1 mới giải ngân",
+                "Giới hạn rủi ro danh mục: Khoản lỗ tối đa cho 1 mã không vượt 1.5% NAV"
+              ]
+            }
+          ]
+        },
+        {
+          name: "2. 📡 Tầng Dữ Liệu & Pipeline",
+          category: "Data Layer",
+          desc: "Bộ máy thu thập dữ liệu tự động, tốc độ cao, đa tầng dự phòng, lấy dữ liệu trực tiếp từ các cổng thông tin và công ty chứng khoán lớn tại Việt Nam.",
+          source: "core/data_loader.py & core/db_manager.py",
+          children: [
+            {
+              name: "Giá Khớp Lệnh Realtime",
+              category: "Realtime Feeds",
+              desc: "Cập nhật giá trong phiên giao dịch với độ trễ thấp từ các bảng giá chứng khoán.",
+              details: [
+                "SSI iBoard API: Giá khớp, giá tham chiếu, trần/sàn, khối lượng giao dịch",
+                "Giao dịch Khối ngoại: Khối lượng mua ròng / bán ròng của khối ngoại theo thời gian thực",
+                "DNSE Entrade API Fallback: Dự phòng tự động nếu SSI nghẽn mạng"
+              ]
+            },
+            {
+              name: "Dữ Liệu Nến OHLCV Lịch Sử",
+              category: "Historical OHLCV",
+              desc: "Chuỗi 250 nến ngày phục vụ tính toán các chỉ báo kỹ thuật, hỗ trợ, kháng cự và nền giá.",
+              details: [
+                "Nến Mở cửa (Open), Cao nhất (High), Thấp nhất (Low), Đóng cửa (Close), Khối lượng (Volume)",
+                "Chuẩn hóa dữ liệu theo thời gian thực và loại bỏ nến nhiễu",
+                "Tự động tính toán giá trị giao dịch trung bình phiên (Liquidity Filter)"
+              ]
+            },
+            {
+              name: "Báo Cáo Tài Chính Nhiều Năm",
+              category: "Fundamental Data",
+              desc: "Tải toàn bộ Bảng Cân đối Kế toán, Báo cáo Kết quả Kinh doanh, Báo cáo Lưu chuyển Tiền tệ qua vnstock & TCBS.",
+              details: [
+                "Chuỗi dữ liệu 8-12 quý liên tiếp và 4 năm gần nhất",
+                "Tự động đồng bộ các chỉ tiêu Doanh thu, LNST, Nợ vay, Tiền mặt, Hàng tồn kho, Phải thu",
+                "FireAnt Bridge: Tích hợp Token bổ sung dữ liệu phân khúc và sự kiện doanh nghiệp"
+              ]
+            },
+            {
+              name: "SQLite Database Cục Bộ",
+              category: "Local Persistence",
+              desc: "Lưu trữ toàn bộ dữ liệu thị trường, danh mục theo dõi và lịch sử khuyến nghị trong file data/market.db.",
+              details: [
+                "Bảng eod_quotes: Lưu giá đóng cửa và khối lượng cuối ngày",
+                "Bảng recommendations: Lưu mọi khuyến nghị Mua/Bán/Cắt lỗ phục vụ đối chiếu",
+                "Tự động tạo bản sao lưu đóng dấu thời gian (market_backup_YYYYMMDD_HHMMSS.db)"
+              ]
+            },
+            {
+              name: "Bộ Lọc Thanh Khoản Phiên",
+              category: "Quality Screening",
+              desc: "Lọc bỏ ngay từ đầu các cổ phiếu có giá trị giao dịch thấp để tránh rủi ro thao túng và bẫy kẹp hàng.",
+              details: [
+                "Ngưỡng thanh khoản tối thiểu: 300 triệu VNĐ / phiên",
+                "Phân hạng thanh khoản: Hạng A (>10 tỷ/phiên), B (2-10 tỷ), C (300tr-2 tỷ), D (Chết thanh khoản)",
+                "Cảnh báo thanh khoản thấp với cổ phiếu UPCoM và HNX"
+              ]
+            }
+          ]
+        },
+        {
+          name: "3. 🔬 FA & Vĩ Mô Hàng Hóa Toàn Cầu",
+          category: "Fundamental Engine",
+          desc: "Động cơ định lượng tài chính doanh nghiệp 7 tầng phân tích chuyên sâu, kết hợp theo dõi nhịp đập Vĩ mô Quốc tế và Hàng hóa thế giới.",
+          source: "core/fa_engine.py & core/macro_engine.py",
+          children: [
+            {
+              name: "Radar Hàng Hóa & Vĩ Mô Toàn Cầu",
+              category: "Commodities Pulse",
+              desc: "Tự động quét và cập nhật các biến số vĩ mô và giá cả hàng hóa thế giới có tác động mạnh tới chứng khoán Việt Nam.",
+              details: [
+                "Giá Dầu Thô Brent & WTI: Tác động trực tiếp cổ phiếu Dầu khí (PVD, PVS, BSR, GAS)",
+                "Giá Cao Su Tự Nhiên (TSR20 / TOCOM): Cú hích đòn bẩy cho GVR, DPR, DRI, PHR",
+                "Giá Vàng SJC & Thế Giới: Tác động tâm lý đầu tư và cổ phiếu PNJ",
+                "Giá Thép HRC & Thuế Chống Bán Phá Giá: Tác động HPG, HSG, NKG",
+                "Lãi Suất FED & US Core CPI: Định vị chu kỳ nới lỏng tiền tệ toàn cầu",
+                "DXY & Tỷ Giá USD/VND: Áp lực tỷ giá và dòng vốn ngoại khối"
+              ]
+            },
+            {
+              name: "Tầng 1: Vĩ Mô & Ma Trận 10 Ngành",
+              category: "Macro Matrix",
+              desc: "Phân loại động cho hơn 1.500 cổ phiếu trên 3 sàn vào 10 nhóm ngành trọng điểm và đánh giá hướng gió vĩ mô.",
+              details: [
+                "10 nhóm ngành: BĐS KCN, Bán lẻ, Ngân hàng, Thép, BĐS Dân dụng, Chứng khoán, Dầu khí, Hóa chất, Xuất khẩu, Công nghệ",
+                "Macro Tailwind Score (0 - 100 điểm): Đo lường mức độ hưởng lợi từ chính sách vĩ mô",
+                "Định vị pha chu kỳ ngành: Đáy tích lũy, Tăng tốc mở rộng, Đỉnh chu kỳ, Suy thoái"
+              ]
+            },
+            {
+              name: "Tầng 2: Điểm Sức Khỏe F-Score",
+              category: "Piotroski Model",
+              desc: "Chấm điểm sức khỏe tài chính toàn diện theo thang điểm 0 - 9 của Giáo sư Joseph Piotroski.",
+              details: [
+                "Khả năng sinh lời: ROA > 0, ROE > 10%, Tăng trưởng LNST dương và > 15%",
+                "Đòn bẩy & Thanh khoản: Debt/Equity < 1.0, Kiểm soát nợ vay ngắn hạn",
+                "Mô hình DuPont 3 & 5 nhân tố bóc tách đòn bẩy và vòng quay tài sản",
+                "CAMELS chuyên biệt cho Cổ phiếu Ngân hàng: NIM, CASA, NPL, Bao phủ nợ xấu"
+              ]
+            },
+            {
+              name: "Tầng 3: Bóc Tách Dòng Tiền Thật",
+              category: "Cash Flow Forensic",
+              desc: "Soi xét chất lượng lợi nhuận, đối chiếu tiền mặt thực thu với lợi nhuận kế toán trên giấy tờ.",
+              details: [
+                "Đối chiếu CFO (Dòng tiền thuần HĐKD) vs LNST (Lợi nhuận ròng sau thuế)",
+                "Phân hạng chất lượng lợi nhuận: Hạng A (CFO > LNST), Hạng B (Lành mạnh), Hạng C (Lợi nhuận trên giấy)",
+                "Dòng tiền tự do FCF = CFO - CapEx (Khả năng trả cổ tức tiền mặt thật)",
+                "Chỉ số Altman Z''-Score đo lường nguy cơ kiệt quệ tài chính và phá sản"
+              ]
+            },
+            {
+              name: "Tầng 4: Định Giá & Biên An Toàn",
+              category: "Valuation Models",
+              desc: "Định giá đa phương pháp theo các trường phái đầu tư giá trị và tăng trưởng danh tiếng.",
+              details: [
+                "Warren Buffett Moat: Yêu cầu ROE >= 15% và ROIC >= 12% liên tục nhiều năm",
+                "Giá trị Hợp lý (Fair Value): Tính dựa trên P/E mục tiêu đầu ngành",
+                "Biên an toàn (Margin of Safety - MoS): Yêu cầu MoS >= 20% mới xem xét giải ngân",
+                "Peter Lynch GARP & PEG: PEG <= 0.7 (Siêu rẻ), 0.7 - 1.0 (Hợp lý), > 1.5 (Định giá đắt)"
+              ]
+            },
+            {
+              name: "Tầng 5 & 6: Radar Thao Túng & Phân Khúc",
+              category: "Asset & Segments",
+              desc: "Phát hiện thổi giá ảo và bóc tách cơ cấu sinh lời của từng phân khúc kinh doanh.",
+              details: [
+                "Radar Thao túng 5 Cấp độ: Báo động đỏ khi P/B trên trời mà ROE lẹt đẹt",
+                "Kiểm định Tài sản đọng vốn: (Phải thu + Tồn kho) / Tổng tài sản > 65% cảnh báo nợ xấu",
+                "Phân loại phân khúc: Cash Cow (Bò sữa tạo tiền), Scale Base (Trụ cột), Growth Catalyst (Bùng nổ)"
+              ]
+            },
+            {
+              name: "Tầng 7: Quản Trị & Bẫy Giá Trị",
+              category: "Governance Radar",
+              desc: "Mô hình bẻ gãy bẫy giá trị (Value Trap) điển hình trên sàn chứng khoán Việt Nam.",
+              details: [
+                "Bóc tách cơ cấu cổ đông: Free float, Sở hữu Nhà nước, Quỹ ngoại, Nhận diện pháp nhân sân sau",
+                "Kiểm định Skin-in-the-game: Ban lãnh đạo nắm < 1% vốn cảnh báo rủi ro vô trách nhiệm",
+                "Radar Tăng vốn ảo & Trái phiếu nội khối: Nhận diện mạng lưới holding con cháu vay nợ đan xen (BCG, FLC...)",
+                "Bẻ gãy Bẫy Giá Trị: Khi P/B < 1.0 nhưng tài sản đọng vốn lớn -> Phạt điểm an toàn từ 90 xuống 20, KHÔNG coi là rẻ",
+                "Thang điểm Quản trị Doanh nghiệp G-Score (0 - 100 điểm)"
+              ]
+            }
+          ]
+        },
+        {
+          name: "4. 📈 TA & Động Cơ Dự Báo Thời Điểm",
+          category: "Technical Engine",
+          desc: "Động cơ phân tích hành động giá (Price Action), Wyckoff VSA và mô hình Timing Matrix dự báo chính xác 'Khi nào tăng, khi nào sập'.",
+          source: "core/ta_engine.py & core/timing_engine.py",
+          children: [
+            {
+              name: "⚡ Động Cơ Dự Báo Thời Điểm (Timing Matrix)",
+              category: "Timing Engine",
+              desc: "Mô hình định lượng kết hợp Dòng tiền lớn và Tin tức hỗ trợ để dự đoán thời điểm bùng nổ hoặc rủi ro sập.",
+              details: [
+                "Kịch bản Bứt Phá ('Khi nào sẽ tăng'): Mốc giá xác nhận Trigger Pivot, Xác suất tăng (%), Khung thời gian T+1 đến T+5",
+                "Kịch bản Rủi Ro ('Khi nào sẽ sập'): Mức giá vi phạm (Failure Level), Cảnh báo phân phối ngầm, Hiện tượng 'Tin ra là bán'",
+                "Độ trễ thẩm thấu vĩ mô (Macro Lag): Đo thời gian tin tức hàng hóa/lãi suất phản ánh vào giá cổ phiếu (1-3 phiên)",
+                "Điểm Thời Điểm Tối Ưu (Timing Score: 0 - 100 điểm)"
+              ]
+            },
+            {
+              name: "Trend Template (Bộ Lọc Xu Hướng)",
+              category: "Trend Filters",
+              desc: "Tiêu chuẩn xu hướng tăng trưởng theo Mark Minervini và William O'Neil.",
+              details: [
+                "Giá hiện tại > Đường EMA 20 phiên > Đường EMA 50 phiên",
+                "Đường EMA 50 dốc lên xác nhận xu hướng trung hạn bền vững",
+                "Khoảng cách giá với đỉnh 52 tuần và đáy 52 tuần"
+              ]
+            },
+            {
+              name: "Bùng Nổ Khối Lượng (Volume Spike)",
+              category: "Smart Money",
+              desc: "Nhận diện dòng tiền của các quỹ đầu tư và tổ chức lớn tham gia vào cổ phiếu.",
+              details: [
+                "Khối lượng khớp lệnh phiên: Volume >= 1.3x Khối lượng trung bình 20 phiên (MA20 vol)",
+                "Xác nhận có sự bảo trợ giá của tổ chức (Institutional Sponsorship)",
+                "Loại bỏ các phiên tăng giá rỗng không có thanh khoản đi kèm"
+              ]
+            },
+            {
+              name: "Phương Pháp Wyckoff VSA",
+              category: "Wyckoff Analysis",
+              desc: "Phân tích mối quan hệ giữa Spread nến và Khối lượng để xác định hành vi của Smart Money.",
+              details: [
+                "Định vị 4 Pha Wyckoff: Tích lũy (Accumulation), Đẩy giá (Markup), Phân phối, Đè giá",
+                "Nhận diện các mẫu nến VSA: No Supply Bar (Cạn cung), Spring (Rũ bỏ), Upthrust (Bẫy giá tăng), Effort without Result (Phân phối ngầm)"
+              ]
+            },
+            {
+              name: "Mẫu Hình VCP & Breakout Pivot",
+              category: "Chart Patterns",
+              desc: "Xác định điểm bứt phá thoát khỏi nền giá tích lũy chặt chẽ.",
+              details: [
+                "Mẫu hình VCP (Volatility Contraction Pattern): Biên độ dao động thu hẹp dần trước khi bùng nổ",
+                "Điểm Bứt Phá Nền Giá (Breakout Pivot 20 phiên)",
+                "Overhead Supply: Đo lường áp lực cung kẹp hàng từ các vùng đỉnh cũ phía trên"
+              ]
+            }
+          ]
+        },
+        {
+          name: "5. 🛡️ Quản Trị Rủi Ro & Trade Setup",
+          category: "Risk Management",
+          desc: "Động cơ thiết lập kế hoạch giao dịch chuẩn mực và cơ chế trọng tài CRO bảo vệ tài khoản nhà đầu tư khỏi mọi rủi ro chí mạng.",
+          source: "core/risk_manager.py",
+          children: [
+            {
+              name: "Vùng Mua Tối Ưu (Buy Zone)",
+              category: "Entry Planning",
+              desc: "Xác định vùng giá giải ngân hợp lý, không mua đuổi khi cổ phiếu đã tăng quá xa nền giá.",
+              details: [
+                "Vùng gom quanh các đường hỗ trợ EMA20 và Pivot nền giá",
+                "Tránh mua khi giá đã tăng vượt quá 5% từ điểm bứt phá Pivot",
+                "Khuyến nghị chia nhỏ lệnh giải ngân thành nhiều phần (30% - 30% - 40%)"
+              ]
+            },
+            {
+              name: "Cắt Lỗ Kỷ Luật Cứng (Stop Loss)",
+              category: "Capital Preservation",
+              desc: "Mức giá buộc phải bán dứt khoát để bảo toàn vốn khi kịch bản phân tích bị sai lệch.",
+              details: [
+                "Công thức: StopLoss = max(Hỗ trợ 20 phiên, Giá mua - 1.5 * ATR)",
+                "Giới hạn trần bất di bất dịch: Tuyệt đối không để mức cắt lỗ vượt quá 7% (1 phiên sàn HOSE)",
+                "Nguyên tắc cắt lỗ tối thiểu: 3.8% để tránh bị rũ bỏ bởi những rung lắc bình thường trong phiên"
+              ]
+            },
+            {
+              name: "Mục Tiêu Chốt Lời Đa Tầng",
+              category: "Profit Targets",
+              desc: "Thiết lập các mốc chốt lời cụ thể tương ứng với các vùng kháng cự kỹ thuật.",
+              details: [
+                "Mục tiêu 1 (Take Profit 1): +12% (Chốt lời 1/3 - 1/2 vị thế và nâng Stop Loss lên hòa vốn)",
+                "Mục tiêu 2 (Take Profit 2): +20% (Chốt lời phần tiếp theo khi chạm cản lớn)",
+                "Mục tiêu 3 (Take Profit 3): +35% (Theo sóng dài cổ phiếu siêu tăng trưởng)"
+              ]
+            },
+            {
+              name: "Tỷ Lệ Risk / Reward (R:R)",
+              category: "Risk Reward",
+              desc: "Tỷ lệ Lợi nhuận tiềm năng so với Rủi ro chấp nhận mất mát.",
+              details: [
+                "Công thức: R:R = (TakeProfit_1 - Giá mua) / (Giá mua - StopLoss)",
+                "Quy chuẩn kiểm duyệt: Bắt buộc R:R >= 2.0:1 mới phê duyệt tín hiệu MUA",
+                "Nếu R:R < 2:1, hệ thống tự động hạ khuyến nghị xuống THEO DÕI / CHỜ MUA"
+              ]
+            },
+            {
+              name: "Trọng Tài CRO (Quyền Phủ Quyết)",
+              category: "Chief Risk Officer",
+              desc: "Quyền phủ quyết tối cao của Giám đốc Quản trị Rủi ro.",
+              details: [
+                "Dù đồ thị TA nổ vol đẹp nhưng dính Gian lận BCTC hoặc Tăng vốn ảo -> Lập tức đổi thành TRÁNH (AVOID)",
+                "Cảnh báo rủi ro pha loãng cổ phiếu, bán giải chấp lãnh đạo và biến cố pháp lý",
+                "Lập luận Pre-mortem: Luôn chỉ ra kịch bản tồi tệ nhất có thể xảy ra và điều kiện làm mất hiệu lực luận điểm"
+              ]
+            }
+          ]
+        },
+        {
+          name: "6. 🤖 Hội Đồng AI 6 Chuyên Gia",
+          category: "AI Council",
+          desc: "Bàn tròn hội đồng phản biện đa chiều kết hợp tư duy của 6 huyền thoại đầu tư và chuyên gia tài chính hàng đầu.",
+          source: "ai/council.py & ai/prompts/*.md",
+          children: [
+            {
+              name: "Warren Buffett (Giá Trị & Moat)",
+              category: "Buffett Mindset",
+              desc: "Trường phái đầu tư giá trị bền vững theo phong cách Warren Buffett và Charlie Munger.",
+              details: [
+                "Tìm kiếm con hào kinh tế (Economic Moat): Thương hiệu mạnh, chi phí chuyển đổi cao, lợi thế quy mô",
+                "Năng lực sinh lời trên vốn: ROE >= 15% và ROIC >= 12% duy trì liên tục",
+                "Ban điều hành trung thực, có tâm có tầm và phân bổ vốn hiệu quả",
+                "Yêu cầu Biên an toàn (Margin of Safety) ít nhất 20% so với giá trị nội tại"
+              ]
+            },
+            {
+              name: "Peter Lynch (Tăng Trưởng GARP)",
+              category: "Lynch Mindset",
+              desc: "Trường phái đầu tư tăng trưởng ở mức giá hợp lý (Growth At a Reasonable Price).",
+              details: [
+                "Doanh nghiệp có mô hình kinh doanh đơn giản, dễ hiểu, có câu chuyện tăng trưởng rõ ràng",
+                "Tốc độ tăng trưởng EPS và doanh thu từ 15% - 30%/năm",
+                "Chỉ số PEG: PEG <= 0.7 là món hời tăng trưởng, không mua cổ phiếu có PEG > 1.5"
+              ]
+            },
+            {
+              name: "William O'Neil (CANSLIM & RS)",
+              category: "O'Neil Mindset",
+              desc: "Trường phái kết hợp tăng trưởng cơ bản và động lượng giá kỹ thuật dẫn dắt thị trường.",
+              details: [
+                "Chữ C & A: Tăng trưởng EPS và Doanh thu quý hiện tại và hàng năm bứt phá (>20%)",
+                "Chữ N: Yếu tố mới (Sản phẩm mới, lãnh đạo mới, nhà máy mới, đỉnh giá mới)",
+                "Chữ S & L: Cung cầu, nổ vol và là Cổ phiếu dẫn dắt ngành (Leading stock)"
+              ]
+            },
+            {
+              name: "Wyckoff & VSA (Dòng Tiền Thông Minh)",
+              category: "VSA Mindset",
+              desc: "Trường phái đọc hành vi dòng tiền lớn qua khối lượng và bước giá theo Richard Wyckoff.",
+              details: [
+                "Phát hiện các bẫy tâm lý: Bẫy tăng giá (Bull Trap), Bẫy giảm giá (Bear Trap)",
+                "Kiểm định lực cung: Các phiên Test cung cạn kiệt khối lượng trước khi kéo giá",
+                "Đánh giá nỗ lực vs kết quả: Khối lượng lớn nhưng giá không tăng -> Dấu hiệu phân phối ngầm"
+              ]
+            },
+            {
+              name: "Dalio & Marks (Vĩ Mô & Chu Kỳ)",
+              category: "Macro & Cycles",
+              desc: "Trường phái phân tích cỗ máy kinh tế của Ray Dalio và con lắc tâm lý thị trường của Howard Marks.",
+              details: [
+                "Cỗ máy vĩ mô: Chu kỳ nợ ngắn hạn, chính sách tiền tệ nới lỏng/thắt chặt của NHNN",
+                "Con lắc tâm lý (The Pendulum): Nhận diện lòng tham và sự sợ hãi cực đoan của đám đông",
+                "Đầu tư ngược dòng (Contrarian): Mua khi ngành nghề chạm đáy suy thoái và định giá chiết khấu sâu"
+              ]
+            },
+            {
+              name: "Trọng Tài CRO Arbiter",
+              category: "CRO Arbiter",
+              desc: "Vị thế trung lập độc lập, đối chất 5 chuyên gia và ra phán quyết cuối cùng.",
+              details: [
+                "Chỉ rõ điểm mâu thuẫn đối nghịch (Clash of Perspectives) giữa các chuyên gia",
+                "Đánh giá độ tin cậy và tổng hợp điểm đồng thuận (Consensus Score: 0 - 100)",
+                "Quyết định hành động: MUA MẠNH / MUA DẦN / THEO DÕI / TRÁNH"
+              ]
+            }
+          ]
+        },
+        {
+          name: "7. 💻 Edge Offline Dashboard & Telegram Push",
+          category: "User Interfaces",
+          desc: "Trải nghiệm người dùng tiện lợi không cần duy trì server ngầm: Mở trực tiếp Dashboard trên Microsoft Edge và tự động bắn báo cáo HTML sang Telegram cá nhân.",
+          source: "core/dashboard_generator.py & core/html_report_generator.py & alerts/telegram_bot.py",
+          children: [
+            {
+              name: "🌐 DASHBOARD.html (Edge Offline Dashboard)",
+              category: "Edge Offline Web",
+              desc: "File HTML tổng hợp độc lập tại thư mục gốc, mở trực tiếp bằng Microsoft Edge chuẩn file:///... mà không cần server hay .bat chạy ngầm.",
+              details: [
+                "Giao diện Bloomberg Terminal Dark Theme cao cấp",
+                "Thanh Ticker Hàng hóa & Vĩ mô thế giới chạy tự động (Dầu, Vàng, Cao su, Thép, FED, Tỷ giá)",
+                "Bảng Top cổ phiếu nổ vol toàn sàn kèm Buy Zone và khuyến nghị",
+                "Động cơ Dự báo Thời điểm (Timing Matrix) tóm tắt các nhịp bùng nổ",
+                "Danh sách link 1-chạm mở ngay các file báo cáo chi tiết trong reports/"
+              ]
+            },
+            {
+              name: "📑 Báo Cáo HTML Đồ Họa Chuyên Sâu",
+              category: "Deep HTML Reports",
+              desc: "Xuất bản file báo cáo HTML độc lập, responsive hoàn hảo trên cả máy tính và điện thoại thông minh.",
+              details: [
+                "Tích hợp biểu đồ tương tác Chart.js so sánh Dòng tiền thật (CFO) vs Lợi nhuận (LNST)",
+                "Tích hợp Section Ma trận Hàng hóa thế giới & Đánh giá tác động riêng cho từng mã",
+                "Tích hợp Khối Động cơ Thời điểm (Timing Matrix): 2 thẻ trực quan Khi nào tăng vs Khi nào sập",
+                "Hiển thị đầy đủ 7 Tầng phân tích BCTC và bàn tròn 6 chuyên gia AI"
+              ]
+            },
+            {
+              name: "📱 Kênh Telegram Push 1-Chiều",
+              category: "Telegram Notification",
+              desc: "Kênh nhận thông báo nhanh và nhận file báo cáo HTML trực tiếp trên điện thoại mà không cần chạy bot nền 24/7.",
+              details: [
+                "Bắn file HTML đính kèm và tin nhắn tóm tắt chiến lược ngay khi chạy lệnh phân tích",
+                "Hiển thị đầy đủ Vùng mua, Cắt lỗ, Mục tiêu và Kịch bản Thời điểm Tăng/Sập",
+                "Bảo mật tuyệt đối qua Chat ID cá nhân, không lo spam hay lag"
+              ]
+            },
+            {
+              name: "Terminal CLI Tinh Gọn",
+              category: "CLI Terminal",
+              desc: "Lệnh dòng lệnh nhanh và tiện lợi cho người dùng máy tính.",
+              details: [
+                "python main.py (hoặc -m dashboard): Cập nhật dữ liệu và tự động mở DASHBOARD.html trên Edge",
+                "python main.py -m analyze -t <MÃ>: Soi sâu 1 mã, sinh báo cáo HTML và bắn sang Telegram",
+                "python main.py -m scan: Quét nhanh toàn sàn tìm top nổ vol",
+                "python main.py -m macro: Xem ma trận Vĩ mô & Hàng hóa thế giới trực tiếp trên console"
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    // KHỞI TẠO BIẾN D3 & SVG
+    const svg = d3.select("#mindmap-svg");
+    const container = document.getElementById("mindmap-container");
+    let width = container.clientWidth;
+    let height = container.clientHeight;
+
+    const g = svg.append("g").attr("class", "main-group");
+
+    // ZOOM BEHAVIOR
+    const zoom = d3.zoom()
+      .scaleExtent([0.15, 3.0])
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform);
+      });
+
+    svg.call(zoom);
+
+    // MÀU SẮC ĐẠI DIỆN CHO 7 PHÂN HỆ
+    const branchColors = [
+      "#38bdf8", // 1. Tổng quan - Sky Blue
+      "#06b6d4", // 2. Dữ liệu - Cyan
+      "#10b981", // 3. FA & Vĩ mô Hàng hóa - Emerald
+      "#f59e0b", // 4. TA & Timing Engine - Amber
+      "#f43f5e", // 5. Quản trị rủi ro - Rose
+      "#a855f7", // 6. Hội đồng AI - Purple
+      "#6366f1"  // 7. Edge Dashboard & Telegram - Indigo
+    ];
+
+    let rootNode;
+    let treeLayout;
+    let nodeIdCounter = 0;
+
+    // KHỞI TẠO SƠ ĐỒ
+    function initMindmap() {
+      width = container.clientWidth;
+      height = container.clientHeight;
+
+      rootNode = d3.hierarchy(mindmapData, d => d.children);
+      rootNode.x0 = height / 2;
+      rootNode.y0 = 100;
+
+      // Gán màu sắc cho các nhánh
+      if (rootNode.children) {
+        rootNode.children.forEach((child, index) => {
+          const color = branchColors[index % branchColors.length];
+          assignColorRecursively(child, color);
+          // Mặc định: Thu gọn cấp 2 để sơ đồ gọn gàng, người dùng bấm mở dần
+          if (child.children) {
+            child.children.forEach(sub => {
+              collapseRecursively(sub);
+            });
+          }
+        });
+      }
+
+      updateMindmap(rootNode);
+
+      // Căn giữa sơ đồ ban đầu
+      resetZoom();
+    }
+
+    function assignColorRecursively(d, color) {
+      d.color = color;
+      if (d.children) {
+        d.children.forEach(c => assignColorRecursively(c, color));
+      }
+      if (d._children) {
+        d._children.forEach(c => assignColorRecursively(c, color));
+      }
+    }
+
+    function collapseRecursively(d) {
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+        d._children.forEach(collapseRecursively);
+      }
+    }
+
+    function expandRecursively(d) {
+      if (d._children) {
+        d.children = d._children;
+        d._children = null;
+      }
+      if (d.children) {
+        d.children.forEach(expandRecursively);
+      }
+    }
+
+    // UPDATE D3 TREE
+    function updateMindmap(source) {
+      treeLayout = d3.tree().nodeSize([44, 290]);
+
+      const treeData = treeLayout(rootNode);
+      const nodes = treeData.descendants();
+      const links = treeData.links();
+
+      // Normalize Y positions
+      nodes.forEach(d => {
+        d.y = d.depth * 290 + 100;
+      });
+
+      // 1. UPDATE NODES
+      const nodeSelection = g.selectAll(".node")
+        .data(nodes, d => d.id || (d.id = ++nodeIdCounter));
+
+      // ENTER
+      const nodeEnter = nodeSelection.enter().append("g")
+        .attr("class", d => `node ${d.depth === 0 ? 'node--root' : d.depth === 1 ? 'node--branch' : 'node--leaf'}`)
+        .attr("transform", d => `translate(${source.y0 || source.y},${source.x0 || source.x})`)
+        .on("click", (event, d) => handleNodeClick(event, d));
+
+      // Circle
+      nodeEnter.append("circle")
+        .attr("r", d => d.depth === 0 ? 14 : d.depth === 1 ? 10 : 7)
+        .attr("fill", d => d._children ? (d.color || '#38bdf8') : '#0f172a')
+        .attr("stroke", d => d.color || '#38bdf8')
+        .attr("stroke-width", d => d.depth === 0 ? 3.5 : 2.5);
+
+      // Badge hiển thị số lượng con khi thu gọn
+      const badgeGroup = nodeEnter.append("g")
+        .attr("class", "badge-group")
+        .attr("transform", "translate(0, 0)")
+        .style("display", d => d._children ? "block" : "none");
+
+      badgeGroup.append("circle")
+        .attr("class", "node-badge")
+        .attr("r", 7)
+        .attr("cx", 9)
+        .attr("cy", -9)
+        .attr("stroke", d => d.color || '#38bdf8');
+
+      badgeGroup.append("text")
+        .attr("class", "node-badge-text")
+        .attr("x", 9)
+        .attr("y", -9)
+        .attr("fill", d => d.color || '#38bdf8')
+        .text(d => d._children ? d._children.length : "");
+
+      // Text Label
+      nodeEnter.append("text")
+        .attr("dy", ".35em")
+        .attr("x", d => d.children || d._children ? -18 : 18)
+        .attr("text-anchor", d => d.children || d._children ? "end" : "start")
+        .text(d => d.data.name);
+
+      // UPDATE
+      const nodeUpdate = nodeSelection.merge(nodeEnter).transition().duration(400)
+        .attr("transform", d => `translate(${d.y},${d.x})`);
+
+      nodeUpdate.select("circle")
+        .attr("fill", d => d._children ? (d.color || '#38bdf8') : '#0f172a')
+        .attr("stroke", d => d.color || '#38bdf8');
+
+      nodeUpdate.select(".badge-group")
+        .style("display", d => d._children ? "block" : "none")
+        .select(".node-badge-text")
+        .text(d => d._children ? d._children.length : "");
+
+      // EXIT
+      nodeSelection.exit().transition().duration(400)
+        .attr("transform", d => `translate(${source.y},${source.x})`)
+        .remove();
+
+      // 2. UPDATE LINKS
+      const linkSelection = g.selectAll(".link")
+        .data(links, d => d.target.id);
+
+      const linkEnter = linkSelection.enter().insert("path", "g")
+        .attr("class", "link")
+        .attr("stroke", d => d.target.color || '#38bdf8')
+        .attr("d", d => {
+          const o = { x: source.x0 || source.x, y: source.y0 || source.y };
+          return diagonal(o, o);
+        });
+
+      linkSelection.merge(linkEnter).transition().duration(400)
+        .attr("stroke", d => d.target.color || '#38bdf8')
+        .attr("d", d => diagonal(d.source, d.target));
+
+      linkSelection.exit().transition().duration(400)
+        .attr("d", d => {
+          const o = { x: source.x, y: source.y };
+          return diagonal(o, o);
+        })
+        .remove();
+
+      nodes.forEach(d => {
+        d.x0 = d.x;
+        d.y0 = d.y;
+      });
+    }
+
+    // BEZIER CURVE
+    function diagonal(s, d) {
+      return `M ${s.y} ${s.x}
+              C ${(s.y + d.y) / 2} ${s.x},
+                ${(s.y + d.y) / 2} ${d.x},
+                ${d.y} ${d.x}`;
+    }
+
+    // XỬ LÝ CLICK NODE
+    function handleNodeClick(event, d) {
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else if (d._children) {
+        d.children = d._children;
+        d._children = null;
+      }
+
+      updateMindmap(d);
+      showNodeDetails(d);
+    }
+
+    // HIỂN THỊ CHI TIẾT TRONG DRAWER
+    function showNodeDetails(d) {
+      const data = d.data;
+      document.getElementById("drawerNodeTitle").innerText = data.name;
+      document.getElementById("drawerNodeCat").innerText = data.category || (d.parent ? d.parent.data.name : "Hệ thống");
+      document.getElementById("drawerNodeDesc").innerText = data.desc || "Không có mô tả bổ sung.";
+
+      const subSection = document.getElementById("drawerSubSection");
+      const subList = document.getElementById("drawerSubList");
+      subList.innerHTML = "";
+
+      if (data.details && data.details.length > 0) {
+        subSection.style.display = "block";
+        data.details.forEach(item => {
+          const li = document.createElement("li");
+          li.className = "drawer-subitem";
+          li.innerHTML = `<span class="bullet">▸</span> <span>${item}</span>`;
+          subList.appendChild(li);
+        });
+      } else if (data.children || data._children) {
+        subSection.style.display = "block";
+        const childArray = data.children || data._children;
+        childArray.forEach(child => {
+          const li = document.createElement("li");
+          li.className = "drawer-subitem";
+          li.innerHTML = `<span class="bullet">✦</span> <strong>${child.name}</strong>: ${child.desc || ''}`;
+          subList.appendChild(li);
+        });
+      } else {
+        subSection.style.display = "none";
+      }
+
+      const sourceFile = document.getElementById("drawerSourceFile");
+      sourceFile.innerText = data.source || (d.parent && d.parent.data.source ? d.parent.data.source : "core/stock_service.py");
+
+      document.getElementById("detailDrawer").classList.add("open");
+    }
+
+    function closeDrawer() {
+      document.getElementById("detailDrawer").classList.remove("open");
+    }
+
+    // TOOLBAR FUNCTIONS
+    function expandAllNodes() {
+      if (rootNode) {
+        expandRecursively(rootNode);
+        updateMindmap(rootNode);
+      }
+    }
+
+    function collapseAllNodes() {
+      if (rootNode && rootNode.children) {
+        rootNode.children.forEach(child => {
+          if (child.children) {
+            child.children.forEach(collapseRecursively);
+          }
+        });
+        updateMindmap(rootNode);
+      }
+    }
+
+    function resetZoom() {
+      svg.transition().duration(600).call(
+        zoom.transform,
+        d3.zoomIdentity.translate(80, height / 2).scale(0.85)
+      );
+    }
+
+    function zoomIn() {
+      svg.transition().duration(300).call(zoom.scaleBy, 1.25);
+    }
+
+    function zoomOut() {
+      svg.transition().duration(300).call(zoom.scaleBy, 0.8);
+    }
+
+    // TÌM KIẾM NODE
+    function handleSearch() {
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+      d3.selectAll(".node").classed("node-highlight", false);
+
+      if (!q) return;
+
+      const nodes = rootNode.descendants();
+      const matched = nodes.filter(n => {
+        const name = (n.data.name || '').toLowerCase();
+        const desc = (n.data.desc || '').toLowerCase();
+        const source = (n.data.source || '').toLowerCase();
+        return name.includes(q) || desc.includes(q) || source.includes(q);
+      });
+
+      if (matched.length > 0) {
+        matched.forEach(n => {
+          let curr = n.parent;
+          while (curr) {
+            if (curr._children) {
+              curr.children = curr._children;
+              curr._children = null;
+            }
+            curr = curr.parent;
+          }
+        });
+
+        updateMindmap(rootNode);
+
+        d3.selectAll(".node")
+          .filter(d => matched.includes(d))
+          .classed("node-highlight", true);
+
+        const target = matched[0];
+        svg.transition().duration(500).call(
+          zoom.transform,
+          d3.zoomIdentity.translate(width / 2 - target.y, height / 2 - target.x).scale(1)
+        );
+
+        showNodeDetails(target);
+      }
+    }
+
+    // TAB SWITCHER
+    function switchView(viewName) {
+      const mindmapCont = document.getElementById("mindmap-container");
+      const docCont = document.getElementById("doc-view-container");
+      const toolbar = document.getElementById("toolbar");
+      const btnMindmap = document.getElementById("btn-mindmap");
+      const btnDoc = document.getElementById("btn-doc");
+
+      if (viewName === 'mindmap') {
+        mindmapCont.style.display = "block";
+        toolbar.style.display = "flex";
+        docCont.style.display = "none";
+        btnMindmap.classList.add("active");
+        btnDoc.classList.remove("active");
+        resetZoom();
+      } else {
+        mindmapCont.style.display = "none";
+        toolbar.style.display = "none";
+        docCont.style.display = "block";
+        btnMindmap.classList.remove("active");
+        btnDoc.classList.add("active");
+        closeDrawer();
+      }
+    }
+
+    // WINDOW RESIZE
+    window.addEventListener("resize", () => {
+      width = container.clientWidth;
+      height = container.clientHeight;
+      if (rootNode) {
+        updateMindmap(rootNode);
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initMindmap();
+    });
+  </script>
+</body>
+</html>

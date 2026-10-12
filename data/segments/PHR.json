@@ -1,0 +1,78 @@
+{
+  "company_name": "Công ty Cổ phần Cao su Phước Hòa",
+  "business_model_summary": "Doanh nghiệp tiên phong và hưởng lợi lớn nhất trong làn sóng chuyển đổi đất cao su sang Khu công nghiệp tại Bình Dương: (1) Nhận tiền bồi thường thu hồi đất cao su hàng nghìn tỷ đồng khi bàn giao quỹ đất cho VSIP III và Nam Tân Uyên; (2) Trực tiếp phát triển và cho thuê đất KCN Tân Bình hiện hữu và KCN Tân Bình mở rộng (1.055 ha); (3) Khai thác mủ cao su tự nhiên và chế biến gỗ cao su tạo dòng tiền mặt đều đặn, chi trả cổ tức tiền mặt cao hàng năm.",
+  "segments": [
+    {
+      "name": "Bồi thường Đất cao su & Cổ tức KCN liên kết (VSIP III & NTC)",
+      "service_description": "Bàn giao đất cao su nông trường để phát triển đại dự án KCN VSIP III (898 ha) và KCN Nam Tân Uyên mở rộng. Nhận tiền bồi thường giải phóng mặt bằng từ đối tác và nhận 20% lợi nhuận chia sẻ từ dự án VSIP III cùng cổ tức từ 32.85% cổ phần tại NTC.",
+      "target_customers": "Công ty Liên doanh TNHH KCN Việt Nam - Singapore (VSIP) và Công ty CP KCN Nam Tân Uyên (NTC).",
+      "rev_share_pct": 25.0,
+      "gross_profit_share_pct": 55.0,
+      "gross_margin_pct": 85.0,
+      "role": "Cỗ máy In Tiền Mặt Đột biến & Cổ tức Khủng",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Ghi nhận dòng tiền đều đặn",
+      "highlights": "Dự án VSIP III thu hút các siêu tập đoàn Lego (1.3 tỷ USD), Pandora (150 triệu USD). PHR nhận tiền bồi thường đất cao su và được chia 20% lợi nhuận kinh doanh dự án mà không phải bỏ thêm vốn đầu tư hạ tầng.",
+      "risks": "Tiến độ bàn giao đất thực tế từng phân kỳ của dự án."
+    },
+    {
+      "name": "Cho thuê đất KCN Tân Bình & Dịch vụ tiện ích",
+      "service_description": "Trực tiếp làm chủ đầu tư và cho thuê đất hạ tầng tại KCN Tân Bình (Bắc Tân Uyên, Bình Dương) cùng các dịch vụ cung cấp điện, nước và xử lý nước thải nội khu.",
+      "target_customers": "Các doanh nghiệp sản xuất công nghiệp phụ trợ, chế biến gỗ, bao bì, cơ khí trong và ngoài nước.",
+      "rev_share_pct": 20.0,
+      "gross_profit_share_pct": 25.0,
+      "gross_margin_pct": 60.0,
+      "role": "Dòng tiền cho thuê đất ổn định",
+      "strategic_role": "CASH_COW",
+      "status": "KCN Tân Bình 1 đã lấp đầy ~95%; Đang chuẩn bị Tân Bình mở rộng",
+      "highlights": "KCN Tân Bình 1 đã lấp đầy gần như toàn bộ, tạo dòng thu tiền mặt dịch vụ tiện ích ổn định; KCN Tân Bình mở rộng (1.055 ha) là động lực chiến lược chu kỳ tới.",
+      "risks": "Tiến độ phê duyệt chủ trương đầu tư KCN Tân Bình mở rộng."
+    },
+    {
+      "name": "Khai thác, Chế biến & Xuất khẩu Mủ Cao su",
+      "service_description": "Khai thác vườn cây cao su tại Bình Dương và Campuchia (Cao su Phước Hòa - Kampong Thom), chế biến mủ cốm SVR, Latex xuất khẩu.",
+      "target_customers": "Các công ty sản xuất săm lốp và thương mại cao su quốc tế.",
+      "rev_share_pct": 45.0,
+      "gross_profit_share_pct": 15.0,
+      "gross_margin_pct": 18.0,
+      "role": "Con bò sữa doanh thu cơ sở (Cash Cow)",
+      "strategic_role": "CASH_COW",
+      "status": "Hưởng lợi giá cao su thế giới",
+      "highlights": "Hưởng lợi từ xu hướng giá cao su TSR20 thế giới phục hồi mạnh và diện tích cao su tại Campuchia bước vào giai đoạn cho sản lượng mủ cao nhất.",
+      "risks": "Biến động giá cao su quốc tế."
+    },
+    {
+      "name": "Chế biến Gỗ cao su & Thanh lý vườn cây",
+      "service_description": "Thanh lý vườn cây cao su hết chu kỳ khai thác và cưa xẻ chế biến gỗ nguyên liệu phục vụ ngành nội thất.",
+      "target_customers": "Các nhà máy chế biến gỗ xuất khẩu.",
+      "rev_share_pct": 10.0,
+      "gross_profit_share_pct": 5.0,
+      "gross_margin_pct": 20.0,
+      "role": "Tận dụng triệt để tài sản cây trồng",
+      "strategic_role": "SCALE_BASE",
+      "status": "Ổn định",
+      "highlights": "Nguồn thu tiền mặt thanh lý vườn cây đóng góp định kỳ hàng năm.",
+      "risks": "Sức mua thị trường gỗ xẻ."
+    }
+  ],
+  "projects": [
+    {
+      "name": "KCN Tân Bình Mở rộng (Giai đoạn 2)",
+      "location": "Huyện Bắc Tân Uyên, Tỉnh Bình Dương",
+      "scale": "1.055 ha (Dự án KCN quy mô lớn nhất của PHR)",
+      "status": "Đang hoàn thiện thủ tục chấp thuận chủ trương đầu tư của Thủ tướng Chính phủ",
+      "profit_contribution": "Động lực tăng trưởng đột phá dài hạn cho PHR trong 5-10 năm tới khi KCN Tân Bình 1 đã kín chỗ.",
+      "bottlenecks_and_risks": "Đã được tích hợp vào Quy hoạch tỉnh Bình Dương thời kỳ 2021-2030; quỹ đất 100% là đất cao su của PHR nên GPMB rất thuận lợi.",
+      "flag": "TÍCH CỰC"
+    },
+    {
+      "name": "Hưởng lợi Dòng tiền từ Đại dự án KCN VSIP III",
+      "location": "Thị xã Tân Uyên & Huyện Bắc Tân Uyên, Tỉnh Bình Dương",
+      "scale": "898 ha (PHR bàn giao đất cao su, nhận đền bù và hưởng 20% lợi nhuận)",
+      "status": "Đang bàn giao đất phân kỳ & Khách thuê lớn (Lego, Pandora) đang xây dựng",
+      "profit_contribution": "Đóng góp hàng trăm tỷ đồng dòng tiền mặt mỗi năm từ chia sẻ 20% lợi nhuận kinh doanh dự án.",
+      "bottlenecks_and_risks": "Pháp lý giao đất hoàn chỉnh; tiến độ phụ thuộc vào tốc độ thu hút khách thuê của liên doanh VSIP.",
+      "flag": "TÍCH CỰC"
+    }
+  ]
+}

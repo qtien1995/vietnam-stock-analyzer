@@ -1,74 +1,84 @@
-# 🏛️ VIETNAM STOCK ANALYZER (AI-AGNOSTIC LOCAL TERMINAL)
+# 🏛️ VIETNAM STOCK ANALYZER (ZERO-SERVER LOCAL TERMINAL)
 
-> **Hệ thống Phân tích Chứng khoán Cục bộ Đa AI**  
-> Kết hợp Phân tích Cơ bản (FA), Phân tích Kỹ thuật (TA) và Hội đồng Phản biện Đa góc nhìn (Warren Buffett, Peter Lynch, William O'Neil, Price Action VSA & Chief Risk Officer).  
-> *Được thiết kế theo tiêu chuẩn mở, sẵn sàng để bất kỳ trợ lý AI nào (Gemini, ChatGPT, Claude) hoặc lập trình viên mở thư mục này ra là có thể trực tiếp nghiên cứu, phát triển tiếp.*
-
----
-
-## 🎯 1. TỔNG QUAN DỰ ÁN
-
-Dự án này là một công cụ phân tích chứng khoán Việt Nam (HOSE, HNX, UPCoM) chạy trực tiếp trên máy tính cá nhân. Dự án giải quyết các bài toán then chốt:
-1. **Dữ liệu khớp lệnh Realtime trong phiên & BCTC nhiều năm:** Lấy tự động, hoàn toàn miễn phí từ các cổng dữ liệu mở của các CTCK lớn (SSI / TCBS qua `vnstock`), hỗ trợ cầu nối token FireAnt khi cần.
-2. **Không phụ thuộc vào một AI cố định (AI-Agnostic):** Có thể cắm trực tiếp API Key của **Google Gemini**, **OpenAI ChatGPT**, **Anthropic Claude**, hoặc chạy offline với **Ollama** hoặc chế độ **Rule-Based độc lập** (không cần internet hay API key vẫn tính toán điểm mua/bán chuẩn xác).
-3. **Đề xuất Điểm Mua & Điểm Bán chuẩn xác:** Kèm Vùng mua tối ưu, Mức cắt lỗ cứng $\le 7\%$, Mục tiêu chốt lời 1 & 2 theo tỷ lệ $Risk/Reward \ge 2:1$.
-4. **Giải thích cặn kẽ tại sao (Why):** Mỗi mã cổ phiếu đều được "chất vấn" qua 4 lăng kính của các huyền thoại đầu tư trước khi Giám đốc Quản trị rủi ro ra phán quyết cuối cùng.
-5. **Kênh xuất kết quả phong phú:** Bảng Terminal màu trực quan (Rich UI), file báo cáo Markdown chi tiết lưu tại `reports/`, và cảnh báo tức thì về điện thoại qua Telegram Bot.
+> **Hệ thống Phân tích Chứng khoán Cục bộ Đa AI & Bảng Điều Khiển Offline**  
+> Kết hợp Phân tích Cơ bản (FA), Phân tích Kỹ thuật (TA), Radar Vĩ mô & Hàng hóa thế giới, Động cơ Dự báo Thời điểm (Timing Engine: *Khi nào tăng? Khi nào sập?*) và Hội đồng Phản biện Đa góc nhìn (Warren Buffett, Peter Lynch, William O'Neil, Price Action VSA & Chief Risk Officer).  
+> *Kiến trúc Zero-Server: Hoạt động offline mượt mà trên Microsoft Edge (`file:///...`), không cần server nền, bảo mật tuyệt đối dữ liệu cục bộ.*
 
 ---
 
-## 📂 2. CẤU TRÚC THƯ MỤC DỰ ÁN
+## 🎯 1. TỔNG QUAN DỰ ÁN & CÁC NĂNG LỰC CỐT LÕI
+
+Dự án là trạm phân tích chứng khoán Việt Nam (HOSE, HNX, UPCoM) chạy trực tiếp trên máy tính cá nhân (Windows), giải quyết triệt để các bài toán then chốt:
+
+1. **Kiến trúc Zero-Server (Offline trên Microsoft Edge):**
+   - Không cần khởi động server nền phức tạp, không cần giữ cửa sổ console đen treo máy.
+   - Toàn bộ giao diện điều hành ([`DASHBOARD.html`](file:///d:/AI/vietnam-stock-analyzer/DASHBOARD.html)) và sơ đồ tư duy ([`PROJECT_MINDMAP.html`](file:///d:/AI/vietnam-stock-analyzer/PROJECT_MINDMAP.html)) đều là file HTML tĩnh độc lập, thiết kế chuẩn đồ họa Bloomberg Terminal Dark Theme, mở mượt mà bằng Microsoft Edge.
+2. **Động cơ Dự báo Thời điểm — Timing Matrix Engine (*Khi nào tăng? Khi nào sập?*):**
+   - Không chỉ khuyến nghị mua/bán chung chung, hệ thống định lượng chính xác:
+     * **Kịch bản Tăng:** Điều kiện kích hoạt Pivot giá, gom hàng cạn kiệt VSA No Supply / Spring, độ trễ thẩm thấu tin tức vĩ mô (1–3 phiên), xác suất bứt phá (%) và khung thời gian dự kiến (T+1 đến T+5).
+     * **Kịch bản Sập:** Bẫy phân phối ngầm Upthrust, phân kỳ âm RSI/MACD, bẫy "Tin ra là bán", mốc vi phạm rủi ro và điều kiện kịch bản mất hiệu lực.
+3. **Radar Vĩ mô & Ma trận Hàng hóa Thế giới (Global Macro & Commodities):**
+   - Tự động quét và cập nhật các biến số vĩ mô trọng yếu: FED Funds Rate, US Core CPI, Chỉ số Dollar DXY, Tỷ giá USD/VND, Dầu Brent & WTI, Vàng SJC & Thế giới, Cao su TSR20 & TOCOM, Thép HRC, Phân bón Urea.
+   - Tự động bóc tách độ nhạy (Sensitivity) và độ trễ thẩm thấu (Macro Transmission Lag) đối với từng nhóm ngành và mã cổ phiếu cụ thể (Dầu khí PVD/PVS, Cao su GVR/PHR, Thép HPG/NKG, Phân bón DPM/DCM...).
+4. **Báo cáo HTML Trực quan Chuyên sâu:**
+   - Xuất file báo cáo HTML độc lập tại thư mục `reports/` với giao diện màu sắc trực quan, thẻ cảnh báo, bảng so sánh đa trường phái và khối ma trận Timing Matrix.
+5. **Kênh Cảnh báo 1-Chiều qua Telegram (Zero-Polling):**
+   - Không chạy bot nền 2 chiều 24/7 gây chậm máy. Thay vào đó, sau mỗi lệnh phân tích hoặc quét thị trường, hệ thống tự động bắn bản tin tóm tắt và đính kèm file báo cáo HTML trực tiếp về điện thoại.
+6. **Hội đồng Phản biện Đa góc nhìn (Council of AI Experts):**
+   - Mỗi mã cổ phiếu đều được thẩm định độc lập qua 5 góc nhìn: Giá trị (Buffett/Munger), Tăng trưởng (Lynch/O'Neil), Kỹ thuật & Dòng tiền (Wyckoff/VSA), Vĩ mô & Chu kỳ (Dalio/Marks) và Trọng tài Quản trị Rủi ro (CRO Arbiter) bảo đảm kỷ luật cắt lỗ $\le 7\%$ và Risk/Reward $\ge 2:1$.
+
+---
+
+## 📂 2. CẤU TRÚC 7 PHÂN HỆ DỰ ÁN
 
 ```text
 vietnam-stock-analyzer/
 │
-├── README.md                  # Tài liệu hướng dẫn tổng quan và vận hành cho Người & AI
-├── ARCHITECTURE.md            # Tài liệu kiến trúc chuyên sâu, công thức định lượng
-├── AGENTS.md                  # Quy chế hoạt động của Hội đồng tham mưu AI
+├── README.md                  # Hướng dẫn tổng quan & vận hành
+├── ARCHITECTURE.md            # Tài liệu kiến trúc chuyên sâu & công thức định lượng
+├── AGENTS.md                  # Quy chế hoạt động & chuẩn mực tham mưu
 ├── requirements.txt           # Thư viện phụ thuộc Python
-├── .env                       # File cấu hình bí mật cục bộ (API keys, Telegram, Watchlist)
+├── .env                       # Cấu hình API keys, Telegram, Watchlist
 ├── .env.example               # File cấu hình mẫu
 │
-├── main.py                    # Entry point chính chạy CLI (--mode scan, analyze, compare...)
-├── config.py                  # Load biến môi trường và thiết lập ngưỡng giao dịch
-├── run_bot.bat                # Khởi động Telegram Interactive Bot 24/7
-├── run_daily_radar.bat        # Batch script quét thị trường tự động hàng ngày
+├── DASHBOARD.html             # [MỚI] Bảng điều khiển Bloomberg Terminal Offline mở trên Edge
+├── PROJECT_MINDMAP.html       # [MỚI] Sơ đồ tư duy tương tác D3.js + Bento Grid 7 phân hệ
+├── main.py                    # Entry point chính (--mode dashboard, analyze, scan, macro)
+├── config.py                  # Ngưỡng giao dịch, Watchlist và tham số hệ thống
 │
-├── core/                      # Bộ máy tính toán định lượng cốt lõi
+├── core/                      # 7 Phân hệ tính toán cốt lõi
 │   ├── __init__.py
-│   ├── data_loader.py         # Lấy giá realtime, nến OHLCV, BCTC & dữ liệu ngành
-│   ├── fa_engine.py           # Tính Piotroski F-Score, DuPont, CAMELS ngân hàng, Moat, PEG
-│   ├── ta_engine.py           # EMA, RSI, MACD, Volume Spike, O'Neil Breakout, Wyckoff VSA
-│   ├── risk_manager.py        # Buy Zone, Stop Loss (<= 7%), Take Profit, Kelly & Position Sizing
-│   ├── macro_engine.py        # Phân tích chu kỳ vĩ mô, lãi suất, tỷ giá, tín dụng
-│   ├── governance_analyzer.py # Đánh giá quản trị doanh nghiệp, giao dịch nội bộ
-│   ├── segment_analyzer.py    # Bóc tách cơ cấu phân khúc kinh doanh cốt lõi (Core Segments)
-│   ├── html_report_generator.py # Xuất báo cáo HTML đồ họa chuyên nghiệp, biểu đồ tương tác
-│   ├── stock_service.py       # Facade Service thống nhất phục vụ CLI & Telegram Bot
-│   └── performance_tracker.py # Theo dõi hiệu suất khuyến nghị và kiểm toán danh mục
+│   ├── data_loader.py         # Nạp giá realtime, nến OHLCV, BCTC, Vĩ mô & Hàng hóa thế giới
+│   ├── fa_engine.py           # Piotroski F-Score, DuPont, CAMELS, Moat, PEG, P/B Asset Bargain
+│   ├── ta_engine.py           # EMA Trend, RSI, MACD, Volume Spike, O'Neil Pivot, Wyckoff VSA
+│   ├── macro_engine.py        # Phân tích FED, CPI, DXY, Tỷ giá, Dầu, Vàng, Cao su, Thép, Phân bón
+│   ├── timing_engine.py       # [MỚI] Động cơ dự báo thời điểm (Khi nào tăng? Khi nào sập?)
+│   ├── risk_manager.py        # Buy Zone, Stop Loss (<= 7%), Target R:R >= 2:1, Kelly Sizing
+│   ├── governance_analyzer.py # Radar phát hiện tăng vốn ảo, sở hữu chéo, Skin in the game
+│   ├── segment_analyzer.py    # Bóc tách cơ cấu mảng kinh doanh cốt lõi (Core Business Segments)
+│   ├── html_report_generator.py # Sinh báo cáo HTML đồ họa trực quan chuyên sâu
+│   ├── dashboard_generator.py # [MỚI] Biên dịch DASHBOARD.html tổng hợp thị trường
+│   ├── stock_service.py       # Facade Service thống nhất xử lý dữ liệu
+│   └── db_manager.py          # SQLite Market Database lưu trữ cục bộ
 │
-├── ai/                        # Tầng kết nối AI linh hoạt
+├── ai/                        # Tầng kết nối AI linh hoạt (AI-Agnostic)
 │   ├── __init__.py
-│   ├── llm_router.py          # Unified AI Client: Gemini, OpenAI, Claude, Ollama, Offline
-│   ├── council.py             # Hội đồng 5 góc nhìn: Giá trị, Tăng trưởng, TA, Vĩ mô, CRO Arbiter
-│   └── prompts/               # Bộ Prompt chuẩn hóa dưới dạng Markdown độc lập
-│       ├── buffett.md         # Warren Buffett (Giá trị & Moat)
-│       ├── lynch.md           # Peter Lynch (Tăng trưởng & PEG)
-│       ├── oneil.md           # William O'Neil (CANSLIM & Momentum)
-│       ├── vsa.md             # Wyckoff & VSA (Khối lượng & Xu hướng)
-│       ├── dalio_marks.md     # Ray Dalio & Howard Marks (Vĩ mô & Chu kỳ)
-│       └── cro_arbiter.md     # Chief Risk Officer (Trọng tài phản biện & Quản trị rủi ro)
+│   ├── llm_router.py          # Router đa nền tảng: Gemini, OpenAI, Claude, Ollama, Offline
+│   ├── council.py             # Hội đồng 5 góc nhìn phản biện độc lập
+│   └── prompts/               # Bộ Prompt chuẩn hóa chuyên gia (.md)
 │
-├── alerts/                    # Kênh gửi cảnh báo
+├── alerts/                    # Kênh xuất cảnh báo
 │   ├── __init__.py
-│   ├── telegram_bot.py        # Module gửi tín hiệu và file báo cáo về Telegram
-│   └── telegram_interactive_bot.py # Bot Telegram tương tác 2 chiều với menu nút bấm
+│   └── telegram_bot.py        # Push 1-chiều: Bắn tóm tắt & gửi kèm file HTML về Telegram
 │
-├── data/                      # Lưu trữ dữ liệu
-│   ├── segments/              # Hồ sơ bóc tách phân khúc kinh doanh chi tiết (.json)
-│   └── market.db              # SQLite Database lưu trữ cục bộ
+├── data/                      # Dữ liệu cục bộ
+│   ├── market.db              # SQLite Database
+│   └── segments/              # Hồ sơ phân khúc doanh nghiệp (.json)
 │
-└── reports/                   # Tự động lưu trữ các file báo cáo (.html & .md)
+├── cache/                     # Bộ đệm dữ liệu vĩ mô & hàng hóa
+│   └── macro_commodities_cache.json
+│
+└── reports/                   # Thư mục lưu trữ tự động các file báo cáo (.html & .md)
 ```
 
 ---
@@ -77,70 +87,107 @@ vietnam-stock-analyzer/
 
 ### Bước 1: Kích hoạt môi trường và cài đặt thư viện
 ```bash
-# Cài đặt các thư viện cần thiết
+# Cài đặt các thư viện phụ thuộc
 pip install rich pandas requests python-dotenv
 
-# (Tùy chọn) Cài đặt thư viện vnstock bản mới nhất:
+# (Tùy chọn) Cài đặt thư viện vnstock:
 pip install -U --extra-index-url https://vnstocks.com/api/simple vnstock
 ```
 
 ### Bước 2: Thiết lập file cấu hình `.env`
-Mở file `.env` và điều chỉnh cấu hình theo nhu cầu:
+Mở file `.env` và thiết lập cấu hình:
 ```env
 # Chọn nhà cung cấp AI: 'gemini', 'openai', 'claude', 'ollama', hoặc 'offline'
 LLM_PROVIDER=offline
 
-# Điền API Key nếu bạn muốn AI viết bài luận giải chuyên sâu:
+# API Keys (tùy chọn nếu muốn AI mở rộng luận giải):
 GEMINI_API_KEY=
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 
-# Cảnh báo Telegram (Tùy chọn):
+# Cảnh báo Telegram (Tùy chọn - Push 1 chiều file HTML về máy):
 TELEGRAM_ENABLED=false
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 ```
 
-### Bước 3: Chạy ứng dụng
+---
 
-#### 👉 Chế độ 1: Soi sâu 1 mã cổ phiếu bất kỳ (`analyze`)
+### Bước 3: Vận hành ứng dụng
+
+#### 🚀 Cách 1 (Khuyên dùng): Web App Trực Tiếp Trên Trình Duyệt Edge (`http://localhost:5000`)
+Không cần dùng file `.bat`, chỉ cần 1 lệnh đơn giản để khởi chạy giao diện Web offline:
 ```bash
-# Phân tích mã HPG (mặc định)
-python main.py --mode analyze --ticker HPG
-
-# Phân tích mã FPT, VCB, MWG...
-python main.py --mode analyze --ticker FPT
-python main.py --mode analyze --ticker VCB
+python app.py
 ```
-*Kết quả:* Hệ thống lấy giá realtime trong phiên, tính toán BCTC, in bảng tổng kết sắc nét trên Terminal và tự động tạo file báo cáo `reports/YYYY-MM-DD_MÃ.md`.
-
-#### 👉 Chế độ 2: Quét toàn sàn tìm cổ phiếu tăng trưởng đột biến (`scan`)
-```bash
-# Quét danh sách các mã trọng điểm và xuất top 5 mã tiềm năng nhất hôm nay
-python main.py --mode scan --top 5
-```
-*Kết quả:* Bảng xếp hạng Top các mã bùng nổ thanh khoản (Nổ Vol $> 1.3x$ MA20) và bứt phá nền giá kèm khuyến nghị mua, cắt lỗ và chốt lời.
-
-#### 👉 Chế độ 3: Trợ lý Telegram Bot tương tác 2 chiều (`bot`)
-```bash
-# Khởi động Bot lắng nghe lệnh trực tiếp từ điện thoại / Telegram cá nhân
-python main.py --mode bot
-# hoặc chạy trực tiếp file module:
-python alerts/telegram_interactive_bot.py
-```
-*Tính năng:* Bạn có thể mở ứng dụng Telegram trên điện thoại và chat ra lệnh trực tiếp cho Bot:
-* `/soi <MÃ>` hoặc chỉ cần gõ tên mã (ví dụ: `FPT`, `HPG`, `IDC`): Bot tính toán tức thì và trả về báo cáo phân tích, vùng mua, cắt lỗ 7%, chốt lời TP1/TP2 và phản biện từ 4 nhà đầu tư AI.
-* `/scan` hoặc `/scan 5`: Quét nhanh top cổ phiếu nổ vol đẹp nhất trong phiên.
-* `/gia <MÃ>`: Xem nhanh giá khớp lệnh realtime, % thay đổi và khối lượng.
-* `/watchlist`: Xem danh sách cổ phiếu đang theo dõi.
-* *Bảo mật:* Hệ thống tích hợp Whitelist bảo mật cao, chỉ duy nhất `TELEGRAM_CHAT_ID` của bạn mới có quyền ra lệnh.
+> **Trải nghiệm:** Server sẽ khởi động ngầm tại `http://localhost:5000` và **tự động mở Microsoft Edge** đưa bạn vào Bảng điều khiển Trung tâm:
+> - **Ô tìm kiếm 1-Click:** Nhập bất kỳ mã CP (`HPG`, `SSI`, `GVR`, `VHM`, `FPT`...) và bấm **Phân Tích 🚀**.
+> - **Thư viện Báo cáo:** Quản lý và mở trực tiếp tất cả các báo cáo chiến lược đã tạo.
+> - **Hỏi Đáp Tương Tác với Hội Đồng 6 AI:** Đặt câu hỏi thực chiến cho từng chuyên gia (Buffett, Minervini, Wyckoff, Lynch, Dalio, Taleb/CRO).
+> - **Đo Lực Khớp Lệnh Chủ Động (Buy Up vs Sell Down) & Dấu vết Khối ngoại.**
+> - **Lịch Xúc tác Sự kiện:** Đếm ngược ngày Đáo hạn phái sinh, Hạn chót BCTC Quý, Cơ cấu ETF.
 
 ---
 
-## 🤖 4. HƯỚNG DẪN DÀNH CHO CÁC MÔ HÌNH AI (GEMINI / CLAUDE / CHATGPT)
+#### 🌟 Cách 2: Mở Bảng Điều Khiển Offline trên Microsoft Edge (`DASHBOARD.html`)
+Bạn có thể mở trực tiếp không cần dòng lệnh:
+1. Nhấp đúp chuột vào file [`DASHBOARD.html`](file:///d:/AI/vietnam-stock-analyzer/DASHBOARD.html).
+2. Hoặc chạy lệnh để cập nhật dữ liệu mới nhất và tự động kích hoạt Edge:
+```bash
+python main.py --mode dashboard
+```
+*Giao diện cung cấp:*
+* **Chỉ số Vĩ mô & Hàng hóa thế giới:** Dầu Brent, Vàng, Cao su, Thép, DXY, Tỷ giá, Lãi suất FED.
+* **Top Tín hiệu Dòng tiền & Bứt phá:** Danh sách cổ phiếu nổ Vol, điểm Pivot, xu hướng VSA.
+* **Động cơ Thời điểm Tóm tắt:** Tín hiệu tăng/sập sắp tới của các mã trọng điểm.
+* **Thư viện Báo cáo Phân tích:** Danh sách các file báo cáo HTML đã xuất, nhấp là mở ngay.
 
-Khi bạn (AI) được người dùng mở thư mục này để yêu cầu nghiên cứu hoặc mở rộng tính năng:
-1. **Thêm tiêu chí lọc mới:** Chỉnh sửa file `config.py` để bổ sung các ngưỡng giao dịch.
-2. **Nâng cấp công thức FA:** Đọc và tinh chỉnh trong `core/fa_engine.py` (ví dụ: bổ sung chỉ số Altman Z-Score hoặc dòng tiền tự do FCF).
-3. **Nâng cấp công thức TA:** Đọc và tinh chỉnh trong `core/ta_engine.py` (ví dụ: bổ sung mẫu hình VCP của Mark Minervini hoặc phân kỳ MACD).
-4. **Tùy biến phong cách phản biện:** Mở trực tiếp các file trong `ai/prompts/*.md` để cập nhật tư duy phân tích theo sở thích của người dùng.
+---
+
+#### 🧠 Cách 2: Xem Sơ đồ Tư duy Dự án trên Microsoft Edge (`PROJECT_MINDMAP.html`)
+Nhấp đúp chuột vào file [`PROJECT_MINDMAP.html`](file:///d:/AI/vietnam-stock-analyzer/PROJECT_MINDMAP.html) để khám phá:
+* Cây sơ đồ tư duy tương tác D3.js (phóng to, thu nhỏ, đóng/mở nhánh phân hệ).
+* Bảng điều khiển Bento Grid trực quan trình bày chi tiết năng lực của **7 Phân hệ hoàn chỉnh**.
+
+---
+
+#### 🔍 Cách 3: Soi sâu 1 mã cổ phiếu bất kỳ (`analyze`)
+```bash
+# Phân tích mã PVD (Dầu khí)
+python main.py --mode analyze --ticker PVD
+
+# Phân tích mã GVR (Cao su)
+python main.py --mode analyze --ticker GVR
+
+# Phân tích mã HPG (Thép), FPT (Công nghệ)...
+python main.py --mode analyze --ticker HPG
+```
+*Kết quả:*
+1. In bảng tổng kết đa sắc nét trên Terminal.
+2. Tự động biên dịch file báo cáo HTML chuyên sâu tại `reports/YYYY-MM-DD_MÃ.html` (bao gồm Radar Hàng hóa & Khối Động cơ Thời điểm).
+3. Nếu bật Telegram, hệ thống tự động **bắn tóm tắt khuyến nghị + Timing Matrix + đính kèm file HTML** về điện thoại.
+
+---
+
+#### 🌐 Cách 4: Quét Ma trận Vĩ mô & Hàng hóa Thế giới (`macro`)
+```bash
+python main.py --mode macro
+```
+*Kết quả:* Bảng Terminal trực quan tổng hợp chi tiết mức giá hiện tại, biến động % ngày của Dầu Brent, WTI, Vàng thế giới, Vàng SJC, Cao su TSR20, Thép HRC, Phân bón Urea, Chỉ số DXY, Tỷ giá USD/VND và Lãi suất FED.
+
+---
+
+#### 🚀 Cách 5: Quét toàn sàn tìm điểm nổ Vol (`scan`)
+```bash
+# Quét tìm top 5 mã bùng nổ thanh khoản và bứt phá nền giá
+python main.py --mode scan --top 5
+```
+*Kết quả:* Bảng xếp hạng các mã nổ Vol ($> 1.3x$ MA20) đạt tiêu chí CANSLIM và VSA kèm vùng mua, cắt lỗ và chốt lời.
+
+---
+
+## 🛡️ 4. QUY TẮC QUẢN TRỊ RỦI RO BẤT DI BẤT DỊCH
+1. **Cắt lỗ cứng $\le 7\%$:** Mọi khuyến nghị mua bắt buộc phải có mức cắt lỗ vi phạm tối đa không quá 7% từ giá vào lệnh.
+2. **Tỷ lệ Lãi / Lỗ $R:R \ge 2:1$:** Không mở vị thế nếu tiềm năng lợi nhuận ngắn hạn không đạt gấp đôi rủi ro.
+3. **Phạt nặng Bẫy Giá trị & Tăng vốn ảo:** Cổ phiếu dù $P/B$ rẻ nhưng có dấu hiệu sở hữu chéo, nợ vay gấp nhiều lần tiền mặt hoặc tài sản đọng vốn lớn sẽ bị gắn cờ đỏ cảnh báo và hạ tỷ trọng về 0%.
+4. **Điều kiện mất hiệu lực rõ ràng:** Mọi kịch bản dự báo tăng đều đi kèm mức giá vi phạm (Failure Level) — nếu thủng mốc này, kịch bản lập tức mất hiệu lực.

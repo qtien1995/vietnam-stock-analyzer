@@ -22,10 +22,9 @@ from core.stock_service import (
     analyze_ticker_fa,
     analyze_ticker_ta
 )
-from core.performance_tracker import (
-    evaluate_all_recommendations,
-    render_performance_terminal_dashboard
-)
+from core.dashboard_generator import generate_dashboard_html
+from core.data_loader import get_global_macro_and_commodities
+
 
 console = Console()
 
@@ -458,6 +457,33 @@ def run_market_screener(top_n: int = 10, sector_filter: str = None):
     console.print(screen_table)
 
 
+def render_macro_terminal():
+    """In bảng Vĩ mô và Hàng hóa quốc tế trên Terminal"""
+    macro_data = get_global_macro_and_commodities()
+    comm = macro_data.get("global_commodities", {})
+    vn = macro_data.get("vietnam_macro", {})
+
+    table = Table(title="📡 MA TRẬN VĨ MÔ QUỐC TẾ & HÀNG HÓA THẾ GIỚI", header_style="bold cyan")
+    table.add_column("Hàng hóa / Chỉ số", style="bold white", width=30)
+    table.add_column("Giá trị", justify="right", style="yellow", width=16)
+    table.add_column("Biến động", justify="center", width=12)
+    table.add_column("Xu hướng & Tác động", style="dim", width=42)
+
+    for k, v in comm.items():
+        chg = v.get("change_pct", 0)
+        chg_str = f"+{chg}%" if chg > 0 else f"{chg}%"
+        chg_col = "green" if chg > 0 else ("red" if chg < 0 else "white")
+        val = f"{v.get('value'):,} {v.get('unit')}" if isinstance(v.get('value'), (int, float)) and v.get('value') > 1000 else f"{v.get('value')} {v.get('unit')}"
+        table.add_row(
+            v.get("name", k).split("(")[0].strip(),
+            val,
+            f"[{chg_col}]{chg_str}[/{chg_col}]",
+            v.get("trend", "")[:40]
+        )
+
+    console.print(table)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Vietnam Stock Market Analyzer - Hệ thống Phân tích Chứng khoán Cục bộ Đa AI",
@@ -465,14 +491,14 @@ def main():
     )
     parser.add_argument(
         "--mode", "-m",
-        choices=["analyze", "scan", "bot", "fa", "ta", "track"],
-        default="analyze",
-        help="Chế độ hoạt động:\n  analyze: Soi sâu 1 mã (FA + TA)\n  fa: Chỉ phân tích Cơ bản (BCTC)\n  ta: Chỉ phân tích Kỹ thuật (Chart)\n  scan: Quét toàn bộ TTCK\n  track: PDCA - Đánh giá hiệu suất khuyến nghị quá khứ\n  bot: Chạy Telegram Bot"
+        choices=["dashboard", "analyze", "scan", "macro", "fa", "ta", "track", "bot"],
+        default="dashboard",
+        help="Chế độ hoạt động:\n  dashboard: Cập nhật & Mở Dashboard Offline trên Microsoft Edge\n  analyze: Soi sâu 1 mã (FA + TA + Timing Engine)\n  scan: Quét toàn bộ TTCK tìm top nổ vol\n  macro: Xem ma trận Vĩ mô & Hàng hóa thế giới\n  fa: Chỉ phân tích Cơ bản (BCTC)\n  ta: Chỉ phân tích Kỹ thuật (Chart)\n  track: PDCA - Đánh giá hiệu suất khuyến nghị quá khứ\n  bot: Chạy Telegram Bot"
     )
     parser.add_argument(
         "--ticker", "-t",
         default="HPG",
-        help="Mã cổ phiếu cần phân tích (ví dụ: HPG, FPT...)"
+        help="Mã cổ phiếu cần phân tích (ví dụ: HPG, PVD, GVR, FPT...)"
     )
     parser.add_argument(
         "--sector", "-s",
@@ -488,9 +514,16 @@ def main():
 
     args = parser.parse_args()
 
-    if args.mode == "scan":
+    if args.mode == "dashboard":
+        console.print("[bold cyan]⏳ Đang cập nhật dữ liệu toàn diện và tạo file DASHBOARD.html...[/bold cyan]")
+        p = generate_dashboard_html(auto_open=True)
+        console.print(f"[bold green]🌐 Đã mở thành công Dashboard trên Microsoft Edge:[/bold green] [underline cyan]{p}[/underline cyan]")
+    elif args.mode == "macro":
+        render_macro_terminal()
+    elif args.mode == "scan":
         run_market_screener(top_n=args.top, sector_filter=args.sector)
     elif args.mode == "track":
+        from core.performance_tracker import evaluate_all_recommendations, render_performance_terminal_dashboard
         perf_data = evaluate_all_recommendations()
         render_performance_terminal_dashboard(perf_data)
     elif args.mode == "bot":
@@ -506,3 +539,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

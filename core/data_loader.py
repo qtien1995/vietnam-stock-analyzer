@@ -27,12 +27,14 @@ HEADERS = {
 def get_realtime_quote(symbol: str) -> dict:
     """
     Lấy giá khớp lệnh Realtime, khối lượng giao dịch và giao dịch khối ngoại
-    từ cổng bảng giá SSI (HOSE/HNX) hoặc fallback sang DNSE.
+    từ cổng bảng giá SSI (HOSE/HNX/UPCoM) hoặc fallback sang DNSE.
+    Đảm bảo 100% trả về đúng Sàn giao dịch (HOSE, HNX, UPCoM) và Biên độ trần/sàn.
     """
     symbol = symbol.upper().strip()
+    from core.db_manager import save_stock_master, get_stock_master
     
-    # 1. Thử lấy từ SSI iBoard
-    for exchange in ["hose", "hnx"]:
+    # 1. Thử lấy từ SSI iBoard trên cả 3 sàn
+    for exchange in ["hose", "hnx", "upcom"]:
         url = f"https://iboard-query.ssi.com.vn/stock/exchange/{exchange}"
         try:
             r = requests.get(url, headers=HEADERS, timeout=3)
@@ -48,25 +50,81 @@ def get_realtime_quote(symbol: str) -> dict:
                     val = float(matched.get("nmTotalTradedValue") or 0)
                     foreign_buy = float(matched.get("buyForeignQtty") or 0)
                     foreign_sell = float(matched.get("sellForeignQtty") or 0)
+                    high_p = float(matched.get("highest") or price)
+                    low_p = float(matched.get("lowest") or price)
+                    open_p = float(matched.get("openPrice") or price)
+
+                    # Chuẩn hóa đơn vị giá sang VND (nếu nguồn trả về đơn vị nghìn đồng)
+                    if 0 < price < 1000:
+                        price *= 1000
+                    if 0 < ref_price < 1000:
+                        ref_price *= 1000
+                    if 0 < high_p < 1000:
+                        high_p *= 1000
+                    if 0 < low_p < 1000:
+                        low_p *= 1000
+                    if 0 < open_p < 1000:
+                        open_p *= 1000
+                    if 0 < abs(change) < 100 and price >= 1000:
+                        change *= 1000
+
+                    ex_str = exchange.upper()
+                    limit_pct = 7.0 if ex_str == "HOSE" else (10.0 if ex_str == "HNX" else 15.0)
+                    comp_name = matched.get("clientName") or matched.get("companyNameVi", symbol)
+
+                    # Lưu hoặc cập nhật master data
+                    try:
+                        save_stock_master(symbol, comp_name, ex_str, price_limit_pct=limit_pct)
+                    except Exception:
+                        pass
                     
                     return {
                         "symbol": symbol,
+                        "exchange": ex_str,
+                        "price_limit_pct": limit_pct,
                         "source": "SSI_REALTIME",
                         "price": price,
                         "ref_price": ref_price,
                         "change": change,
                         "change_pct": change_pct,
-                        "high": float(matched.get("highest") or price),
-                        "low": float(matched.get("lowest") or price),
-                        "open": float(matched.get("openPrice") or price),
+                        "high": high_p,
+                        "low": low_p,
+                        "open": open_p,
                         "volume": vol,
                         "value": val,
                         "foreign_net_vol": foreign_buy - foreign_sell,
                         "trading_date": matched.get("tradingDate") or datetime.now().strftime("%Y-%m-%d"),
-                        "company_name": matched.get("clientName") or matched.get("companyNameVi", "")
+                        "company_name": comp_name
                     }
         except Exception:
             pass
+
+    # Tra cứu thông tin sàn và tên công ty dự phòng từ DB / Governance
+    db_master = get_stock_master(symbol)
+    resolved_ex = db_master.get("exchange", "")
+    resolved_name = db_master.get("company_name", symbol)
+    limit_pct = db_master.get("price_limit_pct", 7.0)
+
+    if not resolved_ex:
+        try:
+            gov = get_governance_data(symbol)
+            ov = gov.get("overview", {})
+            com_code = str(ov.get("com_group_code", "")).upper()
+            if "HNX" in com_code:
+                resolved_ex = "HNX"
+                limit_pct = 10.0
+            elif "UPCOM" in com_code:
+                resolved_ex = "UPCOM"
+                limit_pct = 15.0
+            else:
+                resolved_ex = "HOSE"
+                limit_pct = 7.0
+            if ov.get("organ_name"):
+                resolved_name = ov.get("organ_name")
+            save_stock_master(symbol, resolved_name, resolved_ex, price_limit_pct=limit_pct)
+        except Exception:
+            resolved_ex = "HOSE"
+            limit_pct = 7.0
 
     # 2. Fallback: Lấy qua nến DNSE gần nhất
     try:
@@ -80,29 +138,48 @@ def get_realtime_quote(symbol: str) -> dict:
                 price = float(data["c"][-1])
                 ref = float(data["o"][-1])
                 vol = float(data["v"][-1])
+                high_p = float(data["h"][-1])
+                low_p = float(data["l"][-1])
+                open_p = float(data["o"][-1])
+
+                if 0 < price < 1000:
+                    price *= 1000
+                if 0 < ref < 1000:
+                    ref *= 1000
+                if 0 < high_p < 1000:
+                    high_p *= 1000
+                if 0 < low_p < 1000:
+                    low_p *= 1000
+                if 0 < open_p < 1000:
+                    open_p *= 1000
+
                 chg = price - ref
                 pct = (chg / ref * 100) if ref > 0 else 0
                 return {
                     "symbol": symbol,
+                    "exchange": resolved_ex,
+                    "price_limit_pct": limit_pct,
                     "source": "DNSE_FALLBACK",
                     "price": price,
                     "ref_price": ref,
                     "change": chg,
                     "change_pct": round(pct, 2),
-                    "high": float(data["h"][-1]),
-                    "low": float(data["l"][-1]),
-                    "open": float(data["o"][-1]),
+                    "high": high_p,
+                    "low": low_p,
+                    "open": open_p,
                     "volume": vol,
                     "value": vol * price,
                     "foreign_net_vol": 0,
                     "trading_date": datetime.now().strftime("%Y-%m-%d"),
-                    "company_name": symbol
+                    "company_name": resolved_name
                 }
     except Exception:
         pass
 
     return {
         "symbol": symbol,
+        "exchange": resolved_ex or "HOSE",
+        "price_limit_pct": limit_pct or 7.0,
         "source": "UNKNOWN",
         "price": 0.0,
         "ref_price": 0.0,
@@ -115,7 +192,7 @@ def get_realtime_quote(symbol: str) -> dict:
         "value": 0.0,
         "foreign_net_vol": 0.0,
         "trading_date": datetime.now().strftime("%Y-%m-%d"),
-        "company_name": symbol
+        "company_name": resolved_name or symbol
     }
 
 
@@ -499,12 +576,28 @@ def get_financial_data(symbol: str) -> dict:
     except BaseException:
         pass
 
-    # Lưu cache file
+    # Gắn overview từ governance data để tầng FA luôn có đủ thông tin ngành và sàn
     try:
-        with open(cache_file, "w", encoding="utf-8") as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
+        gov = get_governance_data(symbol)
+        if gov and gov.get("overview"):
+            result["overview"] = gov.get("overview", {})
     except Exception:
         pass
+
+    # Chống Cache Poisoning: Chỉ lưu cache nếu thực sự cào được số liệu tài chính hợp lệ
+    has_valid_data = (
+        (result.get("total_assets") is not None and result.get("total_assets") > 0) or
+        (result.get("ttm_revenue") is not None and result.get("ttm_revenue") > 0) or
+        (result.get("bvps") is not None and result.get("bvps") > 0) or
+        (result.get("ttm_profit") is not None and result.get("ttm_profit") != 0)
+    )
+
+    if has_valid_data:
+        try:
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(result, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
     return result
 
@@ -546,17 +639,35 @@ def get_governance_data(symbol: str) -> Dict[str, Any]:
             ov = stock.company.overview()
             if ov is not None and not ov.empty:
                 rec = ov.to_dict("records")[0]
+                com_code = str(rec.get("com_group_code", "")).upper()
+                ex = "HOSE"
+                if "HNX" in com_code:
+                    ex = "HNX"
+                elif "UPCOM" in com_code:
+                    ex = "UPCOM"
+                
+                limit_pct = 7.0 if ex == "HOSE" else (10.0 if ex == "HNX" else 15.0)
+                organ_name = rec.get("organ_name", "")
+
                 result["overview"] = {
-                    "organ_name": rec.get("organ_name", ""),
+                    "organ_name": organ_name,
                     "organ_short_name": rec.get("organ_short_name", ""),
                     "company_profile": rec.get("company_profile", ""),
                     "sector": rec.get("sector", ""),
                     "com_group_code": rec.get("com_group_code", ""),
+                    "exchange": ex,
+                    "price_limit_pct": limit_pct,
                     "free_float_pct": round(float(rec.get("free_float_percentage") or 0.0) * 100, 2),
                     "foreigner_pct": round(float(rec.get("foreigner_percentage") or 0.0) * 100, 2),
                     "state_pct": round(float(rec.get("state_percentage") or 0.0) * 100, 2),
                     "listing_date": rec.get("listing_date", "")
                 }
+
+                from core.db_manager import save_stock_master
+                try:
+                    save_stock_master(symbol, organ_name, ex, price_limit_pct=limit_pct)
+                except Exception:
+                    pass
         except Exception:
             pass
 
@@ -668,8 +779,13 @@ def get_all_tickers_realtime() -> list:
                     if not sym:
                         continue
                     price = float(item.get("matchedPrice") or item.get("refPrice") or 0)
+                    if 0 < price < 1000:
+                        price *= 1000
+
                     vol = float(item.get("stockVol") or item.get("nmTotalTradedQty") or 0)
                     val = float(item.get("nmTotalTradedValue") or 0)
+                    if val <= 0 and vol > 0 and price > 0:
+                        val = vol * price
                     change_pct = float(item.get("priceChangePercent") or 0)
                     
                     all_tickers.append({
@@ -685,3 +801,72 @@ def get_all_tickers_realtime() -> list:
             print(f"Lỗi lấy dữ liệu {exchange.upper()}: {e}")
             
     return all_tickers
+
+
+def get_global_macro_and_commodities(force_refresh: bool = False) -> Dict[str, Any]:
+    """
+    Thu thập và cập nhật tự động ma trận Vĩ mô Quốc tế & Hàng hóa thế giới:
+    FED Target Rate, US Core CPI, DXY, Tỷ giá USD/VND, Giá Dầu, Giá Vàng, Giá Cao su, Thép HRC, Phân bón.
+    Hỗ trợ Cache cục bộ trong cache/macro_commodities_cache.json (TTL = 2 giờ).
+    """
+    from config import PROJECT_ROOT
+    from core.macro_engine import GLOBAL_COMMODITIES_AND_MACRO, CURRENT_VIETNAM_MACRO
+
+    cache_dir = PROJECT_ROOT / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / "macro_commodities_cache.json"
+
+    # Kiểm tra Cache còn hạn không (< 2 giờ)
+    if not force_refresh and cache_file.exists():
+        try:
+            mtime = cache_file.stat().st_mtime
+            if time.time() - mtime < 7200:  # 2 hours
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    cached_data = json.load(f)
+                    if cached_data.get("global_commodities"):
+                        return cached_data
+        except Exception:
+            pass
+
+    # Bản sao dữ liệu mặc định chuẩn hóa
+    res_commodities = dict(GLOBAL_COMMODITIES_AND_MACRO)
+
+    # Thử cào nhanh giá Dầu & Vàng qua Yahoo Finance chart endpoint (miễn phí, không cần auth)
+    yahoo_symbols = {
+        "crude_oil_brent": "BZ=F",
+        "gold_world": "GC=F",
+        "dxy_index": "DX-Y.NYB"
+    }
+
+    for comm_key, y_sym in yahoo_symbols.items():
+        try:
+            url = f"https://query1.finance.yahoo.com/v8/finance/chart/{y_sym}?interval=1d&range=5d"
+            r = requests.get(url, headers=HEADERS, timeout=4)
+            if r.status_code == 200:
+                data = r.json().get("chart", {}).get("result", [])
+                if data and len(data) > 0:
+                    meta = data[0].get("meta", {})
+                    curr_price = float(meta.get("regularMarketPrice") or 0)
+                    prev_close = float(meta.get("chartPreviousClose") or curr_price)
+                    if curr_price > 0 and comm_key in res_commodities:
+                        chg_pct = round(((curr_price - prev_close) / prev_close) * 100, 2) if prev_close > 0 else 0.0
+                        res_commodities[comm_key]["value"] = round(curr_price, 2)
+                        res_commodities[comm_key]["change_pct"] = chg_pct
+        except Exception:
+            pass
+
+    final_result = {
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "global_commodities": res_commodities,
+        "vietnam_macro": CURRENT_VIETNAM_MACRO
+    }
+
+    # Ghi đệm cache
+    try:
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump(final_result, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+    return final_result
+

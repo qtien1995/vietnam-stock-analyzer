@@ -22,11 +22,13 @@ from core.data_loader import (
 from core.fa_engine import analyze_fundamentals
 from core.ta_engine import analyze_technicals
 from core.risk_manager import calculate_trade_setup
+from core.timing_engine import analyze_timing_prediction
 from core.db_manager import save_eod_quote, save_recommendation
 from core.html_report_generator import generate_html_report
 from core.macro_engine import classify_sector, SECTOR_PROFILES
 from ai.council import InvestmentCouncil
 from alerts.telegram_bot import send_telegram_alert
+
 
 
 def get_liquidity_rating(value_vnd: float) -> str:
@@ -206,6 +208,10 @@ def analyze_ticker_full(
             current_price = float(df_tmp["close"].iloc[-1])
             quote["price"] = current_price
 
+    if 0 < current_price < 1000:
+        current_price *= 1000
+        quote["price"] = current_price
+
     if current_price <= 0:
         return {"error": f"Không tìm thấy dữ liệu giá cho mã {symbol}."}
 
@@ -222,20 +228,32 @@ def analyze_ticker_full(
     fa_result = analyze_fundamentals(fin_data, current_price, quote)
     trade_setup = calculate_trade_setup(current_price, fa_result, ta_result, quote)
 
-    # 3. Lưu trữ SQLite Database
+    # 3. Phân tích Động cơ Thời điểm Tăng/Sập (Timing Matrix)
+    timing_result = analyze_timing_prediction(symbol, quote, ta_result, fa_result)
+
+    # 4. Lưu trữ SQLite Database
     save_eod_quote(quote)
     save_recommendation(trade_setup, quote)
 
-    # 4. Phản biện Hội đồng AI
+    # 5. Phản biện Hội đồng AI
     council = InvestmentCouncil()
     council_result = council.deliberate(symbol, quote, fa_result, ta_result, trade_setup)
 
-    # 5. Xuất bản Báo cáo HTML
+    # 6. Xuất bản Báo cáo HTML chuyên sâu (kèm Timing & Vĩ mô Hàng hóa)
     html_path = None
     if save_report:
-        html_path = generate_html_report(symbol, quote, fa_result, ta_result, trade_setup, council_result)
+        html_path = generate_html_report(
+            symbol=symbol,
+            quote=quote,
+            fa_result=fa_result,
+            ta_result=ta_result,
+            trade_setup=trade_setup,
+            council_result=council_result,
+            timing_result=timing_result,
+            df_ohlcv=df_ohlcv
+        )
 
-    # 6. Gửi Telegram nếu bật
+    # 7. Bắn Telegram nếu bật
     if send_alert:
         send_telegram_alert(
             symbol=symbol,
@@ -252,9 +270,11 @@ def analyze_ticker_full(
         "fa_result": fa_result,
         "ta_result": ta_result,
         "trade_setup": trade_setup,
+        "timing_result": timing_result,
         "council_result": council_result,
         "html_path": html_path
     }
+
 
 
 def analyze_ticker_fa(symbol: str) -> Dict[str, Any]:

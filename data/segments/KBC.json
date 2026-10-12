@@ -1,0 +1,74 @@
+{
+  "company_name": "Tổng Công ty Phát triển Đô thị Kinh Bắc - CTCP",
+  "business_model_summary": "Tập đoàn phát triển Khu đô thị và Khu công nghiệp hàng đầu miền Bắc, đối tác chiến lược đón đầu các đại bàng công nghệ toàn cầu (Foxconn, Goertek, Luxshare, Canon, LG Electronics): (1) Sở hữu quỹ đất KCN sạch lớn tại các thủ phủ điện tử (Bắc Ninh, Bắc Giang, Hải Phòng); (2) Phát triển các đại dự án Khu đô thị dịch vụ đi kèm KCN, nổi bật là siêu dự án KĐT Tràng Cát (585 ha) tại Hải Phòng; (3) Hưởng lợi từ mối quan hệ thu hút FDI lâu năm của ban lãnh đạo.",
+  "segments": [
+    {
+      "name": "Cho thuê đất Khu công nghiệp (50 năm)",
+      "service_description": "Đầu tư xây dựng hạ tầng kỹ thuật và cho thuê đất KCN sạch tại KCN Nam Sơn Hạp Lĩnh (Bắc Ninh), KCN Quang Châu & Quang Châu mở rộng (Bắc Giang), KCN Tân Phú Trung (TP.HCM).",
+      "target_customers": "Các tập đoàn điện tử công nghệ cao (Foxconn, Goertek, Apple supply chain, LG, Heesung...).",
+      "rev_share_pct": 60.0,
+      "gross_profit_share_pct": 70.0,
+      "gross_margin_pct": 58.0,
+      "role": "Ngòi nổ Doanh thu & Thặng dư Dòng tiền FDI",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Cho thuê diện tích đất sạch hiện hữu",
+      "highlights": "Giá thuê đất KCN tại Bắc Ninh, Bắc Giang đạt 130 - 160 USD/m²/chu kỳ. Khách thuê công nghệ toàn cầu sẵn sàng trả giá cao để có mặt bằng sạch hạ tầng tốt.",
+      "risks": "Tiến độ giải phóng mặt bằng các phân kỳ mở rộng."
+    },
+    {
+      "name": "Chuyển nhượng Bất động sản Đô thị (Nhà ở, Đất nền, Shophouse)",
+      "service_description": "Phát triển các khu đô thị dịch vụ phụ trợ quanh các KCN (KĐT Phúc Ninh, KĐT Tràng Duệ, KĐT Nam Sơn Hạp Lĩnh) và đại dự án KĐT Tràng Cát.",
+      "target_customers": "Chuyên gia, kỹ sư làm việc tại các KCN và nhà đầu tư bất động sản.",
+      "rev_share_pct": 30.0,
+      "gross_profit_share_pct": 25.0,
+      "gross_margin_pct": 45.0,
+      "role": "Động lực lợi nhuận đột biến theo chu kỳ mở bán",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Chờ tháo gỡ điểm nghẽn pháp lý để ghi nhận",
+      "highlights": "Biên lợi nhuận gộp mảng đô thị rất cao do giá vốn đất tích lũy từ nhiều năm trước.",
+      "risks": "Thủ tục tính tiền sử dụng đất bổ sung và tiến độ cấp phép mở bán."
+    },
+    {
+      "name": "Dịch vụ Cung cấp Điện, Nước & Xử lý Nước thải KCN",
+      "service_description": "Phân phối điện nước công nghiệp và vận hành trạm xử lý nước thải nội khu cho các nhà máy KCN.",
+      "target_customers": "Hàng trăm nhà máy sản xuất đang hoạt động trong các KCN của KBC.",
+      "rev_share_pct": 10.0,
+      "gross_profit_share_pct": 5.0,
+      "gross_margin_pct": 18.0,
+      "role": "Con bò sữa dòng tiền duy trì hoạt động (Cash Cow)",
+      "strategic_role": "CASH_COW",
+      "status": "Rất ổn định",
+      "highlights": "Dòng thu tiền mặt đều đặn hàng tháng từ các nhà máy đang vận hành.",
+      "risks": "Chi phí đầu vào và giá điện bán buôn EVN."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Đại Dự án Khu Đô thị Tràng Cát",
+      "location": "Phường Tràng Cát, Quận Hải An, TP. Hải Phòng",
+      "scale": "585 ha (Một trong những đại dự án đô thị ven biển lớn nhất miền Bắc)",
+      "status": "Đang hoàn tất thủ tục tính tiền sử dụng đất bổ sung để triển khai mở bán",
+      "profit_contribution": "Là 'mỏ vàng tài sản' quyết định định giá của KBC; dự kiến đóng góp hàng chục nghìn tỷ đồng doanh thu khi triển khai kinh doanh.",
+      "bottlenecks_and_risks": "Cần nộp tiền sử dụng đất theo phương án định giá mới của TP. Hải Phòng; đòi hỏi thu xếp nguồn vốn lớn.",
+      "flag": "TIẾN ĐỘ BÌNH THƯỜNG"
+    },
+    {
+      "name": "KCN Nam Sơn Hạp Lĩnh",
+      "location": "Thành phố Bắc Ninh & Huyện Tiên Du, Tỉnh Bắc Ninh",
+      "scale": "300 ha (Diện tích đất thương phẩm sẵn sàng cho thuê ~80 - 100 ha)",
+      "status": "Đang hoàn thiện hạ tầng & Bàn giao đất cho khách thuê Goertek",
+      "profit_contribution": "Đóng góp dòng tiền doanh thu cho thuê KCN chủ lực trong giai đoạn 2024-2026.",
+      "bottlenecks_and_risks": "Đã giải phóng mặt bằng phần lớn diện tích; tiến độ đền bù phần diện tích còn lại.",
+      "flag": "TÍCH CỰC"
+    },
+    {
+      "name": "KCN Tràng Duệ 3",
+      "location": "Huyện An Lão, TP. Hải Phòng",
+      "scale": "687 ha (Định hướng thu hút tổ hợp công nghệ LG và phụ trợ bán dẫn)",
+      "status": "Đã được tích hợp vào Quy hoạch chung TP. Hải Phòng; Đang trình Thủ tướng phê duyệt chủ trương",
+      "profit_contribution": "Động lực chiến lược giai đoạn 2025-2030 khi KCN Tràng Duệ 1 & 2 đã lấp đầy 100%.",
+      "bottlenecks_and_risks": "Chờ Quyết định chấp thuận chủ trương đầu tư chính thức của Thủ tướng Chính phủ.",
+      "flag": "TÍCH CỰC"
+    }
+  ]
+}

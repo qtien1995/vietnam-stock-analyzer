@@ -1,0 +1,64 @@
+{
+  "company_name": "Công ty Cổ phần Tập đoàn Đầu tư BIG",
+  "business_model_summary": "Doanh nghiệp dịch vụ bất động sản dòng tiền kết hợp thương mại đa ngành: Khai thác chuỗi tòa nhà văn phòng, căn hộ mini và khách sạn cho thuê (mô hình do ông Võ Phi Nhật Huy sáng lập); kết hợp kinh doanh thương mại nông sản, vật liệu xây dựng và hoạt động hợp tác đầu tư tài chính.",
+  "segments": [
+    {
+      "name": "Bất động sản Dòng tiền & Dịch vụ Lưu trú / Cho thuê",
+      "service_description": "Khai thác chuỗi tòa nhà cho thuê văn phòng làm việc, căn hộ mini/phòng trọ và căn hộ dịch vụ lưu trú tại TP.HCM, Hà Nội và các đô thị lớn.",
+      "rev_share_pct": 45.0,
+      "gross_profit_share_pct": 60.0,
+      "gross_margin_pct": 28.0,
+      "role": "Mảng kinh doanh cốt lõi & Con bò sữa dòng tiền (Cash Cow)",
+      "strategic_role": "CASH_COW",
+      "status": "Duy trì khai thác",
+      "highlights": "Dòng thu tiền thuê định kỳ hàng tháng từ khách thuê văn phòng và cư dân; mô hình kinh doanh gắn liền với thương hiệu Big Group.",
+      "risks": "Tỷ lệ lấp đầy suy giảm khi sức mua thị trường thuê nhà yếu; chi phí thuê mặt bằng cố định đầu vào từ chủ nhà."
+    },
+    {
+      "name": "Thương mại Nông sản, Thiết bị Máy móc & Vật tư",
+      "service_description": "Hoạt động bán buôn thương mại các mặt hàng nông sản, vật tư xây dựng và thiết bị máy móc kỹ thuật.",
+      "rev_share_pct": 40.0,
+      "gross_profit_share_pct": 25.0,
+      "gross_margin_pct": 8.5,
+      "role": "Trụ cột quy mô doanh thu (Revenue Base)",
+      "strategic_role": "SCALE_BASE",
+      "status": "Biên lãi mỏng",
+      "highlights": "Đóng góp phần lớn doanh thu tổng thể giúp duy trì quy mô doanh số trên báo cáo tài chính.",
+      "risks": "Biên lợi nhuận gộp mỏng; rủi ro đọng vốn lớn tại các khoản phải thu khách hàng (Receivables) làm âm dòng tiền CFO."
+    },
+    {
+      "name": "Dịch vụ Quản lý Tòa nhà & Hợp tác Đầu tư M&A",
+      "service_description": "Cung ứng dịch vụ quản lý vận hành tòa nhà, tư vấn đầu tư kinh doanh bất động sản và các hợp đồng hợp tác đầu tư dự án.",
+      "rev_share_pct": 15.0,
+      "gross_profit_share_pct": 15.0,
+      "gross_margin_pct": 22.0,
+      "role": "Hoạt động phụ trợ & Hợp tác kinh doanh",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Theo dõi thu hồi vốn",
+      "highlights": "Huy động nguồn vốn cộng đồng nhà đầu tư nhỏ lẻ tham gia sở hữu cổ phần và hợp tác kinh doanh chuỗi tòa nhà.",
+      "risks": "Dòng vốn có nguy cơ bị chiếm dụng tại các hợp đồng hợp tác kinh doanh không có tài sản thế chấp an toàn."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Chuỗi Tòa nhà Văn phòng & Căn hộ Dịch vụ Big Group",
+      "location": "TP.HCM, Hà Nội, Lào Cai, Đà Nẵng",
+      "scale": "Hàng chục tòa nhà văn phòng, căn hộ cho thuê và khách sạn mini",
+      "status": "Đang vận hành khai thác cho thuê",
+      "profit_contribution": "Tạo nguồn thu tiền mặt định kỳ hàng tháng phục vụ dòng tiền kinh doanh của công ty.",
+      "legal_audit": "Các tòa nhà vận hành theo hình thức thuê lại dài hạn từ chủ bất động sản rồi cải tạo cho thuê thứ cấp, hoặc hợp tác đầu tư.",
+      "status_badge": "ĐANG VẬN HÀNH 🟢",
+      "badge_color": "#10b981"
+    },
+    {
+      "name": "Đề án Thu hồi Công nợ & Tối ưu Hóa Dòng tiền Hoạt động (CFO)",
+      "location": "Toàn hệ sinh thái BIG",
+      "scale": "Quy mô các khoản phải thu hơn 220 tỷ VND",
+      "status": "Cần ưu tiên xử lý cấp bách",
+      "profit_contribution": "Quyết định sống còn đối với sức khỏe tài chính: Cần chuyển hóa các khoản phải thu thương mại và hợp tác kinh doanh thành tiền mặt thực.",
+      "legal_audit": "Cần rà soát tính pháp lý và tài sản đảm bảo của các khoản công nợ đối tác lớn.",
+      "status_badge": "TRỌNG TÂM CẢI TỔ 🟡",
+      "badge_color": "#f59e0b"
+    }
+  ]
+}

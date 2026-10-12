@@ -1,0 +1,74 @@
+{
+  "company_name": "Công ty Cổ phần Vinhomes",
+  "business_model_summary": "Nhà phát triển bất động sản nhà ở và đại đô thị tích hợp số 1 Việt Nam, sở hữu quỹ đất sạch hơn 18,000 ha. Mô hình kinh doanh tích hợp: Phát triển đại đô thị All-in-one bán lẻ cho cư dân, bán buôn lô lớn cho các đối tác quốc tế (Bán buôn Bulk Sales), quản lý vận hành khu đô thị và phát triển BĐS KCN thế hệ mới.",
+  "segments": [
+    {
+      "name": "Bán lẻ Bất động sản Nhà ở (Biệt thự, Liền kề, Căn hộ cao cấp)",
+      "service_description": "Trực tiếp phát triển, xây dựng và phân phối bán lẻ các sản phẩm nhà ở thấp tầng (biệt thự, shophouse) và chung cư thương mại trong các đại đô thị All-in-one.",
+      "rev_share_pct": 68.0,
+      "gross_profit_share_pct": 72.0,
+      "gross_margin_pct": 42.0,
+      "role": "Con bò sữa doanh thu & Lợi nhuận cốt lõi (Core Revenue & Cash Cow)",
+      "strategic_role": "CASH_COW",
+      "status": "Hấp thụ tốt tại các đại dự án mới",
+      "highlights": "Thương hiệu bất động sản số 1 Việt Nam với tốc độ thi công và bàn giao thần tốc; biên lợi nhuận gộp duy trì vượt trội 40-45% nhờ giá vốn quỹ đất rẻ tích lũy từ nhiều năm trước.",
+      "risks": "Tâm lý thị trường bất động sản chung và lãi suất cho vay mua nhà của các ngân hàng thương mại."
+    },
+    {
+      "name": "Giao dịch Bán buôn Dự án Lô lớn (Bulk Sales)",
+      "service_description": "Chuyển nhượng phân khu hoặc bán buôn các lô đất thành phần trong đại dự án cho các nhà phát triển bất động sản quốc tế (CapitaLand, Mitsubishi, Nomura, Samty).",
+      "rev_share_pct": 22.0,
+      "gross_profit_share_pct": 20.0,
+      "gross_margin_pct": 52.0,
+      "role": "Ngòi nổ thu tiền mặt quy mô tỷ USD một lần (Cash Infusion)",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Dòng tiền ngoại giải ngân đều đặn",
+      "highlights": "Tạo nguồn tiền mặt tức thì quy mô 10,000 - 20,000 tỷ đồng mỗi thương vụ, giúp giảm mạnh đòn bẩy nợ vay và chia sẻ rủi ro đầu tư hạ tầng.",
+      "risks": "Tiến độ đàm phán hợp đồng chuyển nhượng với đối tác nước ngoài."
+    },
+    {
+      "name": "Dịch vụ Quản lý Bất động sản, Cho thuê Văn phòng & KCN",
+      "service_description": "Cung cấp dịch vụ quản lý vận hành các khu đô thị cư dân, cho thuê tòa nhà văn phòng hạng A và khai thác các khu công nghiệp phụ trợ.",
+      "rev_share_pct": 10.0,
+      "gross_profit_share_pct": 8.0,
+      "gross_margin_pct": 28.0,
+      "role": "Dòng tiền thu phí định kỳ bền vững (Recurring Revenue)",
+      "strategic_role": "SCALE_BASE",
+      "status": "Tăng trưởng đều theo quy mô bàn giao",
+      "highlights": "Quy mô hàng trăm nghìn căn hộ và biệt thự đã bàn giao mang lại nguồn thu phí quản lý dịch vụ ổn định hàng tháng.",
+      "risks": "Chi phí vận hành và bảo trì tiện ích công cộng khu đô thị."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Đại Dự án Vinhomes Global Gate (Vinhomes Cổ Loa)",
+      "location": "Đông Anh, Hà Nội",
+      "scale": "Quy mô 385 ha • Tổng vốn đầu tư trên 35,000 tỷ VNĐ • Trung tâm Hội chợ Triển lãm Quốc gia",
+      "status": "Đã chính thức mở bán phân khu thấp tầng vào Quý 3/2024; tốc độ bán hàng kỷ lục với tỷ lệ đặt cọc gần 100% nhờ vị trí chiến lược đón đầu cầu Tứ Liên và lên quận Đông Anh.",
+      "profit_contribution": "SIÊU DỰ ÁN TẠO TIỀN 2024-2026: Ước tính mang lại 80,000 - 100,000 tỷ đồng doanh thu và thặng dư lợi nhuận ròng đột biến trong giai đoạn 2025-2026.",
+      "legal_audit": "Pháp lý sạch 100%, đã được UBND TP. Hà Nội phê duyệt quy hoạch chi tiết 1/500 và cấp giấy phép xây dựng đầy đủ.",
+      "status_badge": "ĐANG BÁN HÀNG BÙNG NỔ 🟢",
+      "badge_color": "#10b981"
+    },
+    {
+      "name": "Đại Dự án Vinhomes Royal Island (Vũ Yên)",
+      "location": "Đảo Vũ Yên, Thủy Nguyên, Hải Phòng",
+      "scale": "Quy mô 877 ha • Tổng mức đầu tư ~44,000 tỷ VNĐ • Đô thị Đảo sinh thái Hoàng gia",
+      "status": "Đang triển khai thi công thần tốc và bàn giao các phân khu đầu tiên; tích hợp học viện cưỡi ngựa, sân golf 36 lỗ và bến du thuyền cao cấp.",
+      "profit_contribution": "Đóng góp dòng tiền doanh thu bán hàng liên tục từ năm 2024 đến năm 2027 với biên lợi nhuận gộp dự kiến trên 45%.",
+      "legal_audit": "Đã hoàn thành thủ tục giao đất và chấp thuận chủ trương đầu tư điều chỉnh mở rộng.",
+      "status_badge": "ĐANG THI CÔNG & BÀN GIAO 🟢",
+      "badge_color": "#38bdf8"
+    },
+    {
+      "name": "Đại Dự án Vinhomes Wonder Park (Đan Phượng)",
+      "location": "Huyện Đan Phượng, Hà Nội",
+      "scale": "Quy mô 133 ha • Dự án gối đầu chiến lược phía Tây Hà Nội",
+      "status": "Đã hoàn tất cơ bản công tác đền bù giải phóng mặt bằng, sẵn sàng triển khai thi công hạ tầng khi thị trường bước vào pha mở rộng mới.",
+      "profit_contribution": "Dự án gối đầu trọng điểm kế tiếp cho chu kỳ tăng trưởng sau năm 2025.",
+      "legal_audit": "Đã có quy hoạch 1/500, đang hoàn tất các bước định giá tiền sử dụng đất.",
+      "status_badge": "DỰ ÁN GỐI ĐẦU 🟡",
+      "badge_color": "#fbbf24"
+    }
+  ]
+}

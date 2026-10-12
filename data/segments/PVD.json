@@ -1,0 +1,74 @@
+{
+  "company_name": "Tổng Công ty Cổ phần Khoan và Dịch vụ Khoan Dầu khí (PV Drilling)",
+  "business_model_summary": "Doanh nghiệp nắm giữ vị thế độc tôn tại Việt Nam và là nhà thầu khoan biển hàng đầu Đông Nam Á: (1) Sở hữu và vận hành đội 6 giàn khoan biển hiện đại (4 giàn tự nâng Jack-up PVD I, II, III, VI; 1 giàn tiếp trợ nửa nổi nửa chìm TAD PVD V; 1 giàn khoan đất liền PVD 11) hoạt động với hiệu suất 100% tại Indonesia, Malaysia, Brunei và Việt Nam; (2) Cung ứng dịch vụ kỹ thuật giếng khoan chuyên sâu (kéo thả ống sát, thử vỉa, đo Karota khí, sửa giếng) biên lãi gộp cao; (3) Hưởng lợi kép từ chu kỳ giá thuê giàn khoan toàn cầu neo cao (>110.000 - 130.000 USD/ngày) và chuỗi đại dự án khí điện Lô B - Ô Môn trị giá gần 12 tỷ USD chuẩn bị bước vào chiến dịch khoan hàng trăm giếng.",
+  "segments": [
+    {
+      "name": "Dịch vụ Khoan Dầu khí Biển (Đội giàn khoan Jack-up & TAD)",
+      "service_description": "Cung cấp giàn khoan tự nâng (Jack-up) và giàn khoan nước sâu tiếp trợ (TAD) cùng đội ngũ nhân sự kỹ sư vận hành cho các chiến dịch khoan thăm dò, thẩm lượng và khai thác dầu khí ngoài khơi của các tập đoàn dầu khí quốc tế (Petronas, Brunei Shell Petroleum, Pertamina, Murphy Oil, Vietsovpetro).",
+      "target_customers": "Các nhà điều hành dầu khí trong và ngoài nước (Petronas, BSP, Eni, Repsol, Vietsovpetro, PVEP).",
+      "rev_share_pct": 65.0,
+      "gross_profit_share_pct": 75.0,
+      "gross_margin_pct": 34.0,
+      "role": "Ngòi nổ Tăng trưởng Đột phá & Cỗ máy In Tiền Mặt Chu kỳ",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Hiệu suất hoạt động 100%, kín lịch hợp đồng đến 2026-2028",
+      "highlights": "Giá thuê ngày bình quân của đội giàn Jack-up đã vượt 110.000 - 125.000 USD/ngày (tăng hơn 40% so với chu kỳ trước). Giàn TAD PVD V đang thực hiện hợp đồng dài hạn 6+4 năm cho Brunei Shell Petroleum với giá thuê cao kỷ lục. Toàn bộ 4 giàn tự nâng đều đã ký hợp đồng dài hạn tại thị trường quốc tế.",
+      "risks": "Rủi ro biến động giá dầu thế giới ảnh hưởng đến quyết định ngân sách khoan dài hạn của các hãng dầu khí."
+    },
+    {
+      "name": "Dịch vụ Kỹ thuật Giếng khoan & Dịch vụ Liên quan đến Khoan",
+      "service_description": "Cung ứng các dịch vụ kỹ thuật cao đi kèm giếng khoan: Kéo thả ống sát, đo Karota khí, dịch vụ thử vỉa, hoàn thiện giếng, bảo dưỡng thiết bị đầu giếng và đào tạo nhân lực khoan.",
+      "target_customers": "Các giếng khoan dầu khí hoạt động tại thềm lục địa Việt Nam và khu vực.",
+      "rev_share_pct": 28.0,
+      "gross_profit_share_pct": 20.0,
+      "gross_margin_pct": 22.0,
+      "role": "Con bò sữa dòng tiền phụ trợ đều đặn",
+      "strategic_role": "CASH_COW",
+      "status": "Tăng trưởng theo số lượng giếng khoan",
+      "highlights": "Doanh thu tăng trưởng tỷ lệ thuận với số lượng giếng khoan ngoài khơi. Khi đại dự án Lô B - Ô Môn và Lạc Đà Vàng bước vào giai đoạn khoan phát triển mỏ, nhu cầu dịch vụ kỹ thuật giếng khoan sẽ bùng nổ mạnh mẽ.",
+      "risks": "Cạnh tranh từ các nhà thầu dịch vụ giếng khoan quốc tế như SLB (Schlumberger), Baker Hughes, Halliburton."
+    },
+    {
+      "name": "Thương mại, Chế tạo Cơ khí & Cho thuê Thiết bị Khoan",
+      "service_description": "Cung ứng vật tư thiết bị dầu khí, ống chống, cần khoan, dịch vụ bến bãi cảng kỹ thuật và chế tạo kết cấu cơ khí chính xác chuyên dụng.",
+      "target_customers": "Các nhà thầu xây lắp công trình dầu khí biển.",
+      "rev_share_pct": 7.0,
+      "gross_profit_share_pct": 5.0,
+      "gross_margin_pct": 18.0,
+      "role": "Hỗ trợ chuỗi giá trị tích hợp",
+      "strategic_role": "SCALE_BASE",
+      "status": "Ổn định",
+      "highlights": "Tối ưu hóa chi phí vận hành cho chính đội giàn khoan của công ty.",
+      "risks": "Biến động giá nguyên liệu thép chuyên dụng và chi phí logistics."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Chiến dịch Khoan Phát triển Mỏ Đại Dự án Khí Điện Lô B - Ô Môn",
+      "location": "Bồn trũng Malay - Thổ Chu, Vùng biển Tây Nam Việt Nam",
+      "scale": "Gần 1.000 giếng khoan khai thác trong vòng đời dự án (Quy mô ~12 tỷ USD)",
+      "status": "Các gói thầu EPCI đã trao thầu; Chiến dịch khoan dự kiến bắt đầu từ 2025-2026",
+      "profit_contribution": "Là nguồn công việc khổng lồ đảm bảo việc làm và doanh thu cho PV Drilling trong suốt giai đoạn 2025-2035, mang lại hàng nghìn tỷ đồng lợi nhuận.",
+      "bottlenecks_and_risks": "Tiến độ phê duyệt quyết định đầu tư cuối cùng (FID) từ phía đối tác Nhật Bản MOECO và PTTEP Thái Lan.",
+      "flag": "TÍCH CỰC"
+    },
+    {
+      "name": "Hợp đồng Dài hạn Giàn TAD PVD V tại Brunei Shell Petroleum (BSP)",
+      "location": "Vùng biển Brunei Darussalam",
+      "scale": "Hợp đồng 6 năm chính thức + 4 năm tùy chọn gia hạn",
+      "status": "Đang vận hành liên tục với hiệu suất an toàn tuyệt đối 100%",
+      "profit_contribution": "Đóng góp khoảng 15 - 18 triệu USD EBITDA hàng năm cho PV Drilling với biên lợi nhuận cao và dòng tiền bằng đồng USD ổn định.",
+      "bottlenecks_and_risks": "Vận hành hoàn hảo, không có vướng mắc kỹ thuật. Khách hàng BSP đánh giá rất cao chất lượng an toàn.",
+      "flag": "TÍCH CỰC"
+    },
+    {
+      "name": "Kế hoạch Đầu tư / Thuê mua Thêm Giàn Khoan Tự nâng Mới (Jack-up Rig)",
+      "location": "Thị trường Đông Nam Á",
+      "scale": "Dự kiến đầu tư hoặc thuê trần thêm 1-2 giàn khoan tự nâng thế hệ mới",
+      "status": "Đang nghiên cứu tiền khả thi và tìm kiếm giàn phù hợp",
+      "profit_contribution": "Bổ sung công suất phục vụ đồng thời cả thị trường quốc tế lẫn chiến dịch khoan nội địa trong bối cảnh các giàn hiện hữu đã kín hợp đồng.",
+      "bottlenecks_and_risks": "Giá mua giàn khoan trên thị trường thứ cấp đang tăng cao theo chu kỳ; cần cân đối đòn bẩy tài chính hợp lý.",
+      "flag": "TIẾN ĐỘ BÌNH THƯỜNG"
+    }
+  ]
+}

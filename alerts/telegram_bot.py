@@ -100,8 +100,10 @@ def send_telegram_alert(
     company_name: str = "",
     fa_result: Optional[Dict[str, Any]] = None,
     html_report_path: Optional[str | Path] = None,
-    chat_id: Optional[str | int] = None
+    chat_id: Optional[str | int] = None,
+    timing_data: Optional[Dict[str, Any]] = None
 ) -> bool:
+
     """
     Gửi cảnh báo tín hiệu giao dịch phân tách bạch 2 TRƯỜNG PHÁI:
     1. VÙNG MUA ĐẦU TƯ GIÁ TRỊ (Tích sản / Biên an toàn - Warren Buffett & Graham)
@@ -184,8 +186,22 @@ def send_telegram_alert(
     if swing_note:
         message += f"• 💡 *Lưu ý lướt sóng:* _{swing_note}_\n"
 
+    # Thông tin Động cơ Thời điểm Tăng / Sập
+    if timing_data:
+        surge = timing_data.get("surge_scenario", {})
+        crash = timing_data.get("crash_scenario", {})
+        message += (
+            f"━━━━━━━━━━━━━━━━━━\n"
+            f"⚡ *3. ĐỘNG CƠ THỜI ĐIỂM (TIMING PREDICTION):*\n"
+            f"• *Phán quyết:* *{timing_data.get('timing_verdict', 'THEO DÕI')}*\n"
+            f"• 🚀 *Khi nào tăng:* Xác suất `{surge.get('probability_pct', 50)}%` | Khung thời gian: `{surge.get('timing_window', 'N/A')}`\n"
+            f"  _(Xác nhận khi vượt mốc {surge.get('trigger_pivot_price', 0):,.0f} đ kèm Vol > 1.3x MA20)_\n"
+            f"• ⚠️ *Khi nào sập:* Rủi ro `{crash.get('risk_probability_pct', 20)}%` | Mức vi phạm: `{crash.get('failure_trigger_level', 0):,.0f} đ`\n"
+        )
+
     # Link báo cáo HTML
     if html_report_path:
+
         html_p = Path(html_report_path)
         message += (
             f"━━━━━━━━━━━━━━━━━━\n"

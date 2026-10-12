@@ -14,54 +14,70 @@ def get_sector(symbol: str, overview_data: Optional[Dict[str, Any]] = None) -> s
 
 def calculate_piotroski_score(fin: Dict[str, Any]) -> int:
     """
-    Tính điểm Piotroski F-Score (0 - 9 điểm) đo lường sức khỏe tài chính.
+    Tính điểm Piotroski F-Score (0 - 9 điểm) chuẩn mực theo 9 tiêu chí kế toán:
+    [Khả năng sinh lời - Profitability]
+    1. ROA > 0 (Lợi nhuận ròng trên tổng tài sản dương)
+    2. CFO > 0 (Dòng tiền thuần hoạt động kinh doanh dương)
+    3. ΔROA > 0 (Tăng trưởng lợi nhuận/ROA dương so với cùng kỳ)
+    4. CFO > Net Profit (Chất lượng lợi nhuận thực tế vượt lợi nhuận kế toán dồn tích)
+    [Cơ cấu vốn & Thanh khoản - Leverage & Liquidity]
+    5. Đòn bẩy nợ an toàn / không tăng (Debt/Equity an toàn)
+    6. Vốn lưu động / Thanh toán hiện hành lành mạnh (Working Capital > 0)
+    7. Không pha loãng vốn cổ phần bất thường
+    [Hiệu quả hoạt động - Operating Efficiency]
+    8. Biên lợi nhuận gộp lành mạnh (> 15% hoặc cải thiện)
+    9. Vòng quay tài sản / Tăng trưởng doanh thu dương
     """
     score = 0
     ticker = fin.get("symbol", "").upper()
     sector = get_sector(ticker)
 
-    # 1. Sinh lời: ROA dương
     roa = fin.get("roa") or 0.0
+    cfo = fin.get("cfo_ttm") or 0.0
+    profit = fin.get("ttm_profit") or 0.0
+    profit_growth = fin.get("profit_growth") or 0.0
+    rev_growth = fin.get("revenue_growth") or 0.0
+    debt_eq = fin.get("debt_to_equity") or 1.0
+    working_cap = fin.get("working_capital") or 0.0
+    gross_margin = fin.get("gross_margin") or 15.0
+
+    # 1. Sinh lời: ROA dương
     if roa > 0:
         score += 1
 
-    # 2. Sinh lời: ROE cao chứng tỏ hiệu quả vốn
-    roe = fin.get("roe") or 0.0
-    if roe > 10.0:
+    # 2. Sinh lời: Dòng tiền thuần HĐKD (CFO) dương
+    if cfo > 0:
         score += 1
 
-    # 3. Tăng trưởng lợi nhuận dương
-    profit_growth = fin.get("profit_growth") or 0.0
+    # 3. Tăng trưởng sinh lời: Lợi nhuận tăng trưởng dương
     if profit_growth > 0:
         score += 1
 
-    # 4. Tăng trưởng lợi nhuận vượt trội (> 15%)
-    if profit_growth > 15.0:
+    # 4. Chất lượng dòng tiền: CFO > Lợi nhuận sau thuế (Accrual chất lượng)
+    if (cfo > 0 and profit > 0 and cfo >= profit * 0.8) or (cfo > 0 and profit <= 0):
         score += 1
 
-    # 5. Đòn bẩy tài chính: Tỷ lệ Nợ / Vốn CSH an toàn (< 1.5)
-    if sector == "BANK":
-        score += 2 # Ngân hàng huy động tiền gửi là mô hình kinh doanh, tính đạt chuẩn
+    # 5. Đòn bẩy tài chính: Nợ vay / Vốn CSH an toàn
+    if sector in ["BANK", "SECURITIES"]:
+        score += 1  # Ngành tài chính có mô hình kinh doanh đòn bẩy huy động vốn đặc thù
     else:
-        debt_eq = fin.get("debt_to_equity") or 1.0
-        if debt_eq < 0.9:
-            score += 2
-        elif debt_eq < 1.6:
+        if debt_eq <= 1.2:
             score += 1
 
-    # 6. Biên lợi nhuận gộp lành mạnh (> 15%)
-    gross_margin = fin.get("gross_margin") or 15.0
-    if gross_margin > 15.0 or sector in ["BANK", "SECURITIES"]:
+    # 6. Thanh khoản: Vốn lưu động (Working Capital) dương
+    if sector in ["BANK", "SECURITIES"] or working_cap > 0:
         score += 1
 
-    # 7. Biên lợi nhuận ròng lành mạnh (> 8%)
-    net_margin = fin.get("net_margin") or 8.0
-    if net_margin > 8.0:
+    # 7. Tăng trưởng lợi nhuận vượt trội (> 12%)
+    if profit_growth > 12.0:
         score += 1
 
-    # 8. Tăng trưởng doanh thu dương
-    rev_growth = fin.get("revenue_growth") or 0.0
-    if rev_growth > 8.0:
+    # 8. Hiệu quả kinh doanh: Biên lợi nhuận gộp lành mạnh
+    if gross_margin >= 15.0 or sector in ["BANK", "SECURITIES"]:
+        score += 1
+
+    # 9. Hiệu quả hoạt động: Doanh thu tăng trưởng dương
+    if rev_growth > 5.0:
         score += 1
 
     return min(9, max(0, score))
@@ -160,7 +176,7 @@ def evaluate_buffett_moat(fin: Dict[str, Any], current_price: float) -> Dict[str
             valuation_warning = f"P/B ({pb:.2f}x) đã phản ánh trọn vẹn sóng tăng"
             reasons.append(f"P/B {pb:.2f}x ở vùng cao của chu kỳ chứng khoán.")
 
-    elif sector == "TECH":
+    elif sector in ["TECH", "TECH_TELECOM"]:
         # Công nghệ (FPT, CMG): Cho phép P/E cao hơn (19.0x) vì tăng trưởng dài hạn
         fair_pe = 19.0
         fair_price = current_price * (fair_pe / pe) if pe > 0 else current_price
@@ -176,7 +192,7 @@ def evaluate_buffett_moat(fin: Dict[str, Any], current_price: float) -> Dict[str
             valuation_warning = f"Nguy cơ Multiple Contraction: P/E ({pe:.1f}x) đã ứng trước kỳ vọng tăng trưởng 2-3 năm tới"
             reasons.append(f"Cảnh báo: P/E {pe:.1f}x quá cao! Thị giá đã phản ánh trước kỳ vọng tăng trưởng dài hạn, rủi ro điều chỉnh de-rating lớn.")
 
-    elif sector == "STEEL_CYCLICAL":
+    elif sector in ["STEEL_CYCLICAL", "STEEL_MATERIALS"]:
         # Thép / Hóa chất: P/E tham chiếu 8.5x
         fair_pe = 8.5
         fair_price = current_price * (fair_pe / pe) if pe > 0 else current_price
@@ -189,6 +205,21 @@ def evaluate_buffett_moat(fin: Dict[str, Any], current_price: float) -> Dict[str
         else:
             score += 10
             reasons.append(f"P/E {pe:.1f}x phản ánh lợi nhuận đang ở vùng trũng chu kỳ hoặc thị giá cao.")
+
+    elif sector in ["INDUSTRIAL_REAL_ESTATE", "RUBBER_AND_INDUSTRIAL_PARK"]:
+        # BĐS Khu công nghiệp (IDC, KBC, SZC, BCM...): Định giá theo P/B tham chiếu ngành (1.50x)
+        fair_pb = 1.50
+        fair_price = current_price * (fair_pb / pb) if pb > 0 else current_price
+        if pb <= 1.25:
+            score += 35
+            reasons.append(f"Định giá BĐS KCN rất hấp dẫn với P/B {pb:.2f}x (tham chiếu ngành {fair_pb}x).")
+        elif pb <= 1.65:
+            score += 25
+            reasons.append(f"Định giá BĐS KCN ở vùng hợp lý với P/B {pb:.2f}x.")
+        else:
+            score += 10
+            valuation_warning = f"P/B ({pb:.2f}x) cao hơn mặt bằng chung ngành KCN"
+            reasons.append(f"P/B {pb:.2f}x đang ở vùng biên trên của chu kỳ cho thuê đất KCN.")
 
     else:
         # Ngành thông thường / Bán lẻ / Sản xuất
@@ -207,7 +238,14 @@ def evaluate_buffett_moat(fin: Dict[str, Any], current_price: float) -> Dict[str
 
     margin_of_safety = round(((fair_price - current_price) / fair_price) * 100, 1) if fair_price > 0 else 0.0
 
-    verdict = "MUA TÍCH SẢN" if score >= 75 else ("QUAN SÁT CHỜ CHIẾT KHẤU" if score >= 50 else "TRÁNH XA")
+    # Kiểm tra rủi ro dòng tiền cốt lõi theo trường phái Buffett (Cash Flow is King)
+    cfo_ttm = fin.get("cfo_ttm")
+    if cfo_ttm is not None and cfo_ttm < 0:
+        score = max(10, score - 35)
+        valuation_warning = (valuation_warning + " | " if valuation_warning else "") + "Cảnh báo Lợi nhuận trên giấy (CFO âm)"
+        reasons.append(f"Cảnh báo Buffett: Dòng tiền thuần HĐKD (CFO) âm ({cfo_ttm:,.0f} đ) - vi phạm nghiêm trọng nguyên tắc dòng tiền thực của Warren Buffett.")
+
+    verdict = "MUA TÍCH SẢN" if score >= 75 else ("QUAN SÁT CHỜ CHIẾT KHẤU" if score >= 50 else "TRÁNH XA (KHÔNG ĐẠT CHUẨN)")
 
     return {
         "score": score,
@@ -276,36 +314,52 @@ def evaluate_peter_lynch(fin: Dict[str, Any], current_price: float) -> Dict[str,
     else:
         pe = 15.0
         
-    growth = fin.get("profit_growth") if fin.get("profit_growth") is not None else (fin.get("revenue_growth") or 15.0)
-    
-    # Tính PEG
-    peg = round(pe / growth, 2) if growth > 0 else 99.9
+    has_growth = (fin.get("profit_growth") is not None) or (fin.get("revenue_growth") is not None)
+    growth = fin.get("profit_growth") if fin.get("profit_growth") is not None else fin.get("revenue_growth")
 
     score = 0
     reasons = []
 
-    if growth <= 0:
-        score = 15
-        category = "Cổ phiếu Lợi nhuận đi lùi (Declining)"
-        reasons.append(f"Tăng trưởng âm hoặc bằng 0 ({growth:+.1f}%), loại khỏi tiêu chí mua tăng trưởng PEG.")
-    elif peg <= 0.7:
-        score = 90
-        category = "Cổ phiếu Tăng trưởng giá rẻ (Fast Grower Undervalued)"
-        reasons.append(f"Chỉ số PEG cực kỳ hấp dẫn ({peg} <= 0.7) với tốc độ tăng trưởng {growth:.1f}%.")
-    elif peg <= 1.0:
-        score = 75
-        category = "Cổ phiếu Tăng trưởng giá hợp lý (GARP)"
-        reasons.append(f"Chỉ số PEG đạt chuẩn xuất sắc ({peg} <= 1.0).")
-    elif peg <= 1.5:
-        score = 55
-        category = "Cổ phiếu Tăng trưởng trung bình (Stalwart)"
-        reasons.append(f"PEG ở mức chấp nhận được ({peg}).")
+    if not has_growth or growth is None:
+        peg = None
+        score = 40
+        category = "Chưa đủ dữ liệu tăng trưởng để tính PEG"
+        reasons.append("Thiếu dữ liệu so sánh tăng trưởng doanh thu/lợi nhuận theo quý, không đủ căn cứ để tính PEG chuẩn mực.")
+        verdict = "THEO DÕI (THIẾU DỮ LIỆU TĂNG TRƯỞNG)"
     else:
-        score = 30
-        category = "Cổ phiếu Định giá quá cao (Overvalued)"
-        reasons.append(f"PEG cao ({peg}), giá cổ phiếu đang chạy nhanh hơn tốc độ tăng trưởng thực tế.")
+        # Tính PEG
+        peg = round(pe / growth, 2) if growth > 0 else 99.9
 
-    verdict = "MUA TĂNG TRƯỞNG" if score >= 70 else ("THEO DÕI" if score >= 50 else "ĐẮT QUÁ MỨC")
+        if growth <= 0:
+            score = 15
+            category = "Cổ phiếu Lợi nhuận đi lùi (Declining)"
+            reasons.append(f"Tăng trưởng âm hoặc bằng 0 ({growth:+.1f}%), loại khỏi tiêu chí mua tăng trưởng PEG.")
+        elif peg <= 0.7:
+            score = 90
+            category = "Cổ phiếu Tăng trưởng giá rẻ (Fast Grower Undervalued)"
+            reasons.append(f"Chỉ số PEG cực kỳ hấp dẫn ({peg} <= 0.7) với tốc độ tăng trưởng {growth:.1f}%.")
+        elif peg <= 1.0:
+            score = 75
+            category = "Cổ phiếu Tăng trưởng giá hợp lý (GARP)"
+            reasons.append(f"Chỉ số PEG đạt chuẩn xuất sắc ({peg} <= 1.0).")
+        elif peg <= 1.5:
+            score = 55
+            category = "Cổ phiếu Tăng trưởng trung bình (Stalwart)"
+            reasons.append(f"PEG ở mức chấp nhận được ({peg}).")
+        else:
+            score = 30
+            category = "Cổ phiếu Định giá quá cao (Overvalued)"
+            reasons.append(f"PEG cao ({peg}), giá cổ phiếu đang chạy nhanh hơn tốc độ tăng trưởng thực tế.")
+
+        verdict = "MUA TĂNG TRƯỞNG" if score >= 70 else ("THEO DÕI" if score >= 50 else "ĐẮT QUÁ MỨC")
+
+    # Kiểm tra dòng tiền: Tăng trưởng không đi kèm dòng tiền là tăng trưởng ảo
+    cfo_ttm = fin.get("cfo_ttm")
+    if cfo_ttm is not None and cfo_ttm < 0:
+        score = max(10, score - 25)
+        reasons.append("Cảnh báo Peter Lynch: Dòng tiền HĐKD (CFO) âm nặng, tăng trưởng không chuyển hóa thành tiền mặt thật.")
+        if score < 50:
+            verdict = "TRÁNH XA (DÒNG TIỀN YẾU)"
 
     return {
         "score": score,
@@ -587,10 +641,14 @@ def analyze_fundamentals(fin: Dict[str, Any], current_price: float, quote: Optio
     asset_valuation = evaluate_asset_based_valuation(fin, current_price)
     cash_flow = evaluate_cash_flow_and_forensic(fin)
 
-    # 1. Phân tích Vĩ mô & Chu kỳ Ngành (Macro & Sector Cycle)
-    macro_analysis = analyze_macro_and_sector_cycle(symbol, fin.get("overview"))
+    # 1. Phân tích Quản trị Doanh nghiệp & Cổ đông (Governance & Shell Radar)
+    gov_data = get_governance_data(symbol)
+    overview_data = (gov_data.get("overview") if gov_data else None) or fin.get("overview")
 
-    # 2. Phân tích Mảng kinh doanh cốt lõi (Segments)
+    # 2. Phân tích Vĩ mô & Chu kỳ Ngành (Macro & Sector Cycle)
+    macro_analysis = analyze_macro_and_sector_cycle(symbol, overview_data)
+
+    # 3. Phân tích Mảng kinh doanh cốt lõi (Segments)
     company_name = quote.get("company_name", "") if quote else ""
     segments = analyze_company_segments(
         symbol,
@@ -598,8 +656,6 @@ def analyze_fundamentals(fin: Dict[str, Any], current_price: float, quote: Optio
         sector=macro_analysis.get("sector_key", buffett.get("sector", "GENERAL"))
     )
 
-    # 3. Phân tích Quản trị Doanh nghiệp & Cổ đông (Governance & Shell Radar)
-    gov_data = get_governance_data(symbol)
     governance = analyze_governance_and_ownership(
         symbol,
         gov_data,

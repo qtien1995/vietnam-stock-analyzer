@@ -1,6 +1,6 @@
 # 📐 TÀI LIỆU THIẾT KẾ KIẾN TRÚC & MÔ HÌNH ĐỊNH LƯỢNG (ARCHITECTURE & FORMULAS)
 
-> Tài liệu kỹ thuật chi tiết dành cho các chuyên gia dữ liệu, lập trình viên và các mô hình AI tiếp quản dự án.
+> Tài liệu kỹ thuật chuyên sâu dành cho các chuyên gia dữ liệu, lập trình viên và các mô hình AI tiếp quản dự án.
 
 ---
 
@@ -58,7 +58,7 @@ Chỉ số này do Giáo sư Joseph Piotroski phát triển nhằm chấm điể
   Hệ thống **chỉ phê duyệt tín hiệu MUA** khi $R:R \ge 2.0:1$.
 
 ### F. Định giá theo Khối tài sản ròng & Radar Cảnh báo Thao túng giá ảo (Asset-Based Valuation & Manipulation Radar)
-Mô hình này giải quyết triệt để bài toán: **Thị giá cổ phiếu có tương xứng với tài sản thực tế không, hay đang bị đội lái thổi phồng giá ảo?**
+Mô hình này giải quyết bài toán: **Thị giá cổ phiếu có tương xứng với tài sản thực tế không, hay đang bị đội lái thổi phồng giá ảo?**
 
 * **Giá trị Sổ sách mỗi cổ phiếu (Book Value Per Share - BVPS):**
   $$BVPS = \frac{\text{Vốn chủ sở hữu}}{\text{Số lượng CP lưu hành}}$$
@@ -67,50 +67,72 @@ Mô hình này giải quyết triệt để bài toán: **Thị giá cổ phiế
 * **Mức Chiết khấu / Thặng dư Tài sản ròng:**
   $$\Delta_{Asset}\% = \frac{BVPS - CurrentPrice}{BVPS} \times 100\%$$
 * **Thang đo 5 Cấp độ Rủi ro Thao túng & Thổi giá ảo (Manipulation Risk Levels):**
-  1. **Cấp 1 - Món hời tài sản (Asset Bargain):** $P/B < 1.0x$. Thị giá thấp hơn cả vốn chủ sở hữu ròng. Rủi ro thổi giá: **RẤT THẤP** (Tài sản thực là tấm đệm bảo toàn vốn).
-  2. **Cấp 2 - Định giá hợp lý (Fair Value):** $P/B \in [1.0x, 2.2x]$ đi kèm $ROE \ge 10\%$. Thị giá phản ánh đúng quy mô tài sản và năng lực sinh lời.
+  1. **Cấp 1 - Món hời tài sản (Asset Bargain):** $P/B < 1.0x$. Thị giá thấp hơn cả vốn chủ sở hữu ròng. Rủi ro thổi giá: **RẤT THẤP**.
+  2. **Cấp 2 - Định giá hợp lý (Fair Value):** $P/B \in [1.0x, 2.2x]$ đi kèm $ROE \ge 10\%$.
   3. **Cấp 3 - Định giá cao (Valuation Premium):** $P/B \in [2.2x, 3.8x]$. Đòi hỏi tăng trưởng EPS cao và Moat bền vững.
-  4. **Cấp 4 - Cảnh báo Bong bóng đầu cơ (Speculative Bubble):** $P/B > 3.8x$ nhưng $ROE < 10\%$ hoặc lợi nhuận lẹt đẹt. Thị trường đang mua kỳ vọng ảo, nguy cơ điều chỉnh mạnh.
-  5. **Cấp 5 - BÁO ĐỘNG ĐỎ: Thao túng / Bơm thổi giá ảo (High Manipulation):** $P/B > 5.0x - 10.0x$ trong khi ROE $< 5\%$ hoặc lỗ triền miên. Dấu hiệu điển hình của việc thao túng giá, đội lái đẩy thị giá thoát ly hoàn toàn giá trị thực của tài sản.
-* **Kiểm định Chất lượng Tài sản (Asset Quality Check):**
-  * Tỷ lệ tài sản đọng vốn: $\frac{\text{Phải thu} + \text{Tồn kho}}{\text{Tổng tài sản}} > 65\% \rightarrow$ Cảnh báo tài sản trên giấy tờ, rủi ro nợ xấu hoặc chôn vốn lớn.
-  * Bộ đệm tiền mặt: $\frac{\text{Tiền mặt \& Tiền gửi}}{\text{Tổng tài sản}} \ge 10\% \rightarrow$ Khả năng phòng thủ thanh khoản tốt.
+  4. **Cấp 4 - Cảnh báo Bong bóng đầu cơ (Speculative Bubble):** $P/B > 3.8x$ nhưng $ROE < 10\%$ hoặc lợi nhuận lẹt đẹt.
+  5. **Cấp 5 - BÁO ĐỘNG ĐỎ: Thao túng / Bơm thổi giá ảo (High Manipulation):** $P/B > 5.0x - 10.0x$ trong khi ROE $< 5\%$ hoặc lỗ triền miên.
 
-### G. Bóc tách Mô hình Kinh doanh Cốt lõi & Phân tích Phân khúc (Core Business Segment Breakdown)
-Phân tích sâu cơ cấu đóng góp của từng bộ phận hoạt động trong doanh nghiệp đa ngành:
-* **Tỷ trọng Doanh thu (% Revenue Share):** Mảng nào mang lại dòng tiền quy mô lớn nhất (Scale Base).
-* **Tỷ trọng Lợi nhuận gộp (% Gross Profit Share):** Mảng nào là động lực tạo ra tiền thật.
-* **Biên lợi nhuận gộp từng mảng (Gross Margin by Segment):**
-  * **Con bò sữa tạo tiền (Cash Cow):** Mảng có biên lãi gộp cao vượt trội (như Thủy điện biên lãi $>60\%$), tạo dòng tiền mặt liên tục quanh năm để tài trợ lãi vay và nuôi các dự án đầu tư dài hạn.
-  * **Trụ cột quy mô (Scale Base):** Mảng tạo doanh số lớn và dòng việc làm (như Xây lắp hạ tầng chiếm $>75\%$ DT).
-  * **Ngòi nổ tăng trưởng đột biến (Growth Catalyst):** Mảng tạo lợi nhuận bùng nổ theo chu kỳ bàn giao (như Bất động sản khu đô thị biên lãi $40-50\%$).
-  * **Động lực tương lai (Future Bet):** Dự án công nghiệp/vật liệu mới mở rộng chuỗi giá trị dài hạn.
+### G. Bóc tách Mô hình Kinh doanh Cốt lõi & Phân khúc (Core Business Segment Breakdown)
+* **Tỷ trọng Doanh thu (% Revenue Share):** Mảng tạo quy mô dòng tiền (Scale Base).
+* **Tỷ trọng Lợi nhuận gộp (% Gross Profit Share):** Mảng sinh lợi nhuận ròng thực tế.
+* **Phân loại đặc thù:**
+  * **Con bò sữa tạo tiền (Cash Cow):** Biên lãi gộp vượt trội ($>50\%$), tài trợ chi phí vốn.
+  * **Trụ cột quy mô (Scale Base):** Doanh số lớn, bảo đảm công ăn việc làm.
+  * **Ngòi nổ bùng nổ (Catalyst):** Bàn giao dự án hoặc chu kỳ hàng hóa tăng vọt.
 
-### H. Mô hình Đánh giá Quản trị Doanh nghiệp, Cơ cấu Cổ đông & Radar Phát hiện Tăng vốn ảo / Trái phiếu hệ sinh thái (Corporate Governance & Circular Capital Audit)
-Mô hình này sinh ra để bẻ gãy triệt để "bẫy giá trị" (Value Trap) điển hình trên TTCK Việt Nam (như trường hợp Bamboo Capital - BCG, FLC...), nơi doanh nghiệp dùng mạng lưới công ty con để tăng vốn ảo, phát hành trái phiếu nội khối và che giấu dòng tiền:
+### H. Quản trị Doanh nghiệp, Cơ cấu Cổ đông & Radar Phát hiện Tăng vốn ảo (Corporate Governance & Circular Capital)
+* **Điều kiện kích hoạt Báo động đỏ Cấp 5/5 (Circular Capital Fraud Risk):**
+  $$\text{Số cty con} \ge 6 \quad \text{và} \quad \frac{\text{Phải thu}}{\text{Tổng tài sản}} > 30\% \quad \text{và} \quad \frac{\text{Tổng nợ vay}}{\text{Tiền mặt}} > 4.5x$$
+* **Định vị Bẫy Giá trị (Value Trap):**
+  Khi $P/B < 1.0x$ nhưng tài sản đọng vốn $(\text{Phải thu} + \text{Tồn kho}) / \text{Tổng tài sản} > 38\%$ hoặc Nợ vay / Tiền mặt $> 4.5x$: **Hạ điểm an toàn vốn từ 90 xuống 20, xếp vào BẪY GIÁ TRỊ, không khuyến nghị mua.**
 
-* **Bóc tách Cơ cấu Cổ đông (Shareholder Structure):**
-  * Tỷ lệ trôi nổi (Free Float %): Phân loại cô đặc vs phân mảnh đầu cơ (>70%).
-  * Sở hữu Nhà nước (%) & Quỹ ngoại (%): Bộ đệm minh bạch và giám sát tổ chức.
-  * Nhận diện pháp nhân sân sau: Phát hiện lãnh đạo sở hữu phân tán qua các công ty TNHH cá nhân / công ty đầu tư vệ tinh để chuyển giá.
-* **Kiểm định Ban Lãnh đạo & Hội đồng Quản trị (Board & Leadership Integrity):**
-  * **Skin in the game:** Tỷ lệ nắm giữ của ban điều hành đương nhiệm. Nắm $<1\%$ vốn cảnh báo nguy cơ làm thuê vô trách nhiệm hoặc đã bán tháo tháo chạy.
-  * Cảnh báo biến cố pháp lý / nợ BCTC kiểm toán.
-* **Radar Tăng vốn ảo & Trái phiếu Hệ sinh thái (Circular Capital & Shell Network Radar):**
-  * Nhận diện mô hình Holding phức hợp: Số lượng công ty con $\ge 6$ và liên kết $\ge 2$.
-  * **Điều kiện kích hoạt Báo động đỏ Cấp 5/5 (Circular Capital Fraud Risk):**
-    $$\text{Số cty con} \ge 6 \quad \text{và} \quad \frac{\text{Phải thu}}{\text{Tổng tài sản}} > 30\% \quad \text{và} \quad \frac{\text{Tổng nợ vay}}{\text{Tiền mặt}} > 4.5x$$
-  * **Cơ chế bóc tách:**
-    1. Công ty con/liên kết phát hành trái phiếu hoặc vay ngân hàng bằng tài sản dự án dở dang/cổ phần chưa niêm yết làm tài sản bảo đảm.
-    2. Vốn huy động được phân tán qua các hợp đồng "Hợp tác đầu tư / Ủy thác tài chính / Đặt cọc", tích tụ thành các khoản Phải thu khổng lồ.
-    3. Tự ghi nhận doanh thu tài chính nội khối để bù đắp chi phí lãi vay, dòng tiền CFO thực tế âm nặng.
-* **Cải tiến Định vị Bẫy Giá trị (Value Trap Fix):**
-  * Khi $P/B < 1.0x$ nhưng tài sản đọng vốn $(\text{Phải thu} + \text{Tồn kho}) / \text{Tổng tài sản} > 38\%$ hoặc Nợ vay / Tiền mặt $> 4.5x$: **Hệ thống KHÔNG xếp vào Món hời tài sản mà lập tức cảnh báo BẪY GIÁ TRỊ (Value Trap)**, phạt điểm an toàn vốn từ 90 điểm xuống 20 điểm.
-* **Thang điểm Quản trị Doanh nghiệp (G-Score: 0 - 100):**
-  * $G \ge 80$: Quản trị Minh bạch & An toàn (Exemplary).
-  * $60 \le G < 80$: Quản trị Đạt chuẩn (Adequate).
-  * $40 \le G < 60$: Rủi ro Quản trị Đáng ngờ (Questionable).
-  * $G < 40$: BÁO ĐỘNG ĐỎ: RỦI RO QUẢN TRỊ NGHIÊM TRỌNG (HIGH GOVERNANCE RISK).
+---
+
+### I. ĐỘNG CƠ DỰ BÁO THỜI ĐIỂM (TIMING MATRIX ENGINE: KHI NÀO TĂNG? KHI NÀO SẬP?)
+
+Động cơ định lượng trả lời hai câu hỏi quan trọng nhất của nhà đầu tư: **"Nếu mua thì khi nào sẽ tăng?"** và **"Dấu hiệu nào cảnh báo khi nào sẽ sập?"**.
+
+```text
+TIMING ENGINE ARCHITECTURE:
+[Dòng tiền Wyckoff / VSA] ──┐
+[Mô hình Kỹ thuật Pivot]  ──┼──> [Timing Engine Matrix] ──> { Kịch bản TĂNG: Trigger, T+, Xác suất }
+[Độ trễ Vĩ mô / Hàng hóa] ──┘                               { Kịch bản SẬP: Cảnh báo, Failure Level }
+```
+
+#### 1. Định lượng Kịch bản Tăng ("Khi nào sẽ tăng?"):
+* **Tín hiệu Kỹ thuật & Dòng tiền:**
+  * Khối lượng cạn kiệt ở nền giá tích lũy (VSA No Supply / Spring gom hàng: $Vol < 0.75 \times MA20$).
+  * Giá tiệm cận hoặc bứt phá đỉnh hộp 20 phiên: $Price \ge Pivot_{trigger}$.
+  * RSI phân kỳ dương hoặc MACD cắt lên trên trục 0.
+* **Thời gian thẩm thấu Vĩ mô & Hàng hóa (Macro Transmission Lag):**
+  $$\Delta t_{macro} \in [1, 3]\ \text{phiên giao dịch}$$
+  Khi giá hàng hóa thế giới (Dầu, Cao su, Thép...) tăng mạnh, dòng tiền trong nước thường có độ trễ 1-3 phiên để phản ánh trọn vẹn vào giá cổ phiếu.
+* **Xác suất Tăng ($P_{pump}$):**
+  $$P_{pump} = 50\% + 15\% \times \mathbb{I}_{vol\_dry} + 15\% \times \mathbb{I}_{macro\_tailwind} + 10\% \times \mathbb{I}_{trend\_up} \quad (\text{Tối đa } 88\%)$$
+* **Khung thời gian dự kiến:** Bứt phá trong vòng **T+1 đến T+3** nếu dòng tiền xác nhận vượt $Pivot_{trigger}$ với khối lượng $> 1.3 \times MA20$.
+
+#### 2. Định lượng Kịch bản Sập ("Khi nào sẽ sập?"):
+* **Dấu hiệu Cảnh báo Sập:**
+  * Bẫy phân phối ngầm Upthrust / Buying Climax: Nến râu trên dài, nổ khối lượng kỷ lục nhưng giá không tăng tương xứng.
+  * Phân kỳ âm RSI/MACD tại vùng quá mua ($RSI > 70$).
+  * Hiện tượng "Tin tốt ra là bán" (Sell the news): Khi tin tức vĩ mô/KQKD đạt đỉnh nhưng giá bị xả mạnh.
+* **Mốc Kích hoạt Thất bại (Failure Trigger Level):**
+  $$FailureLevel = \min(Support_{20d},\ EMA20)$$
+  Nếu thủng mốc này kèm khối lượng bán lớn, kịch bản tăng chính thức bị hủy bỏ, rủi ro điều chỉnh sâu $7\% - 15\%$ được kích hoạt ngay lập tức.
+
+---
+
+### J. RADAR MA TRẬN VĨ MÔ & HÀNG HÓA THẾ GIỚI (GLOBAL MACRO & COMMODITIES)
+
+Mô hình quét liên tục ma trận hàng hóa thế giới và dữ liệu liên thị trường:
+1. **Biến số Vĩ mô Tiền tệ:** Lãi suất FED (Fed Funds Rate), Lạm phát Mỹ (US Core CPI), Chỉ số Sức mạnh Đồng USD (DXY), Tỷ giá USD/VND tại Ngân hàng Nhà nước.
+2. **Hàng hóa Trọng yếu:** Dầu Brent & WTI, Vàng thế giới & SJC, Cao su TSR20 & TOCOM, Thép HRC, Phân bón Urea.
+3. **Độ nhạy Ngành (Commodity Sector Sensitivity):**
+   * **Dầu khí (PVD, PVS, BSR, GAS):** Độ nhạy Dầu Brent cao ($+10\%$ giá dầu $\rightarrow$ biên lãi gộp và giá dịch vụ khoan tăng mạnh).
+   * **Cao su (GVR, PHR, DPR):** Độ nhạy Cao su TSR20 cao ($+5\%$ giá cao su $\rightarrow$ lợi nhuận mảng mủ cao su tăng đột biến).
+   * **Thép (HPG, NKG, HSG):** Độ nhạy Thép HRC và Quặng sắt.
+   * **Phân bón & Hóa chất (DPM, DCM):** Độ nhạy Giá Phân bón Urea thế giới.
 
 ---
 
@@ -119,36 +141,52 @@ Mô hình này sinh ra để bẻ gãy triệt để "bẫy giá trị" (Value T
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Người dùng / CLI
+    actor User as Người dùng / Edge
     participant Main as main.py
+    participant DG as core/dashboard_generator.py
     participant DL as core/data_loader.py
-    participant GOV as core/governance_analyzer.py
+    participant Macro as core/macro_engine.py
+    participant Timing as core/timing_engine.py
     participant FA as core/fa_engine.py
     participant TA as core/ta_engine.py
     participant RM as core/risk_manager.py
-    participant Council as ai/council.py
+    participant Rep as core/html_report_generator.py
     participant Tele as alerts/telegram_bot.py
 
-    User->>Main: python main.py --mode analyze --ticker BCG
-    Main->>DL: get_realtime_quote("BCG")
-    DL-->>Main: Giá khớp, Khối lượng, Khối ngoại
-    Main->>DL: get_historical_ohlcv("BCG")
-    DL-->>Main: Chuỗi 250 nến ngày OHLCV
-    Main->>DL: get_financial_data("BCG") + get_governance_data("BCG")
-    DL-->>Main: BCTC chi tiết + Cổ đông, HĐQT, Công ty con
-    Main->>FA: analyze_fundamentals(...)
-    FA->>GOV: analyze_governance_and_ownership(...)
-    GOV-->>FA: G-Score, Skin in the game, Radar Tăng vốn ảo Cấp 5
-    FA-->>Main: F-Score, Value Trap Warning, G-Score, Segment Data
-    Main->>TA: analyze_technicals(...)
-    TA-->>Main: EMA, RSI, O'Neil Breakout, VSA Phase
-    Main->>RM: calculate_trade_setup(...)
-    RM-->>Main: Khuyến nghị (AVOID), Tỷ trọng 0% NAV
-    Main->>Council: deliberate(...)
-    Council-->>Main: Phản biện 4 Nhà đầu tư + Quản trị Doanh nghiệp + CRO
-    Main->>User: In Dashboard Rich UI + Xuất file reports/YYYY-MM-DD_BCG.md
-    opt Nếu bật Telegram
-        Main->>Tele: send_telegram_alert(...)
+    alt Chế độ Dashboard Edge
+        User->>Main: python main.py --mode dashboard
+        Main->>DG: generate_dashboard_html()
+        DG->>DL: get_global_macro_and_commodities() + get_realtime_quote()
+        DL-->>DG: Bảng Vĩ mô & Hàng hóa + Giá CP trọng điểm
+        DG-->>Main: Ghi file DASHBOARD.html
+        Main->>User: Mở DASHBOARD.html trực tiếp trên Microsoft Edge (Zero-Server)
+    else Chế độ Phân tích Soi sâu (Analyze)
+        User->>Main: python main.py --mode analyze --ticker PVD
+        Main->>DL: Nạp nến OHLCV, BCTC, Vĩ mô & Hàng hóa
+        DL-->>Main: Dữ liệu hoàn chỉnh
+        Main->>Macro: analyze_macro_context() + get_commodity_sensitivity()
+        Main->>FA: analyze_fundamentals() + analyze_governance()
+        Main->>TA: analyze_technicals()
+        Main->>RM: calculate_trade_setup()
+        Main->>Timing: analyze_timing_prediction(symbol, ohlcv, ta, macro)
+        Timing-->>Main: Ma trận Thời điểm (Khi nào tăng? Khi nào sập?)
+        Main->>Rep: generate_stock_html_report(..., timing_data, ...)
+        Rep-->>Main: Ghi file reports/YYYY-MM-DD_PVD.html
+        opt Nếu bật Telegram
+            Main->>Tele: Gửi tóm tắt + Ma trận Timing + Đính kèm file HTML
+        end
+        Main->>User: Hoàn tất, in kết quả & cung cấp link mở báo cáo
     end
 ```
 
+---
+
+## 3. KIẾN TRÚC ZERO-SERVER OFFLINE TRÊN MICROSOFT EDGE
+
+1. **Giao diện Không Cần Server (Zero-Server UI):**
+   - Không phụ thuộc vào web server địa phương (như Flask, FastAPI hay Node.js).
+   - Tận dụng chuẩn giao thức `file:///d:/...` chạy trực tiếp trên Microsoft Edge.
+   - Toàn bộ thư viện biểu đồ và font chữ được xử lý theo dạng Portable (CDN có fallback hoặc nhúng script nội tuyến nhẹ), bảo đảm tốc độ mở trang dưới 100ms.
+2. **Bảo mật Cục bộ Tuyệt đối (Local Privacy):**
+   - Toàn bộ cơ sở dữ liệu (`data/market.db`), hồ sơ phân khúc (`data/segments/`), và báo cáo phân tích (`reports/`) nằm trọn vẹn trên ổ cứng của người dùng.
+   - Không truyền bất kỳ dữ liệu cá nhân hay lịch sử phân tích nào lên máy chủ bên ngoài.

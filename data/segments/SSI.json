@@ -1,0 +1,76 @@
+{
+  "company_name": "Công ty Cổ phần Chứng khoán SSI",
+  "business_model_summary": "Định chế tài chính - chứng khoán dẫn đầu thị trường Việt Nam với mô hình kinh doanh đa trụ cột: Môi giới & Cho vay ký quỹ (Margin), Tự doanh & Đầu tư nguồn vốn, Ngân hàng đầu tư (IB) và Quản lý quỹ (SSIAM). Hưởng lợi trực tiếp từ thanh khoản thị trường và câu chuyện nâng hạng TTCK Việt Nam lên Thị trường Mới nổi (FTSE Emerging Markets).",
+  "segments": [
+    {
+      "name": "Cho vay Ký quỹ (Margin) & Dịch vụ Nguồn vốn",
+      "service_description": "Cung cấp nguồn vốn đòn bẩy tài chính (Margin lending) cho các nhà đầu tư cá nhân và tổ chức giao dịch chứng khoán, kết hợp kinh doanh giấy tờ có giá, chứng chỉ tiền gửi sinh lời an toàn.",
+      "rev_share_pct": 42.0,
+      "gross_profit_share_pct": 48.0,
+      "gross_margin_pct": 72.0,
+      "role": "Con bò sữa lợi nhuận & Dòng tiền mặt cốt lõi (Cash Cow)",
+      "strategic_role": "CASH_COW",
+      "status": "Dư nợ Margin tiệm cận đỉnh lịch sử",
+      "highlights": "Dư nợ cho vay ký quỹ duy trì trên 18,000 - 20,000 tỷ đồng với biên lãi thuần NIM cao, nợ xấu margin gần như bằng 0 nhờ hệ thống quản trị rủi ro call margin tự động chuẩn mực.",
+      "risks": "Biến động lãi suất huy động vốn ngân hàng và rủi ro thanh khoản thị trường khi VN-Index điều chỉnh sâu."
+    },
+    {
+      "name": "Hoạt động Tự doanh & Đầu tư Tài chính FVTPL",
+      "service_description": "Đầu tư cổ phiếu niêm yết có nền tảng cơ bản hàng đầu, trái phiếu doanh nghiệp chất lượng cao, chứng chỉ tiền gửi các ngân hàng quốc doanh và giao dịch chênh lệch giá (Arbitrage).",
+      "rev_share_pct": 32.0,
+      "gross_profit_share_pct": 30.0,
+      "gross_margin_pct": 58.0,
+      "role": "Đòn bẩy tăng trưởng đột biến theo sóng thị trường",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Danh mục an toàn & Sinh lời cao",
+      "highlights": "Cơ cấu danh mục đầu tư an toàn với trên 70% là chứng chỉ tiền gửi và trái phiếu tổ chức tín dụng; phần danh mục cổ phiếu tập trung vào các mã Bluechips định giá rẻ có cổ tức tiền mặt cao.",
+      "risks": "Thị trường chứng khoán giảm điểm làm trích lập dự phòng giảm giá tài sản tài chính FVTPL."
+    },
+    {
+      "name": "Dịch vụ Môi giới Chứng khoán & Phí giao dịch",
+      "service_description": "Cung ứng nền tảng giao dịch trực tuyến SSI iBoard, tư vấn đầu tư chuyên sâu cho khách hàng cá nhân và khối khách hàng tổ chức nước ngoài chiếm thị phần áp đảo.",
+      "rev_share_pct": 21.0,
+      "gross_profit_share_pct": 16.0,
+      "gross_margin_pct": 45.0,
+      "role": "Kênh mở rộng tệp khách hàng & Dòng tiền phí dịch vụ",
+      "strategic_role": "SCALE_BASE",
+      "status": "Duy trì Top 2 thị phần HOSE",
+      "highlights": "Giữ vững vị thế số 1 về thị phần môi giới khách hàng tổ chức và khối ngoại tại Việt Nam; hưởng lợi trực tiếp từ cơ chế giao dịch không ký quỹ (Non-prefunding) theo Thông tư 68/2024/TT-BTC.",
+      "risks": "Cạnh tranh gay gắt về chính sách phí 0 đồng (Zero-fee) từ các công ty chứng khoán vốn ngoại."
+    },
+    {
+      "name": "Ngân hàng Đầu tư (IB) & Quản lý Quỹ (SSIAM)",
+      "service_description": "Tư vấn phát hành cổ phiếu (IPO), bảo lãnh phát hành trái phiếu, tư vấn M&A sáp nhập doanh nghiệp và quản lý quỹ mở, quỹ ETF.",
+      "rev_share_pct": 5.0,
+      "gross_profit_share_pct": 6.0,
+      "gross_margin_pct": 65.0,
+      "role": "Thương hiệu định chế tài chính & Phí tư vấn cao cấp",
+      "strategic_role": "FUTURE_BET",
+      "status": "Tiềm năng lớn từ sóng IPO",
+      "highlights": "Đội ngũ IB số 1 thị trường thực hiện các thương vụ niêm yết và huy động vốn quy mô hàng tỷ USD khi thị trường phục hồi.",
+      "risks": "Thị trường vốn trầm lắng có thể làm chậm tiến độ các thương vụ tư vấn lớn."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Đề án Triển khai Hệ thống Công nghệ KRX & Nâng hạng Thị trường FTSE",
+      "location": "Toàn bộ hệ thống giao dịch HOSE/HNX/VSDC",
+      "scale": "Quy mô vốn hóa thị trường ước tính hút thêm 3 - 5 tỷ USD dòng vốn ngoại",
+      "status": "Hệ thống Non-prefunding (giao dịch không ký quỹ 100% bằng tiền mặt cho nhà đầu tư tổ chức nước ngoài) đã có hiệu lực từ 02/11/2024; sẵn sàng đáp ứng tiêu chuẩn FTSE Emerging Markets.",
+      "profit_contribution": "ĐỘNG LỰC BÙNG NỔ THANH KHOẢN: Là công ty chứng khoán phục vụ khối ngoại lớn nhất, SSI sẽ là bên hưởng lợi doanh thu phí môi giới và dịch vụ lưu ký lớn nhất thị trường.",
+      "legal_audit": "Bộ Tài chính đã ban hành Thông tư 68/2024/TT-BTC gỡ nút thắt lớn nhất của việc nâng hạng; quy trình pháp lý đã được kích hoạt hoàn toàn.",
+      "status_badge": "ĐÃ KÍCH HOẠT 🟢",
+      "badge_color": "#10b981"
+    },
+    {
+      "name": "Kế hoạch Tăng vốn Điều lệ lên trên 19,600 tỷ VNĐ",
+      "location": "Trụ sở chính SSI, Hà Nội & TP.HCM",
+      "scale": "Tăng vốn thêm 4,533 tỷ VNĐ qua phát hành cổ phiếu thưởng và chào bán cổ đông hiện hữu",
+      "status": "Đã được ĐHCĐ thông qua và UBCKNN cấp giấy chứng nhận đăng ký chào bán.",
+      "profit_contribution": "Bổ sung nguồn vốn tự có cực lớn giúp nới trần hạn mức cho vay Margin thêm trên 30,000 tỷ đồng, củng cố vị thế công ty chứng khoán có quy mô vốn điều lệ lớn nhất Việt Nam.",
+      "legal_audit": "Hồ sơ pháp lý tăng vốn đã được UBCKNN phê duyệt đầy đủ.",
+      "status_badge": "SẴN SÀNG GIẢI NGÂN 🟢",
+      "badge_color": "#38bdf8"
+    }
+  ]
+}

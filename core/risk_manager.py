@@ -62,11 +62,20 @@ def calculate_trade_setup(
     sl_by_atr = (current_price - 2.0 * atr) if atr > 0 else (current_price * 0.95)
     sl_candidate = min(sl_by_support, sl_by_atr)
 
-    # Ràng buộc an toàn trên TTCK Việt Nam:
-    # - Mức cắt lỗ ngắn hạn tối thiểu là MIN_STOP_LOSS_PCT (3.8%)
-    # - Mức cắt lỗ ngắn hạn tối đa là MAX_STOP_LOSS_PCT (7.0%)
-    max_sl_price = current_price * (1.0 - MIN_STOP_LOSS_PCT)
-    min_sl_price = current_price * (1.0 - MAX_STOP_LOSS_PCT)
+    # Ràng buộc an toàn theo sàn giao dịch (HOSE: ±7%, HNX: ±10%, UPCoM: ±15%):
+    exchange = str(quote.get("exchange", "HOSE")).upper()
+    if "HNX" in exchange:
+        exchange_max_sl_pct = 0.100  # Biên độ HNX tối đa 10%
+        exchange_min_sl_pct = 0.045
+    elif "UPCOM" in exchange:
+        exchange_max_sl_pct = 0.140  # Biên độ UPCoM tối đa 14%
+        exchange_min_sl_pct = 0.050
+    else:
+        exchange_max_sl_pct = MAX_STOP_LOSS_PCT  # HOSE: 7.0%
+        exchange_min_sl_pct = MIN_STOP_LOSS_PCT  # HOSE: 3.8%
+
+    max_sl_price = current_price * (1.0 - exchange_min_sl_pct)
+    min_sl_price = current_price * (1.0 - exchange_max_sl_pct)
 
     sl_short = round(min(max(sl_candidate, min_sl_price), max_sl_price), 0)
     sl_pct = round(((current_price - sl_short) / current_price) * 100, 2)
@@ -200,10 +209,19 @@ def calculate_trade_setup(
         max_position = min(theoretical_pos, 15.0)
     elif action == "THEO DÕI (WATCHLIST)":
         max_position = min(theoretical_pos, 5.0) # Tối đa 5% lấy vị thế quan sát nếu muốn
-    else:
+    if action == "BÁN / TRÁNH XA (AVOID)":
         max_position = 0.0
+        buy_zone = "KHÔNG GIẢI NGÂN (ĐỨNG NGOÀI)"
+        swing_buy_zone = "KHÔNG ÁP DỤNG"
+        value_buy_zone = "KHÔNG ÁP DỤNG (BẪY GIÁ TRỊ)"
+        swing_strategy_note = "⚠️ CẢNH BÁO NGUY HIỂM: Hội đồng khuyến nghị BÁN / TRÁNH XA. Tuyệt đối không giải ngân bắt đáy khi dòng tiền kinh doanh âm nặng và tài sản đọng vốn lớn."
+        valuation_gap_explanation = "Cảnh báo Bẫy giá trị (Value Trap): Thị giá rẻ hơn sổ sách nhưng dòng tiền kinh doanh âm nặng và tài sản đọng vốn lớn, thị trường chiết khấu sâu là có lý do chính đáng."
+    elif action == "THEO DÕI (WATCHLIST)":
+        buy_zone = f"Quan sát quanh {buy_low:,.0f} - {buy_high:,.0f}"
 
     return {
+        "exchange": exchange,
+        "price_limit_pct": round(exchange_max_sl_pct * 100, 1),
         "action": action,
         "action_color": color,
         "action_summary": action_summary,

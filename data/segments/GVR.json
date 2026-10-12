@@ -1,0 +1,123 @@
+{
+  "company_name": "Tập đoàn Công nghiệp Cao su Việt Nam - CTCP (Vietnam Rubber Group)",
+  "business_model_summary": "Tập đoàn kinh tế Nhà nước quy mô lớn nhất TTCK Việt Nam trong lĩnh vực Nông - Công nghiệp và Phát triển Hạ tầng Khu công nghiệp (KCN), sở hữu quỹ đất 'vô tiền khoáng hậu' hơn 390.000 ha (khoảng 280.000 ha tại Việt Nam, tập trung tại các vị trí đắc địa Đông Nam Bộ: Bình Dương, Đồng Nai, Tây Ninh, Bình Phước). Mô hình tạo tiền khép kín: (1) 'Siêu Catalyst' Chuyển đổi quỹ đất cao su sang Đất Khu công nghiệp (KCN) thế hệ mới & nhận tiền bồi thường thu hồi đất theo Nghị định 102/2024/NĐ-CP và Luật Đất đai mới (1.0 - 1.5 tỷ đ/ha); (2) Khai thác, chế biến và xuất khẩu mủ cao su tự nhiên quy mô ~450.000 tấn/năm hưởng lợi thiên thời giá cao su thế giới TSR20/TOCOM và chứng chỉ xanh PEFC/EUDR lớn nhất Việt Nam; (3) Chế biến gỗ cao su công nghiệp (MDF, ghép thanh) tận dụng vườn cây thanh lý; (4) Sản xuất công nghiệp săm lốp (DRC, CSM) và sản phẩm cao su kỹ thuật.",
+  "segments": [
+    {
+      "name": "Cho thuê đất Khu công nghiệp & Dịch vụ KCN (Chuyển đổi quỹ đất cao su)",
+      "service_description": "Đầu tư xây dựng hạ tầng kỹ thuật hoàn thiện (đường giao thông, trạm điện, cấp thoát nước, xử lý nước thải đạt chuẩn) trên quỹ đất cao su chuyển đổi mục đích sử dụng, sau đó cho các tập đoàn FDI và doanh nghiệp sản xuất thuê đất 50 năm thu tiền 1 lần hoặc định kỳ hàng năm. Đồng thời cung ứng dịch vụ quản lý vận hành, cung cấp nước sạch và xử lý nước thải nội khu.",
+      "target_customers": "Các tập đoàn sản xuất toàn cầu, doanh nghiệp FDI đa quốc gia (Mỹ, Hàn Quốc, Nhật Bản, Đài Loan), các nhà máy công nghệ cao, cơ khí chính xác, dệt may và logistics.",
+      "rev_share_pct": 12.0,
+      "gross_profit_share_pct": 32.5,
+      "gross_margin_pct": 62.0,
+      "role": "Ngòi nổ Tăng trưởng Đột biến (Growth Catalyst) & Thặng dư Tiền mặt Lớn",
+      "strategic_role": "GROWTH_CATALYST",
+      "status": "Tăng tốc chuyển đổi mạnh mẽ",
+      "highlights": "GVR sở hữu mạng lưới các nhà phát triển KCN hàng đầu Đông Nam Bộ: Nam Tân Uyên (NTC), Đầu tư Sài Gòn VRG (SIP), Tân Bình, Rạch Bắp, Long Khánh, Dầu Giây... Quỹ đất cao su quy hoạch chuyển đổi thành KCN/cụm công nghiệp giai đoạn 2021-2030 lên tới ~23.000 - 40.000 ha. Biên lợi nhuận gộp mảng KCN vượt 60%, mang lại dòng tiền mặt dồi dào và lợi nhuận được chia bền vững từ các công ty liên kết.",
+      "risks": "Tiến độ phê duyệt chủ trương đầu tư KCN của Thủ tướng Chính phủ và tiến độ thẩm định quy hoạch phân khu 1/2.000 của các địa phương."
+    },
+    {
+      "name": "Khai thác, Chế biến & Xuất khẩu Mủ Cao su Tự nhiên",
+      "service_description": "Quản lý và khai thác mủ từ hệ thống vườn cây cao su rộng lớn, sơ chế qua hệ thống nhà máy thành các chủng loại cao su kỹ thuật chuẩn hóa (SVR 3L, SVR 10, SVR 20, Latex cô đặc, RSS...) xuất khẩu sang hơn 70 quốc gia và cung ứng cho ngành săm lốp nội địa.",
+      "target_customers": "Các hãng sản xuất lốp xe toàn cầu (Michelin, Bridgestone, Goodyear, Hankook...), các nhà máy săm lốp trong nước (DRC, CSM) và các ngành công nghiệp chế tạo cao su.",
+      "rev_share_pct": 68.0,
+      "gross_profit_share_pct": 52.0,
+      "gross_margin_pct": 21.5,
+      "role": "Con bò sữa Dòng tiền Cốt lõi (Core Revenue & Cash Cow)",
+      "strategic_role": "CASH_COW",
+      "status": "Hưởng lợi thiên thời giá cao su thế giới",
+      "highlights": "Sản lượng khai thác đạt ~450.000 tấn/năm. Giá cao su tự nhiên thế giới (TSR20 sàn Singapore / RSS3 sàn TOCOM) tăng mạnh lên đỉnh nhiều năm do nguồn cung toàn cầu thiếu hụt từ Thái Lan, Indonesia (thời tiết La Nina và dịch bệnh nấm lá). GVR sở hữu diện tích rừng cao su đạt chứng chỉ Quản lý rừng bền vững VFCS/PEFC lớn nhất Việt Nam, đáp ứng tiêu chuẩn khắt khe EUDR của châu Âu, giúp bán được giá premium.",
+      "risks": "Biến động giá cao su quốc tế và thời tiết mưa bão cực đoan ảnh hưởng đến số ngày cạo mủ."
+    },
+    {
+      "name": "Chế biến Gỗ cao su & Các sản phẩm từ Gỗ công nghiệp",
+      "service_description": "Thu hoạch và cưa xẻ gỗ từ các vườn cây cao su hết chu kỳ khai thác mủ (thường sau 20-25 năm), đưa vào các nhà máy chế biến thành gỗ xẻ sấy, ván sợi nhân tạo MDF, gỗ ghép thanh và phôi đồ gỗ nội thất xuất khẩu.",
+      "target_customers": "Các doanh nghiệp sản xuất đồ gỗ nội thất xuất khẩu sang Mỹ, EU, Nhật Bản và các đơn vị thi công hoàn thiện công trình xây dựng dân dụng.",
+      "rev_share_pct": 12.5,
+      "gross_profit_share_pct": 9.5,
+      "gross_margin_pct": 16.0,
+      "role": "Trụ cột Bổ trợ Tận dụng Tối đa Giá trị Vườn cây",
+      "strategic_role": "SCALE_BASE",
+      "status": "Hồi phục theo chu kỳ xuất khẩu gỗ",
+      "highlights": "Tận dụng triệt để nguồn gỗ nguyên liệu sẵn có từ vườn cây thanh lý hàng năm (~15.000 - 20.000 ha) với chi phí vốn thấp nhất thị trường. Nhu cầu đồ gỗ tại thị trường Mỹ và EU ấm dần trở lại kích thích đơn hàng phôi gỗ và ván MDF.",
+      "risks": "Sức ép cạnh tranh từ ván ép giá rẻ và các tiêu chuẩn kiểm tra nguồn gốc gỗ hợp pháp từ thị trường nhập khẩu."
+    },
+    {
+      "name": "Sản phẩm Công nghiệp Cao su & Hoạt động Phụ trợ",
+      "service_description": "Sản xuất săm lốp ô tô, xe máy, xe đạp; chỉ thun cao su, đệm gối, găng tay y tế, băng tải và cao su kỹ thuật phục vụ ngành công nghiệp và y tế; cùng doanh thu tài chính từ tiền gửi và cổ tức công ty liên kết.",
+      "target_customers": "Người tiêu dùng nội địa, hệ thống bệnh viện y tế, các nhà máy lắp ráp phương tiện và xuất khẩu phụ trợ.",
+      "rev_share_pct": 7.5,
+      "gross_profit_share_pct": 6.0,
+      "gross_margin_pct": 18.0,
+      "role": "Hoàn thiện Chuỗi giá trị Hạ nguồn & Đa dạng hóa Rủi ro",
+      "strategic_role": "SCALE_BASE",
+      "status": "Vận hành ổn định",
+      "highlights": "Nắm giữ cổ phần tại các doanh nghiệp săm lốp hàng đầu như DRC, CSM; dây chuyền sản xuất găng tay y tế VRG Khải Hoàn đáp ứng tiêu chuẩn phòng dịch quốc tế.",
+      "risks": "Giá nguyên liệu mủ cao su tăng cao làm tăng giá vốn đầu vào của các đơn vị sản xuất săm lốp hạ nguồn."
+    }
+  ],
+  "projects": [
+    {
+      "name": "KCN Nam Tân Uyên 2 Mở rộng (NTC - Công ty liên kết GVR sở hữu lớn)",
+      "location": "Phường Uyên Hưng & Hội Nghĩa, TP. Tân Uyên, Tỉnh Bình Dương",
+      "scale": "345.86 ha (Diện tích đất thương phẩm cho thuê ~255 ha)",
+      "status": "Đã được giao đất & Bắt đầu ký hợp đồng cho thuê chính thức",
+      "profit_contribution": "Dự kiến mang lại doanh thu trên 7.000 tỷ đồng và lợi nhuận sau thuế hơn 3.000 tỷ đồng cho NTC trong chu kỳ cho thuê; đóng góp cổ tức tiền mặt đặc biệt lớn về cho GVR.",
+      "bottlenecks_and_risks": "Đã hoàn thành toàn bộ thủ tục pháp lý giao đất và phê duyệt đơn giá tiền sử dụng đất với UBND tỉnh Bình Dương; hạ tầng cơ bản hoàn thiện 100%. Khách hàng đã xếp hàng ký biên bản ghi nhớ (MOU) với giá thuê kỷ lục 140 - 160 USD/m²/chu kỳ.",
+      "flag": "TÍCH CỰC"
+    },
+    {
+      "name": "KCN Rạch Bắp Mở rộng (Công ty CP Công nghiệp An Điền - GVR)",
+      "location": "Xã An Điền & An Tây, TP. Bến Cát, Tỉnh Bình Dương",
+      "scale": "360 ha (Quỹ đất sạch chuyển đổi từ nông trường cao su GVR)",
+      "status": "Đã được Thủ tướng phê duyệt chủ trương đầu tư; Đang hoàn thiện hạ tầng",
+      "profit_contribution": "Giá thuê dự kiến 120 - 135 USD/m², đóng góp dòng tiền lợi nhuận gối đầu từ năm 2025-2027 cho mảng KCN của Tập đoàn.",
+      "bottlenecks_and_risks": "Đã hoàn thành công tác giải phóng mặt bằng trên đất cao su của GVR. Đang hoàn thiện các hạng mục trạm biến áp, nhà máy xử lý nước thải tập trung và đấu nối giao thông đối ngoại.",
+      "flag": "TÍCH CỰC"
+    },
+    {
+      "name": "KCN Minh Hưng III Mở rộng",
+      "location": "Phường Minh Hưng, Thị xã Chơn Thành, Tỉnh Bình Phước",
+      "scale": "577.5 ha (Quỹ đất quy hoạch chuyển đổi từ Cao su Bình Phước)",
+      "status": "Đã chấp thuận chủ trương đầu tư theo Quyết định của Thủ tướng Chính phủ",
+      "profit_contribution": "Tạo động lực phát triển công nghiệp trọng điểm cho Bình Phước, đón đầu tuyến cao tốc Chơn Thành - Gia Nghĩa và TP.HCM - Thủ Dầu Một - Chơn Thành.",
+      "bottlenecks_and_risks": "Quỹ đất 100% là đất cao su do công ty con của GVR quản lý nên công tác đền bù GPMB diễn ra rất thuận lợi. Đang hoàn tất hồ sơ thiết kế cơ sở và đánh giá tác động môi trường (ĐTM).",
+      "flag": "TÍCH CỰC"
+    },
+    {
+      "name": "KCN Bắc Đồng Phú Mở rộng",
+      "location": "Thị trấn Tân Phú & Xã Tiến Hưng, Huyện Đồng Phú, Tỉnh Bình Phước",
+      "scale": "317 ha (Đất thương phẩm ~220 ha)",
+      "status": "Đang hoàn tất thủ tục chấp thuận chủ trương đầu tư & Báo cáo ĐTM",
+      "profit_contribution": "Kỳ vọng giá thuê 80 - 95 USD/m², tạo nguồn doanh thu gối đầu bền vững cho giai đoạn 2026-2029.",
+      "bottlenecks_and_risks": "Đã được tích hợp vào Quy hoạch tỉnh Bình Phước thời kỳ 2021-2030 được Thủ tướng phê duyệt. Cần theo dõi tiến độ thẩm định hồ sơ tại Bộ Kế hoạch và Đầu tư.",
+      "flag": "TIẾN ĐỘ BÌNH THƯỜNG"
+    },
+    {
+      "name": "KCN Hiệp Thạnh (Giai đoạn 1)",
+      "location": "Xã Hiệp Thạnh, Huyện Gò Dầu, Tỉnh Tây Ninh (Cận kề Cao tốc TP.HCM - Mộc Bài)",
+      "scale": "495 ha (Tổng vốn đầu tư đăng ký 2.350 tỷ đồng)",
+      "status": "Thủ tướng đã ban hành Quyết định 214/QĐ-TTg phê duyệt chủ trương đầu tư",
+      "profit_contribution": "Vị trí chiến lược kết nối cửa khẩu quốc tế Mộc Bài và cụm cảng Cái Mép, giá thuê kỳ vọng 90 - 110 USD/m², tạo bước đột phá lợi nhuận mới tại Tây Ninh.",
+      "bottlenecks_and_risks": "Đất dự án 100% thuộc quyền quản lý của Công ty CP Cao su Tây Ninh (thành viên GVR), giải phóng mặt bằng cực nhanh. Đang tiến hành lập quy hoạch phân khu xây dựng 1/2.000 và phương án bồi thường tài sản trên đất.",
+      "flag": "TÍCH CỰC"
+    },
+    {
+      "name": "Quy hoạch Đại chuyển đổi Quỹ đất KCN tại Tỉnh Đồng Nai (Long Thành, Cẩm Mỹ)",
+      "location": "Huyện Long Thành & Cẩm Mỹ, Tỉnh Đồng Nai (Cận kề Sân bay Quốc tế Long Thành)",
+      "scale": "Hơn 5.000 - 8.000 ha đất cao su thuộc quy hoạch phát triển KCN và đô thị dịch vụ",
+      "status": "Tích hợp trong Quy hoạch tỉnh Đồng Nai 2021-2030 đã được Thủ tướng Chính phủ phê duyệt",
+      "profit_contribution": "Định giá tài sản ẩn khổng lồ dài hạn. Các khu vực cận kề sân bay Long Thành và các tuyến cao tốc Biên Hòa - Vũng Tàu, Dầu Giây - Phan Thiết có giá trị thương mại cao nhất cả nước.",
+      "bottlenecks_and_risks": "Quy mô đại dự án cần triển khai theo từng phân kỳ; thủ tục đấu thầu lựa chọn nhà đầu tư hoặc chấp thuận chủ trương đầu tư thực hiện chặt chẽ theo Luật Đất đai 2024 mới có hiệu lực.",
+      "flag": "TIẾN ĐỘ BÌNH THƯỜNG"
+    },
+    {
+      "name": "Cơ chế Thu hồi & Bồi thường Đất Cao su theo Nghị định 102/2024/NĐ-CP & Luật Đất đai mới",
+      "location": "Toàn bộ các nông trường cao su bàn giao cho địa phương phát triển KCN/Đô thị",
+      "scale": "Dự kiến bàn giao 20.000 - 40.000 ha theo lộ trình đến năm 2030",
+      "status": "Nghị định 102/2024/NĐ-CP và Luật Đất đai 2024 đã chính thức có hiệu lực",
+      "profit_contribution": "Tạo dòng tiền mặt bồi thường hỗ trợ chi phí đầu tư vào đất và cây trồng ước tính 1.0 - 1.5 tỷ đồng/ha. Khi bàn giao hàng nghìn ha, GVR và các công ty con ghi nhận hàng nghìn tỷ đồng tiền mặt và thặng dư lợi nhuận tài chính đột biến.",
+      "bottlenecks_and_risks": "Cần phối hợp nhịp nhàng với UBND các tỉnh trong việc ban hành bảng giá đất và định mức bồi thường cụ thể đối với cây cao su thanh lý.",
+      "flag": "TÍCH CỰC"
+    }
+  ]
+}
