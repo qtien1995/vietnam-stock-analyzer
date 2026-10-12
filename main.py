@@ -110,6 +110,13 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
     macro = fa_result.get("macro", {})
     cf = fa_result.get("cash_flow", {})
 
+    altman_z_val = cf.get('altman_z')
+    altman_z_str = f"{float(altman_z_val):.2f} điểm" if isinstance(altman_z_val, (int, float)) and altman_z_val is not None else "N/A"
+    disc_pct = asset_val.get('asset_discount_pct')
+    disc_str = f"{float(disc_pct):+.1f}%" if isinstance(disc_pct, (int, float)) and disc_pct is not None else "N/A"
+    cash_ratio_str = f"{float(asset_val.get('cash_ratio') or 0.0):.1f}%"
+    illiquid_ratio_str = f"{float(asset_val.get('illiquid_ratio') or 0.0):.1f}%"
+
     full_md_content = f"""# 📊 BÁO CÁO PHÂN TÍCH CHIẾN LƯỢC: {symbol} - {quote.get('company_name', symbol)}
 > **Ngày phân tích:** {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}  
 > **Nguồn dữ liệu:** Giá Khớp lệnh Realtime & Báo cáo Tài chính Độc lập
@@ -145,7 +152,7 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
 | **Dòng tiền thuần HĐKD (CFO TTM)** | **{cf.get('cfo_ttm', 0):,.0f} VND** | Tiền mặt thực thu từ hoạt động kinh doanh cốt lõi |
 | **Chi tiêu vốn (CapEx TTM)** | **{cf.get('capex_ttm', 0):,.0f} VND** | Dòng tiền chi mua sắm tài sản cố định mở rộng |
 | **Dòng tiền tự do (FCF TTM)** | **{cf.get('fcf_ttm', 0):,.0f} VND** | {cf.get('fcf_verdict', '')} |
-| **Chỉ số Altman Z''-Score** | **{cf.get('altman_z', 0):.2f} điểm** | **{cf.get('z_verdict', 'AN TOÀN')}** ({cf.get('z_desc', '')}) |
+| **Chỉ số Altman Z''-Score** | **{altman_z_str}** | **{cf.get('z_verdict', 'AN TOÀN')}** ({cf.get('z_desc', '')}) |
 | **Piotroski F-Score** | **{fa_result.get('f_score', 0)}/9 điểm** | Sức khỏe bảng cân đối kế toán |
 
 ---
@@ -155,10 +162,10 @@ def _save_markdown_report(symbol, quote, fa_result, ta_result, trade_setup, coun
 | :--- | :--- | :--- |
 | **Giá trị sổ sách (BVPS)** | **{asset_val.get('bvps', 0):,.0f} VND/CP** | Giá trị tài sản ròng thuộc về mỗi cổ đông sau khi trả hết nợ |
 | **Thị giá / Giá trị tài sản (P/B)** | **{asset_val.get('pb', 'N/A')}x** | Thị trường đang trả {asset_val.get('pb', 'N/A')} đồng cho mỗi 1 đồng tài sản ròng |
-| **Mức Chiết khấu / Thặng dư** | **{asset_val.get('asset_discount_pct', 0):+.1f}%** | {'Chiết khấu rẻ hơn vốn chủ sở hữu' if asset_val.get('asset_discount_pct', 0) > 0 else 'Thị giá cao hơn tài sản sổ sách'} |
+| **Mức Chiết khấu / Thặng dư** | **{disc_str}** | {'Chiết khấu rẻ hơn vốn chủ sở hữu' if (disc_pct or 0) > 0 else 'Thị giá cao hơn tài sản sổ sách'} |
 | **Radar Cảnh báo Thao túng** | **CẤP {asset_val.get('manipulation_risk_level', 1)}/5: {asset_val.get('manipulation_verdict')}** | Mức độ an toàn trước rủi ro 'bơm thổi' giá ảo |
-| **Bộ đệm Tiền mặt & Tiền gửi** | **{asset_val.get('cash_ratio', 0):.1f}% Tổng tài sản** | Dự trữ tiền mặt phòng thủ thanh khoản |
-| **Tỷ lệ tài sản đọng vốn** | **{asset_val.get('illiquid_ratio', 0):.1f}% Tổng tài sản** | Tỷ trọng Các khoản phải thu + Hàng tồn kho |
+| **Bộ đệm Tiền mặt & Tiền gửi** | **{cash_ratio_str} Tổng tài sản** | Dự trữ tiền mặt phòng thủ thanh khoản |
+| **Tỷ lệ tài sản đọng vốn** | **{illiquid_ratio_str} Tổng tài sản** | Tỷ trọng Các khoản phải thu + Hàng tồn kho |
 | **Kiểm định Chất lượng Tài sản** | **{asset_val.get('asset_quality_verdict')}** | Đánh giá mức độ trung thực và khả năng thanh lý tài sản |
 
 ---
@@ -270,9 +277,11 @@ def _render_terminal_dashboard(symbol, quote, fa, ta, trade, council):
     t_table.add_row("Khuyến nghị tổng hợp", f"[{action_color}]{trade.get('action')}[/{action_color}]", f"Đồng thuận: {trade.get('consensus_score')}/100 | Tỷ trọng Max {trade.get('max_position_size_pct', 0):.1f}% NAV")
     
     val_status_color = "red" if "ĐẮT" in trade.get("value_status", "") else ("green" if "RẺ" in trade.get("value_status", "") else "cyan")
+    fair_p = trade.get('fair_price') or current_price
+    fair_p_str = f"{float(fair_p):,.0f} đ" if fair_p else "N/A"
     t_table.add_row(
         "🏛️ Đầu tư Giá trị (Buffett)",
-        f"{trade.get('value_buy_zone')}\n(Giá trị thực: [bold]{trade.get('fair_price', current_price):,.0f} đ[/bold])",
+        f"{trade.get('value_buy_zone')}\n(Giá trị thực: [bold]{fair_p_str}[/bold])",
         f"[{val_status_color}]{trade.get('value_status')}[/{val_status_color}]: {trade.get('value_rationale', '')}"
     )
     
@@ -308,11 +317,15 @@ def _render_terminal_dashboard(symbol, quote, fa, ta, trade, council):
 
         q_color = "green" if cf.get("quality_grade") in ["A", "B"] else "red"
         z_color = "green" if cf.get("z_zone") == "SAFE" else ("yellow" if cf.get("z_zone") == "GREY" else "red")
+        eq_ratio = cf.get('earnings_quality_ratio')
+        eq_str = f"{float(eq_ratio):.2f}x" if isinstance(eq_ratio, (int, float)) and eq_ratio is not None else "N/A"
+        z_val = cf.get('altman_z')
+        z_str = f"{float(z_val):.2f}" if isinstance(z_val, (int, float)) and z_val is not None else "N/A"
 
         cf_table.add_row("Chất lượng Lợi nhuận", f"[{q_color}]Hạng {cf.get('quality_grade')}[/{q_color}]", f"[{q_color}]{cf.get('quality_verdict')}[/{q_color}]")
-        cf_table.add_row("Tiền HĐKD thật (CFO TTM)", f"{cf.get('cfo_ttm', 0):,.0f} đ", f"Tỷ lệ CFO/LNST: {cf.get('earnings_quality_ratio', 1.0):.2f}x")
+        cf_table.add_row("Tiền HĐKD thật (CFO TTM)", f"{cf.get('cfo_ttm', 0):,.0f} đ", f"Tỷ lệ CFO/LNST: {eq_str}")
         cf_table.add_row("Dòng tiền tự do (FCF)", f"{cf.get('fcf_ttm', 0):,.0f} đ", f"CapEx: {cf.get('capex_ttm', 0):,.0f} đ")
-        cf_table.add_row("Altman Z''-Score", f"[{z_color}]{cf.get('altman_z', 0):.2f}[/{z_color}]", f"[{z_color}]{cf.get('z_verdict')}[/{z_color}]")
+        cf_table.add_row("Altman Z''-Score", f"[{z_color}]{z_str}[/{z_color}]", f"[{z_color}]{cf.get('z_verdict')}[/{z_color}]")
         console.print(cf_table)
 
     # Bảng Định giá Tài sản & Radar Thao túng
@@ -324,11 +337,15 @@ def _render_terminal_dashboard(symbol, quote, fa, ta, trade, council):
         a_table.add_column("Đánh giá An toàn vốn", style="white")
 
         risk_color = "green" if asset_val.get("manipulation_risk_level", 1) <= 2 else ("yellow" if asset_val.get("manipulation_risk_level") == 3 else "red")
+        a_disc = asset_val.get('asset_discount_pct')
+        a_disc_str = f"{float(a_disc):+.1f}%" if isinstance(a_disc, (int, float)) and a_disc is not None else "N/A"
+        illiquid_str = f"{float(asset_val.get('illiquid_ratio') or 0.0):.1f}%"
+        cash_str = f"{float(asset_val.get('cash_ratio') or 0.0):.1f}%"
         
         a_table.add_row("Giá trị sổ sách (BVPS)", f"{asset_val.get('bvps', 0):,.0f} đ", "Giá trị tài sản ròng thuộc về mỗi cổ phiếu")
-        a_table.add_row("Hệ số Định giá P/B", f"{asset_val.get('pb', 'N/A')}x", f"Chiết khấu tài sản: {asset_val.get('asset_discount_pct', 0):+.1f}%")
+        a_table.add_row("Hệ số Định giá P/B", f"{asset_val.get('pb', 'N/A')}x", f"Chiết khấu tài sản: {a_disc_str}")
         a_table.add_row("Radar Thao túng", f"[{risk_color}]Cấp {asset_val.get('manipulation_risk_level')}/5[/{risk_color}]", f"[{risk_color}]{asset_val.get('manipulation_verdict')}[/{risk_color}]")
-        a_table.add_row("Chất lượng tài sản", f"{asset_val.get('asset_quality_verdict')}", f"Đọng vốn: {asset_val.get('illiquid_ratio', 0):.1f}% | Tiền mặt: {asset_val.get('cash_ratio', 0):.1f}%")
+        a_table.add_row("Chất lượng tài sản", f"{asset_val.get('asset_quality_verdict')}", f"Đọng vốn: {illiquid_str} | Tiền mặt: {cash_str}")
         
         console.print(a_table)
 
@@ -490,14 +507,20 @@ def main():
         formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument(
+        "ticker_pos",
+        nargs="?",
+        default=None,
+        help="Mã cổ phiếu phân tích nhanh (ví dụ: python main.py HPG)"
+    )
+    parser.add_argument(
         "--mode", "-m",
         choices=["dashboard", "analyze", "scan", "macro", "fa", "ta", "track", "bot"],
-        default="dashboard",
+        default=None,
         help="Chế độ hoạt động:\n  dashboard: Cập nhật & Mở Dashboard Offline trên Microsoft Edge\n  analyze: Soi sâu 1 mã (FA + TA + Timing Engine)\n  scan: Quét toàn bộ TTCK tìm top nổ vol\n  macro: Xem ma trận Vĩ mô & Hàng hóa thế giới\n  fa: Chỉ phân tích Cơ bản (BCTC)\n  ta: Chỉ phân tích Kỹ thuật (Chart)\n  track: PDCA - Đánh giá hiệu suất khuyến nghị quá khứ\n  bot: Chạy Telegram Bot"
     )
     parser.add_argument(
         "--ticker", "-t",
-        default="HPG",
+        default=None,
         help="Mã cổ phiếu cần phân tích (ví dụ: HPG, PVD, GVR, FPT...)"
     )
     parser.add_argument(
@@ -511,30 +534,50 @@ def main():
         default=10,
         help="Số lượng mã hiển thị trong chế độ scan (mặc định: 10)"
     )
+    parser.add_argument(
+        "--no-alert",
+        action="store_true",
+        help="Tắt gửi thông báo qua Telegram"
+    )
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="Không tự động mở trình duyệt sau khi tạo Dashboard"
+    )
 
     args = parser.parse_args()
 
-    if args.mode == "dashboard":
+    ticker = (args.ticker_pos or args.ticker or "HPG").upper().strip()
+    send_alert = not args.no_alert
+
+    if args.mode:
+        mode = args.mode
+    elif args.ticker_pos or args.ticker:
+        mode = "analyze"
+    else:
+        mode = "dashboard"
+
+    if mode == "dashboard":
         console.print("[bold cyan]⏳ Đang cập nhật dữ liệu toàn diện và tạo file DASHBOARD.html...[/bold cyan]")
-        p = generate_dashboard_html(auto_open=True)
-        console.print(f"[bold green]🌐 Đã mở thành công Dashboard trên Microsoft Edge:[/bold green] [underline cyan]{p}[/underline cyan]")
-    elif args.mode == "macro":
+        p = generate_dashboard_html(auto_open=not args.no_browser)
+        console.print(f"[bold green]🌐 Đã tạo thành công Dashboard tại:[/bold green] [underline cyan]{p}[/underline cyan]")
+    elif mode == "macro":
         render_macro_terminal()
-    elif args.mode == "scan":
+    elif mode == "scan":
         run_market_screener(top_n=args.top, sector_filter=args.sector)
-    elif args.mode == "track":
+    elif mode == "track":
         from core.performance_tracker import evaluate_all_recommendations, render_performance_terminal_dashboard
         perf_data = evaluate_all_recommendations()
         render_performance_terminal_dashboard(perf_data)
-    elif args.mode == "bot":
+    elif mode == "bot":
         from alerts.telegram_interactive_bot import start_interactive_bot
         start_interactive_bot()
-    elif args.mode == "fa":
-        analyze_single_ticker(symbol=args.ticker, mode="fa")
-    elif args.mode == "ta":
-        analyze_single_ticker(symbol=args.ticker, mode="ta")
+    elif mode == "fa":
+        analyze_single_ticker(symbol=ticker, mode="fa", send_alert=send_alert)
+    elif mode == "ta":
+        analyze_single_ticker(symbol=ticker, mode="ta", send_alert=send_alert)
     else:
-        analyze_single_ticker(symbol=args.ticker, mode="full")
+        analyze_single_ticker(symbol=ticker, mode="full", send_alert=send_alert)
 
 
 if __name__ == "__main__":

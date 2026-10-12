@@ -190,9 +190,11 @@ class InvestmentCouncil:
             report += f"  - {r}\n"
         
         # Thêm luận điểm tài sản & radar thao túng
-        bvps = asset_val.get("bvps", 0)
-        pb = asset_val.get("pb", 1.0)
-        report += f"  - **Khối tài sản ròng thực tế (BVPS):** {bvps:,.0f} VND/CP. Thị giá hiện tại ({trade_setup.get('current_price', 0):,.0f} VND) tương ứng P/B **{pb:.2f}x**.\n"
+        bvps = asset_val.get("bvps")
+        bvps_str = f"{bvps:,.0f} VND/CP" if isinstance(bvps, (int, float)) and bvps > 0 else "N/A"
+        pb = asset_val.get("pb")
+        pb_str = f"{pb:.2f}x" if isinstance(pb, (int, float)) and pb > 0 else "N/A"
+        report += f"  - **Khối tài sản ròng thực tế (BVPS):** {bvps_str}. Thị giá hiện tại ({trade_setup.get('current_price', 0):,.0f} VND) tương ứng P/B **{pb_str}**.\n"
         for ar in asset_val.get("reasons", []):
             report += f"  - {ar}\n"
         report += f"  - *Giá trị hợp lý ước tính:* {buffett.get('fair_price', 0):,.0f} VND (Biên an toàn: {buffett.get('margin_of_safety_pct', 0)}%)\n"
@@ -204,24 +206,28 @@ class InvestmentCouncil:
         sub_web = gov.get("subsidiary_web", {})
 
         if lead.get("legal_governance_flags") or gov.get("g_score", 100) < 40:
-            report += "  - 🚨 *Tiêu chuẩn Liêm chính Ban Lãnh đạo (Management Integrity):* VI PHẠM NGHIÊM TRỌNG. Warren Buffett khẳng định: 'Không thể có một thương vụ tốt với người quản trị tồi'. Doanh nghiệp có dấu hiệu sở hữu mờ ám qua các công ty TNHH cá nhân hoặc có biến cố pháp lý/nợ BCTC, trường phái giá trị LOẠI BỎ NGAY LẬP TỨC khỏi danh mục.\n"
+            report += "  - 🚨 *Tiêu chuẩn Liêm chính Ban Lãnh đạo (Management Integrity):* Theo nguyên lý trường phái giá trị, doanh nghiệp có dấu hiệu sở hữu mờ ám qua các công ty TNHH cá nhân hoặc có biến cố pháp lý/nợ BCTC bị LOẠI BỎ KHỎI DANH MỤC vì rủi ro quản trị vượt mức chấp nhận.\n"
 
         if val_warning:
             report += f"  - ⚠️ *Cảnh báo định giá:* {val_warning}\n"
         report += "\n"
 
         # Bóc tách Dòng tiền Thật & Altman Z-Score
-        cfo_val = cf.get("cfo_ttm", 0)
-        np_val = cf.get("ttm_profit") or fin.get("ttm_profit", 0)
-        fcf_val = cf.get("fcf_ttm", 0)
-        capex_val = cf.get("capex_ttm", 0)
+        cfo_val = cf.get("cfo_ttm") or 0
+        np_val = cf.get("ttm_profit") or fin.get("ttm_profit") or 0
+        fcf_val = cf.get("fcf_ttm") or 0
+        capex_val = cf.get("capex_ttm") or 0
+        eqr = cf.get("earnings_quality_ratio")
+        eqr_str = f"{eqr:.2f}x" if isinstance(eqr, (int, float)) else "N/A"
+        altman_z = cf.get("altman_z")
+        z_str = f"{altman_z:.2f}" if isinstance(altman_z, (int, float)) else "N/A"
 
         report += f"""### 3. 🔬 Bóc tách Dòng tiền Thật & Kiểm định Kiệt quệ Tài chính (Cash Flow Forensic)
 * **Chất lượng Lợi nhuận:** **Hạng {cf.get('quality_grade', 'B')}: {cf.get('quality_verdict', 'LÀNH MẠNH')}**
-  - **Dòng tiền thuần HĐKD (CFO TTM):** `{cfo_val:,.0f} VND` vs **LNST kế toán (TTM):** `{np_val:,.0f} VND` (Tỷ lệ CFO/LNST: `{cf.get('earnings_quality_ratio', 1.0):.2f}x`)
+  - **Dòng tiền thuần HĐKD (CFO TTM):** `{cfo_val:,.0f} VND` vs **LNST kế toán (TTM):** `{np_val:,.0f} VND` (Tỷ lệ CFO/LNST: `{eqr_str}`)
   - **Chi tiêu vốn (CapEx TTM):** `{capex_val:,.0f} VND` | **Dòng tiền tự do (FCF):** `{fcf_val:,.0f} VND`
   - *Đánh giá FCF:* {cf.get('fcf_verdict', 'N/A')}
-* **Chỉ số Kiệt quệ Tài chính Altman Z''-Score (Emerging Markets):** **{cf.get('altman_z', 0):.2f}** ({cf.get('z_verdict', 'AN TOÀN')})
+* **Chỉ số Kiệt quệ Tài chính Altman Z''-Score (Emerging Markets):** **{z_str}** ({cf.get('z_verdict', 'AN TOÀN')})
   - *Ý nghĩa:* {cf.get('z_desc', 'N/A')}
 """
         for rf in cf.get("red_flags", []):
@@ -341,9 +347,11 @@ class InvestmentCouncil:
         b_color = "#10b981" if "MUA" in b_verdict else ("#fbbf24" if "QUAN SÁT" in b_verdict or "CHỜ" in b_verdict else "#f87171")
         b_args = []
         b_args.extend(buffett.get("reasons", [])[:2])
-        bvps = asset_val.get("bvps", 0)
-        pb = asset_val.get("pb", 1.0)
-        b_args.append(f"Giá trị sổ sách tài sản (BVPS): {bvps:,.0f} đ/CP. Thị giá đang giao dịch ở mức P/B {pb}x (So với giá trị thực ước tính {fair_price:,.0f} đ).")
+        bvps = asset_val.get("bvps")
+        bvps_str = f"{bvps:,.0f} đ/CP" if isinstance(bvps, (int, float)) and bvps > 0 else "N/A"
+        pb = asset_val.get("pb")
+        pb_str = f"{pb:.2f}x" if isinstance(pb, (int, float)) and pb > 0 else "N/A"
+        b_args.append(f"Giá trị sổ sách tài sản (BVPS): {bvps_str}. Thị giá đang giao dịch ở mức P/B {pb_str} (So với giá trị thực ước tính {fair_price:,.0f} đ).")
         if cf.get("quality_verdict"):
             b_args.append(f"Kiểm định dòng tiền thật: {cf.get('quality_desc', '')}")
         b_invalid = "Biên an toàn bị phá vỡ nếu doanh nghiệp có dấu hiệu chuyển vốn sang công ty sân sau mờ ám, hoặc dòng tiền kinh doanh (CFO) âm kéo dài quá 2 quý."
@@ -405,13 +413,13 @@ class InvestmentCouncil:
         t_args = []
         t_args.append(f"Kế hoạch phòng thủ vốn: Cắt lỗ tuyệt đối tại {trade_setup.get('stop_loss', 0):,.0f} đ (-{t_sl}%). Tỷ trọng giải ngân an toàn: Tối đa {trade_setup.get('max_position_size_pct', 10.0):.1f}% NAV.")
         t_args.append(f"Kiểm toán rủi ro thao túng: {asset_val.get('manipulation_verdict')} (Cấp {asset_val.get('manipulation_risk_level', 1)}/5).")
-        t_args.append(f"Kịch bản xấu nhất (Pre-Mortem): Nếu thị trường chung điều chỉnh mạnh hoặc dự án chậm bàn giao, vùng đệm hỗ trợ cứng nằm quanh {trade_setup.get('fair_price', current_price):,.0f} đ.")
+        t_args.append(f"Kịch bản xấu nhất (Pre-Mortem): Nếu thị trường chung điều chỉnh mạnh hoặc hoạt động kinh doanh bị đình trệ, vùng đệm hỗ trợ cứng nằm quanh {trade_setup.get('fair_price', current_price):,.0f} đ.")
         t_invalid = "Tuyệt đối không phá vỡ kỷ luật vị thế, không gồng lỗ hay trung bình giá xuống khi cổ phiếu vi phạm ngưỡng cắt lỗ."
 
         members = [
             {
                 "id": "buffett",
-                "name": "Warren Buffett & Charlie Munger",
+                "name": "Trường phái Giá trị (Graham–Buffett–Munger)",
                 "role_title": "Đầu tư Giá trị & Con hào kinh tế",
                 "badge": "🏛️ GIÁ TRỊ",
                 "stance": b_verdict,
@@ -423,19 +431,19 @@ class InvestmentCouncil:
             },
             {
                 "id": "lynch",
-                "name": "Peter Lynch & Philip Fisher",
+                "name": "Trường phái Tăng trưởng chất lượng (Lynch–Fisher)",
                 "role_title": "Tăng trưởng & Mô hình hoạt động",
                 "badge": "🚀 TĂNG TRƯỞNG",
                 "stance": l_verdict,
                 "stance_color": l_color,
                 "score": l_score,
-                "core_thesis": "Đánh giá mô hình kinh doanh bóc tách phân khúc, tiềm năng mở rộng các dự án gối đầu và biên lợi nhuận.",
+                "core_thesis": "Đánh giá mô hình kinh doanh bóc tách phân khúc, tiềm năng mở rộng các mảng kinh doanh và biên lợi nhuận.",
                 "arguments": l_args,
                 "invalidation": l_invalid
             },
             {
                 "id": "oneil",
-                "name": "William O'Neil & Mark Minervini",
+                "name": "Trường phái Kỹ thuật & Xu hướng (O'Neil–Minervini)",
                 "role_title": "Kỹ thuật Xu hướng & Điểm bùng nổ",
                 "badge": "📈 KỸ THUẬT",
                 "stance": o_verdict,
@@ -447,7 +455,7 @@ class InvestmentCouncil:
             },
             {
                 "id": "wyckoff",
-                "name": "Richard Wyckoff & Tom Williams",
+                "name": "Trường phái Dòng tiền lớn & VSA (Wyckoff–Williams)",
                 "role_title": "Dòng tiền Lớn & Wyckoff VSA",
                 "badge": "🌊 DÒNG TIỀN VSA",
                 "stance": w_verdict,
@@ -459,7 +467,7 @@ class InvestmentCouncil:
             },
             {
                 "id": "dalio_marks",
-                "name": "Ray Dalio & Howard Marks",
+                "name": "Trường phái Vĩ mô & Chu kỳ (Dalio–Marks)",
                 "role_title": "Vĩ mô & Chu kỳ Ngành",
                 "badge": "🌐 VĨ MÔ & CHU KỲ",
                 "stance": d_sentiment,
@@ -471,7 +479,7 @@ class InvestmentCouncil:
             },
             {
                 "id": "taleb_cro",
-                "name": "Nassim Taleb & Chief Risk Officer",
+                "name": "Hội đồng Quản trị Rủi ro & Phản biện (Marks–Taleb–CRO)",
                 "role_title": "Quản trị Rủi ro & Pre-Mortem",
                 "badge": "🛡️ BẢO VỆ VỐN",
                 "stance": t_action,
@@ -486,16 +494,19 @@ class InvestmentCouncil:
         bull_votes = [m for m in members if "MUA" in m["stance"] or "TÍCH CỰC" in m["stance"] or "TĂNG" in m["stance"]]
         bear_votes = [m for m in members if "CHỜ" in m["stance"] or "QUAN SÁT" in m["stance"] or "CẢNH BÁO" in m["stance"] or "TRÁNH" in m["stance"]]
 
+        side_a_arg = f"Thị giá hiện tại ({trade_setup.get('current_price', 0):,.0f} đ) so với giá trị sổ sách ròng BVPS ({bvps_str}, P/B {pb_str}). Cần biên an toàn chiết khấu thỏa đáng và phải đặt Stop Loss chặt chẽ tại {trade_setup.get('stop_loss', 0):,.0f} đ (-{t_sl}%)."
+        side_b_arg = "Động lực mở rộng hoạt động kinh doanh cốt lõi, hành vi nến kiểm tra cung cạn kiệt, dòng tiền lớn duy trì vị thế. Giá trị sổ sách tĩnh chưa phản ánh đầy đủ tiềm năng tạo dòng tiền tương lai."
+
         clash_items = [
             {
-                "topic": "Định giá Tài sản ròng (P/B) vs Động lực Tăng trưởng Dự án Mới",
+                "topic": "Định giá Tài sản ròng & Biên an toàn vs Động lực Tăng trưởng Hoạt động cốt lõi",
                 "side_a": {
-                    "speaker": "Phe Giá trị (Buffett) & Phòng thủ vốn (Taleb)",
-                    "argument": f"Thị giá hiện tại ({trade_setup.get('current_price', 0):,.0f} đ) cao hơn giá trị sổ sách ròng BVPS ({asset_val.get('bvps', 0):,.0f} đ, P/B {asset_val.get('pb', 1.0)}x). Cần chiết khấu an toàn hơn và phải đặt Stop Loss chặt chẽ tại {trade_setup.get('stop_loss', 0):,.0f} đ (-{t_sl}%)."
+                    "speaker": "Trường phái Giá trị & Phòng thủ vốn (Buffett–Taleb)",
+                    "argument": side_a_arg
                 },
                 "side_b": {
-                    "speaker": "Phe Tăng trưởng (Lynch) & Dòng tiền Kỹ thuật (O'Neil, VSA)",
-                    "argument": f"Doanh nghiệp sở hữu quỹ đất và dự án trọng điểm tạo tiền lớn trong tương lai, hành vi nến kiểm tra cung cạn kiệt, dòng tiền lớn chưa thoát hàng. Giá trị sổ sách chưa phản ánh hết tiềm năng dự án mới."
+                    "speaker": "Trường phái Tăng trưởng & Dòng tiền Kỹ thuật (Lynch–O'Neil–VSA)",
+                    "argument": side_b_arg
                 },
                 "cro_synthesis": f"Cho phép mở vị thế giải ngân thăm dò từng phần (tối đa {trade_setup.get('max_position_size_pct', 10.0):.1f}% NAV) để đón đầu nhịp tăng, nhưng bắt buộc tuân thủ cắt lỗ kỷ luật tại {trade_setup.get('stop_loss', 0):,.0f} đ (-{t_sl}%), không gồng lỗ dưới mọi hình thức."
             }

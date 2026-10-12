@@ -72,7 +72,7 @@ def build_comprehensive_macro_impact_matrix(symbol: str, sector_name: str, globa
             "direction": "TÍCH CỰC CỐT LÕI 🟢",
             "dir_badge": "background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;",
             "sensitivity": "Rất cao (Bậc 1) • Độ trễ: 1-2 tuần (Giá bán ASP) & 1 quý (Biên lãi gộp)",
-            "impact_analysis": f"Mảng mủ cao su tự nhiên là nguồn thu tiền mặt cốt lõi chiếm tới ~70% doanh thu của {sym}. Giá TSR20 neo cao tại {rubber.get('value')} Cents/kg tạo đòn bẩy lớn làm tăng trực tiếp giá bán bình quân (ASP), mở rộng biên lợi nhuận gộp từ 18% lên trên 24-28% và mang lại dòng tiền hoạt động (CFO) dồi dào."
+            "impact_analysis": f"Mảng mủ cao su tự nhiên là nguồn thu tiền mặt quan trọng của {sym}. Giá TSR20 neo cao tại {rubber.get('value')} Cents/kg tạo đòn bẩy làm tăng trực tiếp giá bán bình quân (ASP), cải thiện biên lợi nhuận gộp và hỗ trợ dòng tiền hoạt động (CFO)."
         })
     elif is_tire:
         factors.append({
@@ -588,6 +588,143 @@ def build_smart_money_and_catalyst_html(timing_result: Optional[Dict[str, Any]])
         </div>
     </div>
     """
+
+
+def render_offline_cashflow_svg(quarters: list, np_data: list, cfo_data: list, fcf_data: list) -> str:
+    """Sinh biểu đồ SVG nội tuyến hiển thị CFO vs LNST vs FCF khi không có mạng Internet (Offline fallback)."""
+    if not quarters:
+        return "<div style='color:#94a3b8;text-align:center;padding:20px;'>Chưa có chuỗi dữ liệu lưu chuyển tiền tệ quý.</div>"
+
+    all_vals = [float(v or 0) for v in (np_data + cfo_data + fcf_data)]
+    max_val = max(all_vals) if all_vals else 100.0
+    min_val = min(all_vals) if all_vals else 0.0
+    if max_val == min_val:
+        max_val += 10.0
+        min_val -= 10.0
+    val_range = max_val - min_val if max_val > min_val else 100.0
+
+    width = 520
+    height = 200
+    pad_top = 22
+    pad_bottom = 30
+    pad_left = 50
+    chart_h = height - pad_top - pad_bottom
+    chart_w = width - pad_left - 20
+    zero_y = pad_top + chart_h * (max_val / val_range) if (min_val < 0 < max_val) else (pad_top + chart_h if min_val >= 0 else pad_top)
+
+    n_q = len(quarters)
+    group_w = chart_w / max(1, n_q)
+    bar_w = min(22, group_w * 0.28)
+
+    svg_elements = [
+        f'<svg viewBox="0 0 {width} {height}" style="width:100%;height:100%;font-family:sans-serif;" xmlns="http://www.w3.org/2000/svg">',
+        f'<line x1="{pad_left}" y1="{zero_y}" x2="{width - 20}" y2="{zero_y}" stroke="rgba(255,255,255,0.2)" stroke-dasharray="2" />',
+        '<g font-size="10" transform="translate(60, 10)">'
+        '<rect x="0" y="0" width="10" height="8" fill="#38bdf8"/>'
+        '<text x="14" y="8" fill="#94a3b8">LNST (Tỷ)</text>'
+        '<rect x="90" y="0" width="10" height="8" fill="#34d399"/>'
+        '<text x="104" y="8" fill="#94a3b8">CFO (Tỷ)</text>'
+        '<circle cx="180" cy="4" r="4" fill="#fbbf24"/>'
+        '<text x="190" y="8" fill="#94a3b8">FCF (Tỷ)</text>'
+        '</g>'
+    ]
+
+    fcf_points = []
+    for i, q in enumerate(quarters):
+        gx = pad_left + i * group_w + group_w * 0.5
+        np_v = float(np_data[i] if i < len(np_data) else 0.0)
+        cfo_v = float(cfo_data[i] if i < len(cfo_data) else 0.0)
+        fcf_v = float(fcf_data[i] if i < len(fcf_data) else 0.0)
+
+        # NP Bar (Blue)
+        np_h = abs(np_v) / val_range * chart_h
+        np_y = zero_y - np_h if np_v >= 0 else zero_y
+        svg_elements.append(f'<rect x="{gx - bar_w - 2}" y="{np_y}" width="{bar_w}" height="{max(2, np_h)}" fill="#38bdf8" rx="2"/>')
+
+        # CFO Bar (Green)
+        cfo_h = abs(cfo_v) / val_range * chart_h
+        cfo_y = zero_y - cfo_h if cfo_v >= 0 else zero_y
+        svg_elements.append(f'<rect x="{gx + 2}" y="{cfo_y}" width="{bar_w}" height="{max(2, cfo_h)}" fill="#34d399" rx="2"/>')
+
+        # FCF point
+        fcf_y = zero_y - (fcf_v / val_range * chart_h) if val_range > 0 else zero_y
+        fcf_points.append(f"{gx:.1f},{fcf_y:.1f}")
+        svg_elements.append(f'<circle cx="{gx:.1f}" cy="{fcf_y:.1f}" r="3.5" fill="#fbbf24"/>')
+
+        # Quarter label
+        svg_elements.append(f'<text x="{gx:.1f}" y="{height - 8}" font-size="11" fill="#94a3b8" text-anchor="middle">{q}</text>')
+
+    if len(fcf_points) > 1:
+        svg_elements.append(f'<polyline points="{" ".join(fcf_points)}" fill="none" stroke="#fbbf24" stroke-width="2"/>')
+
+    svg_elements.append('</svg>')
+    return "".join(svg_elements)
+
+
+def render_offline_candles_svg(candles: list) -> str:
+    """Sinh biểu đồ nến SVG nội tuyến hiển thị các phiên gần nhất khi không tải được LightweightCharts CDN."""
+    if not candles:
+        return "<div style='display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;'>Đang cập nhật chuỗi nến kỹ thuật...</div>"
+
+    sub = candles[-35:]
+    highs = [float(c.get("high", c.get("close", 0))) for c in sub]
+    lows = [float(c.get("low", c.get("close", 0))) for c in sub]
+    max_p = max(highs) if highs else 100.0
+    min_p = min(lows) if lows else 0.0
+    p_range = max_p - min_p if max_p > min_p else 10.0
+
+    width = 720
+    height = 420
+    pad_top = 30
+    pad_bottom = 35
+    pad_left = 65
+    pad_right = 20
+    c_w = width - pad_left - pad_right
+    c_h = height - pad_top - pad_bottom
+
+    n = len(sub)
+    step = c_w / max(1, n)
+    candle_body_w = max(4, min(12, step * 0.65))
+
+    svg = [
+        f'<svg viewBox="0 0 {width} {height}" style="width:100%;height:100%;background:#070c16;font-family:monospace;" xmlns="http://www.w3.org/2000/svg">',
+        f'<text x="{width / 2}" y="18" font-size="11" fill="#94a3b8" text-anchor="middle">Biểu đồ Kỹ thuật Nến Nhật (Chế độ Ngoại tuyến Standalone SVG)</text>',
+        f'<line x1="{pad_left}" y1="{pad_top}" x2="{width - pad_right}" y2="{pad_top}" stroke="rgba(255,255,255,0.05)" />',
+        f'<line x1="{pad_left}" y1="{pad_top + c_h / 2}" x2="{width - pad_right}" y2="{pad_top + c_h / 2}" stroke="rgba(255,255,255,0.05)" />',
+        f'<line x1="{pad_left}" y1="{height - pad_bottom}" x2="{width - pad_right}" y2="{height - pad_bottom}" stroke="rgba(255,255,255,0.05)" />',
+        f'<text x="{pad_left - 6}" y="{pad_top + 4}" font-size="10" fill="#64748b" text-anchor="end">{max_p:,.0f}</text>',
+        f'<text x="{pad_left - 6}" y="{pad_top + c_h / 2 + 4}" font-size="10" fill="#64748b" text-anchor="end">{(max_p + min_p) / 2:,.0f}</text>',
+        f'<text x="{pad_left - 6}" y="{height - pad_bottom + 4}" font-size="10" fill="#64748b" text-anchor="end">{min_p:,.0f}</text>',
+    ]
+
+    for i, c in enumerate(sub):
+        x = pad_left + i * step + step / 2
+        o = float(c.get("open", c.get("close", 0)))
+        cl = float(c.get("close", 0))
+        h = float(c.get("high", max(o, cl)))
+        l = float(c.get("low", min(o, cl)))
+
+        is_up = cl >= o
+        color = "#10b981" if is_up else "#ef4444"
+
+        y_h = pad_top + (max_p - h) / p_range * c_h
+        y_l = pad_top + (max_p - l) / p_range * c_h
+        y_o = pad_top + (max_p - o) / p_range * c_h
+        y_cl = pad_top + (max_p - cl) / p_range * c_h
+
+        body_top = min(y_o, y_cl)
+        body_h = max(2, abs(y_o - y_cl))
+
+        svg.append(f'<line x1="{x:.1f}" y1="{y_h:.1f}" x2="{x:.1f}" y2="{y_l:.1f}" stroke="{color}" stroke-width="1.2" />')
+        svg.append(f'<rect x="{x - candle_body_w / 2:.1f}" y="{body_top:.1f}" width="{candle_body_w}" height="{body_h:.1f}" fill="{color}" />')
+
+    if sub:
+        last = sub[-1]
+        last_cl = float(last.get("close", 0))
+        svg.append(f'<text x="{width - 25}" y="{height - 10}" font-size="11" fill="#38bdf8" text-anchor="end">Đóng cửa gần nhất: {last_cl:,.0f} đ</text>')
+
+    svg.append('</svg>')
+    return "".join(svg)
 
 
 def build_interactive_council_qa_html(
@@ -1200,17 +1337,60 @@ def generate_html_report(
     # =====================================================================
     # 12. Thước Đo Kích Hoạt Trực Quan (Price Ladder & Timing Distance Gauge)
     # =====================================================================
-    # =====================================================================
-    # 12. Thước Đo Kích Hoạt Trực Quan (Price Ladder & Timing Distance Gauge)
-    # =====================================================================
+    offline_cashflow_svg = render_offline_cashflow_svg(chart_quarters, chart_np, chart_cfo, chart_fcf)
+    offline_candles_svg = render_offline_candles_svg(chart_candles)
+
     if 0 < current_price < 1000:
         current_price *= 1000
 
+    has_valid_setup = trade_setup.get("has_valid_setup", True)
     trigger_pivot = float(surge.get("trigger_pivot_price") or (current_price * 1.03))
     failure_level = float(crash.get("failure_trigger_level") or (current_price * 0.95))
-    stop_loss_lvl = float(trade_setup.get("stop_loss") or (current_price * 0.93))
-    tp1_lvl = float(trade_setup.get("take_profit_1") or (current_price * 1.12))
-    tp2_lvl = float(trade_setup.get("take_profit_2") or (current_price * 1.20))
+    stop_loss_lvl = float(trade_setup.get("stop_loss", 0.0))
+    tp1_lvl = float(trade_setup.get("take_profit_1", 0.0))
+    tp2_lvl = float(trade_setup.get("take_profit_2", 0.0))
+
+    if has_valid_setup and stop_loss_lvl > 0:
+        rr_display = f"R:R {trade_setup.get('risk_reward_ratio', 0)}:1"
+        swing_zone_display = f"{trade_setup.get('swing_buy_zone')} đ"
+        sl_display = f"{trade_setup.get('stop_loss', 0):,.0f} đ (-{trade_setup.get('stop_loss_pct', 0)}%)"
+        tp_display = f"{trade_setup.get('take_profit_1', 0):,.0f} đ (+{trade_setup.get('take_profit_1_pct', 0)}%) &bull; {trade_setup.get('take_profit_2', 0):,.0f} đ (+{trade_setup.get('take_profit_2_pct', 0)}%)"
+        pos_display = f"Max {trade_setup.get('max_position_size_pct', 10.0):.1f}% tổng danh mục"
+        swing_note_display = trade_setup.get('swing_strategy_note', '')
+    else:
+        rr_display = "N/A"
+        swing_zone_display = "KHÔNG CÓ VÙNG MUA (BẢO TOÀN VỐN)"
+        sl_display = "N/A (Chưa mở vị thế)"
+        tp_display = "N/A"
+        pos_display = "0% (Đứng ngoài quan sát)"
+        swing_note_display = trade_setup.get('swing_strategy_note') or trade_setup.get('action_summary') or "Không thỏa mãn tiêu chí kỹ thuật / quản trị rủi ro."
+
+    # Safe formatting for financial & quantitative indicators
+    raw_z = cf.get("altman_z")
+    altman_z_display = f"{float(raw_z):.2f} điểm" if isinstance(raw_z, (int, float)) and raw_z is not None else "N/A"
+    
+    raw_eq = cf.get("earnings_quality_ratio")
+    earnings_quality_display = f"{float(raw_eq):.2f}x" if isinstance(raw_eq, (int, float)) and raw_eq is not None else "N/A"
+
+    raw_roa = fin.get("roa")
+    roa_display = f"{float(raw_roa):.1f}%" if isinstance(raw_roa, (int, float)) and raw_roa is not None else "N/A"
+
+    raw_roe = fin.get("roe")
+    roe_display = f"{float(raw_roe):.1f}%" if isinstance(raw_roe, (int, float)) and raw_roe is not None else "N/A"
+
+    raw_fair = trade_setup.get("fair_price") or current_price
+    fair_price_display = f"{float(raw_fair):,.0f} đ" if raw_fair else "N/A"
+
+    surge_pivot_display = f"{float(surge.get('trigger_pivot_price') or current_price):,.0f} đ"
+    crash_failure_display = f"{float(crash.get('failure_trigger_level') or (current_price * 0.96)):,.0f} đ"
+
+    related_party_display = f"{float(sub_web.get('related_party_loans_ratio') or 0.0):.1f}%"
+
+    fibo_low_display = f"{float(fibo_data.get('swing_low') or 0):,.0f} đ"
+    fibo_high_display = f"{float(fibo_data.get('swing_high') or 0):,.0f} đ"
+    fibo_382_display = f"{float(fibo_data.get('fibo_382') or 0):,.0f} đ"
+    fibo_500_display = f"{float(fibo_data.get('fibo_500') or 0):,.0f} đ"
+    fibo_618_display = f"{float(fibo_data.get('fibo_618') or 0):,.0f} đ"
 
     if 0 < trigger_pivot < 1000:
         trigger_pivot *= 1000
@@ -1222,85 +1402,104 @@ def generate_html_report(
         tp1_lvl *= 1000
 
     dist_pivot_pct = ((trigger_pivot - current_price) / current_price * 100) if current_price > 0 else 0.0
-    dist_sl_pct = ((stop_loss_lvl - current_price) / current_price * 100) if current_price > 0 else 0.0
+    dist_sl_pct = ((stop_loss_lvl - current_price) / current_price * 100) if (current_price > 0 and stop_loss_lvl > 0) else 0.0
     dist_fail_pct = ((failure_level - current_price) / current_price * 100) if current_price > 0 else 0.0
-    dist_tp1_pct = ((tp1_lvl - current_price) / current_price * 100) if current_price > 0 else 0.0
+    dist_tp1_pct = ((tp1_lvl - current_price) / current_price * 100) if (current_price > 0 and tp1_lvl > 0) else 0.0
 
-    # Xác định vị trí tương đối giữa Stop loss và Ngưỡng gãy sóng
-    n1_label, n1_price, n1_dist, n1_cls = ("CẮT LỖ (SL)", stop_loss_lvl, dist_sl_pct, "step-sl")
-    n2_label, n2_price, n2_dist, n2_cls = ("NGƯỠNG GÃY SÓNG", failure_level, dist_fail_pct, "step-fail")
-    if stop_loss_lvl > failure_level:
-        n1_label, n1_price, n1_dist, n1_cls = ("NGƯỠNG GÃY SÓNG", failure_level, dist_fail_pct, "step-fail")
-        n2_label, n2_price, n2_dist, n2_cls = ("CẮT LỖ (SL)", stop_loss_lvl, dist_sl_pct, "step-sl")
-
-    pivot_status_text = "CỰC KỲ SÁT ĐIỂM NỔ! Chuẩn bị giải ngân khi vượt" if 0 < dist_pivot_pct <= 2.5 else ("ĐÃ VƯỢT QUA PIVOT (Đang giữ nhịp bứt phá)!" if dist_pivot_pct <= 0 else "Đang tích lũy, kiên nhẫn chờ vượt")
-
-    price_ladder_html = f"""
-    <div class="price-ladder-box">
-        <div class="ladder-header">
-            <span>🪜 THƯỚC ĐO KÍCH HOẠT THỜI ĐIỂM (PRICE LADDER & DISTANCE GAUGE)</span>
-            <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">Khoảng Cách Tương Đối</span>
-        </div>
-        <div class="ladder-track">
-            <!-- Node 1: Mức cảnh báo thấp hơn -->
-            <div class="ladder-step {n1_cls}">
-                <div class="step-label">{n1_label}</div>
-                <div class="step-price">{n1_price:,.0f} đ</div>
-                <div class="step-dist">{n1_dist:+.1f}%</div>
+    if not has_valid_setup or stop_loss_lvl <= 0:
+        price_ladder_html = f"""
+        <div class="price-ladder-box" style="border: 1px solid rgba(239, 68, 68, 0.35);">
+            <div class="ladder-header">
+                <span>🪜 THƯỚC ĐO KÍCH HOẠT THỜI ĐIỂM (PRICE LADDER & DISTANCE GAUGE)</span>
+                <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;">KHÔNG CÓ ĐIỂM MUA HỢP LỆ</span>
             </div>
-            <div class="ladder-connector conn-danger"></div>
-            <!-- Node 2: Mức phòng thủ sát thị giá -->
-            <div class="ladder-step {n2_cls}">
-                <div class="step-label">{n2_label}</div>
-                <div class="step-price">{n2_price:,.0f} đ</div>
-                <div class="step-dist">{n2_dist:+.1f}%</div>
-            </div>
-            <div class="ladder-connector conn-current"></div>
-            <!-- Node 3: Thị Giá Hiện Tại -->
-            <div class="ladder-step step-current">
-                <div class="step-pin">📍 ĐANG Ở ĐÂY</div>
-                <div class="step-price">{current_price:,.0f} đ</div>
-                <div class="step-dist">Thị giá hiện tại</div>
-            </div>
-            <div class="ladder-connector conn-pivot"></div>
-            <!-- Node 4: Pivot Bứt Phá -->
-            <div class="ladder-step step-pivot">
-                <div class="step-label">PIVOT BỨT PHÁ</div>
-                <div class="step-price">{trigger_pivot:,.0f} đ</div>
-                <div class="step-dist">{dist_pivot_pct:+.1f}%</div>
-            </div>
-            <div class="ladder-connector conn-tp"></div>
-            <!-- Node 5: Mục Tiêu 1 -->
-            <div class="ladder-step step-tp1">
-                <div class="step-label">MỤC TIÊU 1 (TP1)</div>
-                <div class="step-price">{tp1_lvl:,.0f} đ</div>
-                <div class="step-dist">{dist_tp1_pct:+.1f}%</div>
+            <div style="padding: 18px 20px; text-align: center; color: #cbd5e1; font-size: 0.9rem; line-height: 1.7;">
+                <div style="font-size: 1.15rem; margin-bottom: 6px;">🛡️ <b>Trạng thái: Đứng ngoài bảo toàn vốn (No Trade Setup)</b></div>
+                <div>{trade_setup.get('action_summary', 'Cổ phiếu chưa hình thành mẫu hình tích lũy hoặc vi phạm bộ lọc kỹ thuật / quản trị rủi ro.')}</div>
+                <div style="margin-top: 10px; font-size: 0.84rem; color: #94a3b8;">
+                    Ngưỡng hỗ trợ quan sát đáy: <b style="color: #ef4444;">{failure_level:,.0f} đ</b> &bull; Mốc cản Pivot cần vượt để xác nhận đảo chiều: <b style="color: #38bdf8;">{trigger_pivot:,.0f} đ</b>
+                </div>
             </div>
         </div>
-        <div class="ladder-summary-bar">
-            <div>
-                ⚡ Cách điểm nổ Pivot: <b style="color: {'#34d399' if 0 <= dist_pivot_pct <= 2.5 else '#38bdf8'};">{dist_pivot_pct:+.1f}%</b> 
-                <span>({pivot_status_text})</span>
+        """
+    else:
+        # Xác định vị trí tương đối giữa Stop loss và Ngưỡng gãy sóng
+        n1_label, n1_price, n1_dist, n1_cls = ("CẮT LỖ (SL)", stop_loss_lvl, dist_sl_pct, "step-sl")
+        n2_label, n2_price, n2_dist, n2_cls = ("NGƯỠNG GÃY SÓNG", failure_level, dist_fail_pct, "step-fail")
+        if stop_loss_lvl > failure_level:
+            n1_label, n1_price, n1_dist, n1_cls = ("NGƯỠNG GÃY SÓNG", failure_level, dist_fail_pct, "step-fail")
+            n2_label, n2_price, n2_dist, n2_cls = ("CẮT LỖ (SL)", stop_loss_lvl, dist_sl_pct, "step-sl")
+
+        pivot_status_text = "CỰC KỲ SÁT ĐIỂM NỔ! Chuẩn bị giải ngân khi vượt" if 0 < dist_pivot_pct <= 2.5 else ("ĐÃ VƯỢT QUA PIVOT (Đang giữ nhịp bứt phá)!" if dist_pivot_pct <= 0 else "Đang tích lũy, kiên nhẫn chờ vượt")
+
+        price_ladder_html = f"""
+        <div class="price-ladder-box">
+            <div class="ladder-header">
+                <span>🪜 THƯỚC ĐO KÍCH HOẠT THỜI ĐIỂM (PRICE LADDER & DISTANCE GAUGE)</span>
+                <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">Khoảng Cách Tương Đối</span>
             </div>
-            <div>
-                🛡️ Vùng đệm an toàn tới Cắt Lỗ: <b style="color: {'#fbbf24' if abs(dist_sl_pct) >= 4 else '#ef4444'};">{abs(dist_sl_pct):.1f}%</b>
+            <div class="ladder-track">
+                <!-- Node 1: Mức cảnh báo thấp hơn -->
+                <div class="ladder-step {n1_cls}">
+                    <div class="step-label">{n1_label}</div>
+                    <div class="step-price">{n1_price:,.0f} đ</div>
+                    <div class="step-dist">{n1_dist:+.1f}%</div>
+                </div>
+                <div class="ladder-connector conn-danger"></div>
+                <!-- Node 2: Mức phòng thủ sát thị giá -->
+                <div class="ladder-step {n2_cls}">
+                    <div class="step-label">{n2_label}</div>
+                    <div class="step-price">{n2_price:,.0f} đ</div>
+                    <div class="step-dist">{n2_dist:+.1f}%</div>
+                </div>
+                <div class="ladder-connector conn-current"></div>
+                <!-- Node 3: Thị Giá Hiện Tại -->
+                <div class="ladder-step step-current">
+                    <div class="step-pin">📍 ĐANG Ở ĐÂY</div>
+                    <div class="step-price">{current_price:,.0f} đ</div>
+                    <div class="step-dist">Thị giá hiện tại</div>
+                </div>
+                <div class="ladder-connector conn-pivot"></div>
+                <!-- Node 4: Pivot Bứt Phá -->
+                <div class="ladder-step step-pivot">
+                    <div class="step-label">PIVOT BỨT PHÁ</div>
+                    <div class="step-price">{trigger_pivot:,.0f} đ</div>
+                    <div class="step-dist">{dist_pivot_pct:+.1f}%</div>
+                </div>
+                <div class="ladder-connector conn-tp"></div>
+                <!-- Node 5: Mục Tiêu 1 -->
+                <div class="ladder-step step-tp1">
+                    <div class="step-label">MỤC TIÊU 1 (TP1)</div>
+                    <div class="step-price">{tp1_lvl:,.0f} đ</div>
+                    <div class="step-dist">{dist_tp1_pct:+.1f}%</div>
+                </div>
+            </div>
+            <div class="ladder-summary-bar">
+                <div>
+                    ⚡ Cách điểm nổ Pivot: <b style="color: {'#34d399' if 0 <= dist_pivot_pct <= 2.5 else '#38bdf8'};">{dist_pivot_pct:+.1f}%</b> 
+                    <span>({pivot_status_text})</span>
+                </div>
+                <div>
+                    🛡️ Vùng đệm an toàn tới Cắt Lỗ: <b style="color: {'#fbbf24' if abs(dist_sl_pct) >= 4 else '#ef4444'};">{abs(dist_sl_pct):.1f}%</b>
+                </div>
             </div>
         </div>
-    </div>
-    """
+        """
 
     # Chuẩn bị khối Smart Money Pulse & Lịch Catalyst (Lựa chọn 1)
     smart_money_and_catalyst_html = build_smart_money_and_catalyst_html(timing_result)
 
     # Chuẩn bị khối Hỏi Đáp Tương Tác Hội Đồng AI (Lựa chọn 4)
     fair_price_val = float(trade_setup.get("fair_price") or current_price)
-    sl_val = float(trade_setup.get("stop_loss") or (current_price * 0.93))
-    sl_pct_val = float(trade_setup.get("stop_loss_pct") or 7.0)
-    tp1_val = float(trade_setup.get("take_profit_1") or (current_price * 1.12))
-    tp1_pct_val = float(trade_setup.get("take_profit_1_pct") or 12.0)
-    trigger_pivot_val = float(surge.get("trigger_pivot_price") or (current_price * 1.03))
-    pb_val = float(asset_val.get("pb") if isinstance(asset_val.get("pb"), (int, float)) else 1.0)
-    bvps_val = float(asset_val.get("bvps", current_price) or current_price)
+    sl_val = float(trade_setup.get("stop_loss", 0.0))
+    sl_pct_val = float(trade_setup.get("stop_loss_pct", 0.0))
+    tp1_val = float(trade_setup.get("take_profit_1", 0.0))
+    tp1_pct_val = float(trade_setup.get("take_profit_1_pct", 0.0))
+    trigger_pivot_val = float(surge.get("trigger_pivot_price", 0.0) or (current_price * 1.03))
+    raw_pb = asset_val.get("pb")
+    pb_val = float(raw_pb) if isinstance(raw_pb, (int, float)) and raw_pb > 0 else 0.0
+    raw_bvps = asset_val.get("bvps")
+    bvps_val = float(raw_bvps) if isinstance(raw_bvps, (int, float)) and raw_bvps > 0 else 0.0
     cfo_val_str = format_vnd_human(cfo_ttm)
     fcf_val_str = format_vnd_human(fcf_ttm)
     pulse_data = timing_result.get("smart_money_pulse", {}) if timing_result else {}
@@ -1821,7 +2020,7 @@ def generate_html_report(
                         <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #38bdf8;">{trade_setup.get('value_status', 'ĐỊNH GIÁ HỢP LÝ')}</span>
                     </div>
                     <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
-                        • Giá trị thực nội tại ước tính: <b style="color: #fff; font-size: 1.05rem;">{trade_setup.get('fair_price', current_price):,.0f} đ</b><br>
+                        • Giá trị thực nội tại ước tính: <b style="color: #fff; font-size: 1.05rem;">{fair_price_display}</b><br>
                         • Vùng gom an toàn (Biên an toàn &ge; 15%): <b style="color: #34d399; font-size: 1rem;">{trade_setup.get('value_buy_zone')}</b><br>
                         • Cơ sở định giá: <i>{trade_setup.get('value_rationale')}</i>
                         {val_gap_html}
@@ -1833,14 +2032,14 @@ def generate_html_report(
                 <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 12px; padding: 18px;">
                     <div style="font-size: 0.9rem; font-weight: 700; color: #fbbf24; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">
                         <span>🏄 LƯỚT SÓNG NGẮN HẠN (SWING TRADING / KỸ THUẬT)</span>
-                        <span class="badge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid #fbbf24;">R:R {trade_setup.get('risk_reward_ratio')}:1</span>
+                        <span class="badge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid #fbbf24;">{rr_display}</span>
                     </div>
                     <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
-                        • Vùng mua lướt sóng: <b style="color: #38bdf8;">{trade_setup.get('swing_buy_zone')} đ</b><br>
-                        • Cắt lỗ nghiêm ngặt (SL): <b style="color: #f87171;">{trade_setup.get('stop_loss', 0):,.0f} đ (-{trade_setup.get('stop_loss_pct', 0)}%)</b><br>
-                        • Chốt lời (Mục tiêu 1 &bull; 2): <b style="color: #34d399;">{trade_setup.get('take_profit_1', 0):,.0f} đ (+{trade_setup.get('take_profit_1_pct', 0)}%) &bull; {trade_setup.get('take_profit_2', 0):,.0f} đ (+{trade_setup.get('take_profit_2_pct', 0)}%)</b><br>
-                        • Tỷ trọng giải ngân tối đa: <b>Max {trade_setup.get('max_position_size_pct', 10.0):.1f}% tổng danh mục</b><br>
-                        • Kỷ luật giao dịch: <i>{trade_setup.get('swing_strategy_note')}</i>
+                        • Vùng mua lướt sóng: <b style="color: #38bdf8;">{swing_zone_display}</b><br>
+                        • Cắt lỗ nghiêm ngặt (SL): <b style="color: #f87171;">{sl_display}</b><br>
+                        • Chốt lời (Mục tiêu 1 &bull; 2): <b style="color: #34d399;">{tp_display}</b><br>
+                        • Tỷ trọng giải ngân tối đa: <b>{pos_display}</b><br>
+                        • Kỷ luật giao dịch: <i>{swing_note_display}</i>
                     </div>
                 </div>
         </div>
@@ -1944,7 +2143,7 @@ def generate_html_report(
                     <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
                         <div style="margin-bottom: 8px;">
                             • <b>Khung thời gian bùng nổ:</b> <span style="color: #34d399; font-weight: 700;">{surge.get('timing_window')}</span><br>
-                            • <b>Mốc giá kích hoạt xác nhận:</b> Vượt qua <b style="color: #fff; font-size: 1rem;">{surge.get('trigger_pivot_price', current_price):,.0f} đ</b> kèm Vol &ge; 1.3x MA20.
+                            • <b>Mốc giá kích hoạt xác nhận:</b> Vượt qua <b style="color: #fff; font-size: 1rem;">{surge_pivot_display}</b> kèm Vol &ge; 1.3x MA20.
                         </div>
                         <div style="margin-top: 10px; font-size: 0.84rem;">
                             <b style="color: #10b981;">Động lực & Chất xúc tác cộng hưởng:</b>
@@ -1971,7 +2170,7 @@ def generate_html_report(
                     <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.65;">
                         <div style="margin-bottom: 8px;">
                             • <b>Khung thời gian rủi ro:</b> <span style="color: #f87171; font-weight: 700;">{crash.get('timing_window')}</span><br>
-                            • <b>Mức giá vi phạm kích hoạt gãy:</b> Thủng mốc <b style="color: #f87171; font-size: 1rem;">{crash.get('failure_trigger_level', current_price*0.96):,.0f} đ</b>.
+                            • <b>Mức giá vi phạm kích hoạt gãy:</b> Thủng mốc <b style="color: #f87171; font-size: 1rem;">{crash_failure_display}</b>.
                         </div>
                         <div style="margin-top: 10px; font-size: 0.84rem;">
                             <b style="color: #f87171;">Dấu hiệu cảnh báo phân phối / bẫy giá:</b>
@@ -2123,7 +2322,7 @@ def generate_html_report(
                 <div style="font-size: 1.1rem; font-weight: 700; color: {quality_grade_color};">{cf.get('quality_verdict', 'LÀNH MẠNH')}</div>
                 <p style="font-size: 0.82rem; color: #94a3b8; margin-top: 6px;">{cf.get('quality_desc', '')}</p>
                 <div style="margin-top: 10px; font-size: 0.85rem;">
-                    Tỷ lệ Tiền thật / Lãi kế toán (CFO / LNST): <b style="color: #38bdf8;">{cf.get('earnings_quality_ratio', 1.0):.2f}x</b>
+                    Tỷ lệ Tiền thật / Lãi kế toán (CFO / LNST): <b style="color: #38bdf8;">{earnings_quality_display}</b>
                     <br><span style="font-size: 0.78rem; color: #64748b;">(Tỷ lệ &ge; 1.0x nghĩa là lãi bao nhiêu tiền mặt về bấy nhiêu)</span>
                 </div>
             </div>
@@ -2133,7 +2332,7 @@ def generate_html_report(
                     <span>Altman Z''-Score (Nguy cơ Phá sản)</span>
                     <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: {z_color};">{z_zone}</span>
                 </div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: {z_color};">{altman_z:.2f} điểm</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: {z_color};">{altman_z_display}</div>
                 <div style="font-size: 0.85rem; font-weight: 600; color: #fff; margin-top: 2px;">{cf.get('z_verdict', 'AN TOÀN')}</div>
                 <p style="font-size: 0.78rem; color: #94a3b8; margin-top: 4px;">{cf.get('z_desc', '')}</p>
             </div>
@@ -2145,8 +2344,8 @@ def generate_html_report(
                 </div>
                 <div style="font-size: 1.6rem; font-weight: 800; color: {f_color};">{f_score}/9</div>
                 <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px; line-height: 1.6;">
-                    ROA (Sinh lời trên tài sản): <b>{fin.get('roa', 0):.1f}%</b><br>
-                    ROE (Sinh lời trên vốn chủ): <b>{fin.get('roe', 0):.1f}%</b><br>
+                    ROA (Sinh lời trên tài sản): <b>{roa_display}</b><br>
+                    ROE (Sinh lời trên vốn chủ): <b>{roe_display}</b><br>
                     Nợ vay / Vốn CSH: <b>{fin.get('debt_to_equity', 0)}x</b>
                 </div>
             </div>
@@ -2159,8 +2358,11 @@ def generate_html_report(
                     <span>So sánh Dòng tiền thật (CFO) vs LNST Kế toán (Tỷ VNĐ)</span>
                     <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">4 QUÝ GẦN NHẤT</span>
                 </div>
-                <div style="height: 240px; position: relative;">
+                <div style="min-height: 240px; position: relative;" id="cashFlowChartContainer">
                     <canvas id="cashFlowChart"></canvas>
+                    <div id="cashFlowOfflineFallback" style="display: none;">
+                        {offline_cashflow_svg}
+                    </div>
                 </div>
                 <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 10px;">
                     Cột xanh dương: Lợi nhuận sau thuế &bull; Cột xanh lá: Tiền kinh doanh thực thu (CFO) &bull; Đường vàng: Dòng tiền tự do (FCF)
@@ -2271,7 +2473,7 @@ def generate_html_report(
                 <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 14px;">
                     • <b>Cảnh báo Tăng vốn ảo & Trái phiếu nội bộ:</b> {sub_web.get('circular_capital_verdict', 'An toàn')}<br>
                     • <b>Quy mô hệ sinh thái:</b> {sub_web.get('subsidiary_count', 0)} công ty con, {sub_web.get('affiliate_count', 0)} công ty liên kết<br>
-                    • <b>Tỷ lệ cho vay bên liên quan:</b> {sub_web.get('related_party_loans_ratio', 0.0):.1f}% tổng tài sản
+                    • <b>Tỷ lệ cho vay bên liên quan:</b> {related_party_display} tổng tài sản
                 </div>
 
                 <div class="table-responsive">
@@ -2310,7 +2512,11 @@ def generate_html_report(
                 </div>
             </div>
             
-            <div id="tvChartContainer" style="width: 100%; height: 460px; position: relative; border-radius: 10px; overflow: hidden; background: #070c16; border: 1px solid rgba(255,255,255,0.06);"></div>
+            <div id="tvChartContainer" style="width: 100%; height: 460px; position: relative; border-radius: 10px; overflow: hidden; background: #070c16; border: 1px solid rgba(255,255,255,0.06);">
+                <div id="tvChartOfflineFallback" style="display: none; width: 100%; height: 100%;">
+                    {offline_candles_svg}
+                </div>
+            </div>
             <div id="chartTooltip" style="margin-top: 10px; font-size: 0.82rem; color: #94a3b8; font-family: monospace; display: flex; gap: 16px; flex-wrap: wrap;">
                 <span>Rê chuột trên biểu đồ để xem chi tiết nến OHLCV và Khối lượng</span>
             </div>
@@ -2352,10 +2558,10 @@ def generate_html_report(
                 <div style="margin-bottom: 14px;">
                     <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 4px;">Mốc Hỗ trợ Fibonacci Retracement (Nhịp sóng gần nhất):</div>
                     <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
-                        • Đáy sóng: <b>{fibo_data.get('swing_low', 0):,.0f} đ</b> &bull; Đỉnh sóng: <b>{fibo_data.get('swing_high', 0):,.0f} đ</b><br>
-                        • Fibo 38.2%: <b style="color: #34d399;">{fibo_data.get('fibo_382', 0):,.0f} đ</b> (Hỗ trợ nhịp sóng khỏe)<br>
-                        • Fibo 50.0%: <b style="color: #fbbf24;">{fibo_data.get('fibo_500', 0):,.0f} đ</b> (Mốc cân bằng cung cầu)<br>
-                        • Fibo 61.8%: <b style="color: #f87171;">{fibo_data.get('fibo_618', 0):,.0f} đ</b> (Hỗ trợ vàng sống còn)<br>
+                        • Đáy sóng: <b>{fibo_low_display}</b> &bull; Đỉnh sóng: <b>{fibo_high_display}</b><br>
+                        • Fibo 38.2%: <b style="color: #34d399;">{fibo_382_display}</b> (Hỗ trợ nhịp sóng khỏe)<br>
+                        • Fibo 50.0%: <b style="color: #fbbf24;">{fibo_500_display}</b> (Mốc cân bằng cung cầu)<br>
+                        • Fibo 61.8%: <b style="color: #f87171;">{fibo_618_display}</b> (Hỗ trợ vàng sống còn)<br>
                         • Vị trí hiện tại: <i>{fibo_data.get('current_fibo_zone', 'N/A')}</i>
                     </div>
                 </div>
@@ -2424,68 +2630,88 @@ def generate_html_report(
 
     <!-- Script Vẽ Biểu đồ Chart.js Dòng tiền thật -->
     <script>
-        const ctx = document.getElementById('cashFlowChart').getContext('2d');
-        new Chart(ctx, {{
-            type: 'bar',
-            data: {{
-                labels: {json.dumps(chart_quarters)},
-                datasets: [
-                    {{
-                        label: 'Lợi nhuận sau thuế kế toán (Tỷ đ)',
-                        data: {json.dumps(chart_np)},
-                        backgroundColor: 'rgba(56, 189, 248, 0.7)',
-                        borderColor: '#38bdf8',
-                        borderWidth: 1,
-                        borderRadius: 4
+        try {{
+            if (typeof Chart === 'undefined') {{
+                const fb = document.getElementById('cashFlowOfflineFallback');
+                const cv = document.getElementById('cashFlowChart');
+                if (fb) fb.style.display = 'block';
+                if (cv) cv.style.display = 'none';
+            }} else {{
+                const ctx = document.getElementById('cashFlowChart').getContext('2d');
+                new Chart(ctx, {{
+                    type: 'bar',
+                    data: {{
+                        labels: {json.dumps(chart_quarters)},
+                        datasets: [
+                            {{
+                                label: 'Lợi nhuận sau thuế kế toán (Tỷ đ)',
+                                data: {json.dumps(chart_np)},
+                                backgroundColor: 'rgba(56, 189, 248, 0.7)',
+                                borderColor: '#38bdf8',
+                                borderWidth: 1,
+                                borderRadius: 4
+                            }},
+                            {{
+                                label: 'Tiền kinh doanh thật - CFO (Tỷ đ)',
+                                data: {json.dumps(chart_cfo)},
+                                backgroundColor: 'rgba(52, 211, 153, 0.7)',
+                                borderColor: '#34d399',
+                                borderWidth: 1,
+                                borderRadius: 4
+                            }},
+                            {{
+                                type: 'line',
+                                label: 'Dòng tiền tự do - FCF (Tỷ đ)',
+                                data: {json.dumps(chart_fcf)},
+                                borderColor: '#fbbf24',
+                                backgroundColor: '#fbbf24',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                pointRadius: 4
+                            }}
+                        ]
                     }},
-                    {{
-                        label: 'Tiền kinh doanh thật - CFO (Tỷ đ)',
-                        data: {json.dumps(chart_cfo)},
-                        backgroundColor: 'rgba(52, 211, 153, 0.7)',
-                        borderColor: '#34d399',
-                        borderWidth: 1,
-                        borderRadius: 4
-                    }},
-                    {{
-                        type: 'line',
-                        label: 'Dòng tiền tự do - FCF (Tỷ đ)',
-                        data: {json.dumps(chart_fcf)},
-                        borderColor: '#fbbf24',
-                        backgroundColor: '#fbbf24',
-                        borderWidth: 2,
-                        tension: 0.3,
-                        pointRadius: 4
-                    }}
-                ]
-            }},
-            options: {{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {{
-                    legend: {{
-                        labels: {{
-                            color: '#94a3b8',
-                            font: {{ size: 11 }}
+                    options: {{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {{
+                            legend: {{
+                                labels: {{
+                                    color: '#94a3b8',
+                                    font: {{ size: 11 }}
+                                }}
+                            }}
+                        }},
+                        scales: {{
+                            x: {{
+                                grid: {{ color: 'rgba(255, 255, 255, 0.05)' }},
+                                ticks: {{ color: '#94a3b8', font: {{ size: 11 }} }}
+                            }},
+                            y: {{
+                                grid: {{ color: 'rgba(255, 255, 255, 0.05)' }},
+                                ticks: {{ color: '#94a3b8', font: {{ size: 11 }} }}
+                            }}
                         }}
                     }}
-                }},
-                scales: {{
-                    x: {{
-                        grid: {{ color: 'rgba(255, 255, 255, 0.05)' }},
-                        ticks: {{ color: '#94a3b8', font: {{ size: 11 }} }}
-                    }},
-                    y: {{
-                        grid: {{ color: 'rgba(255, 255, 255, 0.05)' }},
-                        ticks: {{ color: '#94a3b8', font: {{ size: 11 }} }}
-                    }}
-                }}
+                }});
             }}
-        }});
+        }} catch(e) {{
+            console.warn("Chart.js failed, fallback to offline SVG", e);
+            const fb = document.getElementById('cashFlowOfflineFallback');
+            const cv = document.getElementById('cashFlowChart');
+            if (fb) fb.style.display = 'block';
+            if (cv) cv.style.display = 'none';
+        }}
 
         // Khởi tạo Biểu đồ Nến Nhật TradingView Lightweight Charts
         (function() {{
             const chartDiv = document.getElementById('tvChartContainer');
-            if (!chartDiv || typeof LightweightCharts === 'undefined') return;
+            if (!chartDiv) return;
+            if (typeof LightweightCharts === 'undefined') {{
+                const fb = document.getElementById('tvChartOfflineFallback');
+                if (fb) fb.style.display = 'block';
+                return;
+            }}
 
             const candleData = {json.dumps(chart_candles)};
             const volData = {json.dumps(chart_volume)};

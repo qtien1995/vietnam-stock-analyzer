@@ -1,12 +1,13 @@
 """
-Module Động Cơ Dự Báo Thời Điểm Tăng / Sập (Timing Prediction Engine)
-Kết hợp hai lăng kính thực chiến cốt lõi:
-1. Dòng tiền Thông minh & Hành vi Nến Wyckoff VSA (Cạn cung, Spring, Nổ Vol, Upthrust, Phân kỳ âm).
-2. Chất xúc tác Tin tức Vĩ mô & Hàng hóa (Catalyst Alignment & Macro Transmission Lag).
+Module Động Cơ Phân Tích Thời Điểm Kỹ Thuật (Technical Timing & Setup Engine)
+Kết hợp hai lăng kính:
+1. Dòng tiền & Hành vi Nến Wyckoff VSA (Cạn cung, Spring, Nổ Vol, Upthrust).
+2. Lịch Xúc tác Sự kiện Trọng yếu & Độ nhạy Vĩ mô.
 
-Trả về 2 Kịch bản phân nhánh độc lập:
-- Kịch bản Bứt Phá ("Khi nào sẽ tăng?"): Mốc giá xác nhận, Xác suất %, Khung thời gian T+.
-- Kịch bản Rủi Ro Sập ("Khi nào sẽ sập?"): Mức giá vi phạm kích hoạt gãy, Dấu hiệu phân phối, Xác suất %.
+Nguyên tắc trung thực:
+- Điểm số kỹ thuật (0 - 100) phản ánh mức độ hội tụ của các tín hiệu nến và thanh khoản.
+- Không trình bày điểm heuristic như xác suất thống kê được kiểm định.
+- Không đưa ra khung thời gian cam kết T+1..T+3 cố định nếu không có căn cứ thực nghiệm.
 """
 
 from datetime import datetime
@@ -21,7 +22,6 @@ def get_upcoming_catalysts(symbol: str, current_dt: Optional[datetime] = None) -
     1. Kỳ Đáo Hạn Phái Sinh VN30 (Thứ 5 tuần thứ 3 hàng tháng)
     2. Hạn chót Công Bố Báo Cáo Tài Chính Quý (Q1, Q2, Q3, Q4)
     3. Kỳ Cơ Cấu Danh Mục Quỹ ETF Định Kỳ (Tháng 3, 6, 9, 12)
-    4. Mùa Đại Hội Cổ Đông & Chốt Quyền Cổ Tức Tiền Mặt
     """
     now = current_dt or datetime.now()
     catalysts = []
@@ -65,7 +65,7 @@ def get_upcoming_catalysts(symbol: str, current_dt: Optional[datetime] = None) -
             "date_str": bctc_deadline.strftime("%d/%m/%Y"),
             "days_left": days_to_bctc,
             "impact_level": "RẤT CAO (Phân hóa dòng tiền mạnh mẽ theo kết quả kinh doanh)",
-            "trading_hint": f"Còn {days_to_bctc} ngày: Dòng tiền thông minh thường đón đầu giải ngân trước 1-2 tuần. Cổ phiếu có CFO và LNST tăng trưởng vượt trội sẽ hút dòng tiền gom mạnh."
+            "trading_hint": f"Còn {days_to_bctc} ngày: Dòng tiền thông minh thường đón đầu giải ngân trước 1-2 tuần. Doanh nghiệp có CFO và LNST tăng trưởng vượt trội sẽ hút dòng tiền gom."
         })
 
     # 3. Kỳ cơ cấu quỹ ETF (Tháng 3, 6, 9, 12 - Thứ 6 tuần thứ 3)
@@ -77,11 +77,11 @@ def get_upcoming_catalysts(symbol: str, current_dt: Optional[datetime] = None) -
     days_to_etf = (etf_third_friday.date() - now.date()).days
     if days_to_etf >= 0:
         catalysts.append({
-            "event_name": f"Kỳ Cơ Cấu Danh Mục Các Quỹ ETF (VNM ETF, FTSE, Diamond - Q{ (target_m//3) })",
+            "event_name": f"Kỳ Cơ Cấu Danh Mục Các Quỹ ETF (Q{target_m//3})",
             "date_str": etf_third_friday.strftime("%d/%m/%Y"),
             "days_left": days_to_etf,
             "impact_level": "TRUNG BÌNH - CAO (Thanh khoản khớp lệnh đột biến phiên ATC)",
-            "trading_hint": f"Còn {days_to_etf} ngày: Các quỹ ngoại tái cân bằng tỷ trọng danh mục; cơ hội săn cổ phiếu được mua ròng tăng tỷ trọng."
+            "trading_hint": f"Còn {days_to_etf} ngày: Các quỹ ngoại tái cân bằng danh mục; cơ hội theo dõi cổ phiếu được mua ròng tăng tỷ trọng."
         })
 
     return catalysts
@@ -94,11 +94,11 @@ def analyze_timing_prediction(
     fa_result: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Dự báo chính xác thời điểm Tăng / Sập cho 1 mã cổ phiếu kết hợp:
-    1. Dòng tiền Khớp lệnh Chủ động (Active Buy/Sell Pressure)
-    2. Hành vi Nến Wyckoff VSA & Thu hẹp độ biến động VCP
-    3. Chuỗi gom ròng Khối ngoại & Tự doanh
-    4. Lịch Xúc tác Sự kiện Trọng yếu (Catalyst Calendar)
+    Phân tích hội tụ thời điểm kỹ thuật & Dòng tiền cho 1 mã cổ phiếu:
+    1. Ước tính áp lực cung cầu trong phiên (Price-Volume Proxy).
+    2. Hành vi Nến Wyckoff VSA & Thu hẹp độ biến động VCP.
+    3. Giao dịch khối ngoại ròng.
+    4. Lịch xúc tác sự kiện.
     """
     sym = symbol.upper().strip()
     price = float(quote.get("price") or 0.0)
@@ -109,65 +109,63 @@ def analyze_timing_prediction(
     volume = float(quote.get("volume") or 0.0)
     
     # 1. Trích xuất thông số kỹ thuật (TA)
-    rsi = float(ta_result.get("rsi") or 50.0)
-    vol_ratio = float(ta_result.get("vol_ratio") or 1.0)
+    indicators = ta_result.get("indicators", {})
+    rsi = float(indicators.get("rsi14") or ta_result.get("rsi") or 50.0)
+    vol_ratio = float(indicators.get("vol_ratio") or ta_result.get("vol_ratio") or 1.0)
     trend_state = ta_result.get("trend_state", "Sideway")
-    support = float(ta_result.get("support") or (price * 0.95))
-    resistance = float(ta_result.get("resistance") or (price * 1.05))
+    support = float(indicators.get("sup_20d") or ta_result.get("support") or (price * 0.95))
+    resistance = float(indicators.get("res_20d") or ta_result.get("resistance") or (price * 1.05))
     if 0 < support < 1000:
         support *= 1000
     if 0 < resistance < 1000:
         resistance *= 1000
-    vsa_phase = ta_result.get("vsa_phase", "Tích lũy")
-    vsa_signal = ta_result.get("vsa_signal", "Thị trường bình thường")
+    vsa_phase = ta_result.get("vsa", {}).get("phase", "Tích lũy")
+    vsa_signal = ta_result.get("advanced_ta", {}).get("vsa_signal", "Thanh khoản ổn định")
 
-    # 2. Bóc tách Dòng tiền Khớp lệnh Chủ động & Khối Ngoại (Smart Money Pulse)
-    # Tỷ lệ Mua chủ động ước tính từ diễn biến giá và khối ngoại
+    # 2. Ước tính áp lực Cung Cầu trong phiên (Price-Volume Proxy)
     foreign_net_vol = float(quote.get("foreign_net_vol") or 0.0)
     foreign_ratio = abs(foreign_net_vol) / max(1.0, volume) if volume > 0 else 0.0
 
     if change_pct > 2.0:
-        active_buy_pct = min(85.0, 58.0 + change_pct * 3.5)
+        active_buy_pct = min(82.0, 56.0 + change_pct * 3.0)
     elif change_pct > 0:
-        active_buy_pct = min(68.0, 50.0 + change_pct * 4.0)
+        active_buy_pct = min(65.0, 50.0 + change_pct * 3.5)
     elif change_pct < -2.0:
-        active_buy_pct = max(20.0, 42.0 + change_pct * 3.5)
+        active_buy_pct = max(22.0, 44.0 + change_pct * 3.0)
     else:
-        active_buy_pct = max(35.0, 50.0 + change_pct * 4.0)
+        active_buy_pct = max(35.0, 50.0 + change_pct * 3.5)
     
-    # Điều chỉnh thêm bởi lực mua ròng khối ngoại
     if foreign_net_vol > 200_000:
-        active_buy_pct = min(92.0, active_buy_pct + 8.0)
+        active_buy_pct = min(88.0, active_buy_pct + 6.0)
     elif foreign_net_vol < -500_000:
-        active_buy_pct = max(18.0, active_buy_pct - 10.0)
+        active_buy_pct = max(20.0, active_buy_pct - 8.0)
 
     active_sell_pct = 100.0 - active_buy_pct
 
     if active_buy_pct >= 60.0:
-        order_pressure_verdict = "PHE MUA ÁP ĐẢO (Lực cầu chủ động ăn thẳng giá Dư Bán)"
+        order_pressure_verdict = "LỰC CẦU CHIẾM ƯU THẾ (Bên mua chủ động ăn giá dư bán)"
         order_pressure_color = "#10b981"
     elif active_buy_pct <= 42.0:
-        order_pressure_verdict = "PHE BÁN CHIẾM ƯU THẾ (Áp lực chốt lời bán tháo vào giá Dư Mua)"
+        order_pressure_verdict = "ÁP LỰC BÁN CHIẾM ƯU THẾ (Bên bán chủ động hạ giá)"
         order_pressure_color = "#ef4444"
     else:
-        order_pressure_verdict = "CÂN BẰNG CUNG CẦU (Bên mua và bên bán đang giằng co tích lũy)"
+        order_pressure_verdict = "CÂN BẰNG CUNG CẦU (Giằng co tích lũy)"
         order_pressure_color = "#38bdf8"
 
-    # Trạng thái Gom / Xả của Khối ngoại
+    # Trạng thái Gom / Bán ròng Khối ngoại
     if foreign_net_vol > 300_000:
-        foreign_verdict = f"Khối ngoại gom ròng mạnh (+{foreign_net_vol:,.0f} CP) chiếm {foreign_ratio*100:.1f}% thanh khoản"
-        foreign_badge = "KHỐI NGOẠI GOM RÒNG 🟢"
+        foreign_verdict = f"Khối ngoại mua ròng (+{foreign_net_vol:,.0f} CP) chiếm {foreign_ratio*100:.1f}% thanh khoản"
+        foreign_badge = "KHỐI NGOẠI MUA RÒNG 🟢"
     elif foreign_net_vol < -500_000:
-        foreign_verdict = f"Khối ngoại xả ròng ({foreign_net_vol:,.0f} CP) cần theo dõi lực hấp thụ của dòng tiền nội"
+        foreign_verdict = f"Khối ngoại bán ròng ({foreign_net_vol:,.0f} CP), cần theo dõi lực hấp thụ của dòng tiền nội"
         foreign_badge = "KHỐI NGOẠI BÁN RÒNG 🔴"
     else:
-        foreign_verdict = "Giao dịch khối ngoại ở mức cân bằng, dòng tiền trong nước chi phối chính"
+        foreign_verdict = "Giao dịch khối ngoại cân bằng, dòng tiền trong nước chi phối"
         foreign_badge = "TRUNG LẬP 🟡"
 
-    # 3. Lịch Xúc Tác Sự Kiện Trọng Yếu
     catalyst_events = get_upcoming_catalysts(sym)
 
-    # 4. Trích xuất thông số Vĩ mô & Hàng hóa (FA / Macro)
+    # 4. Trích xuất thông số Vĩ mô & Hàng hóa
     macro_data = fa_result.get("macro", {})
     comm_sens = macro_data.get("commodity_sensitivity", {})
     sector_name = macro_data.get("sector_name", "Chung")
@@ -175,137 +173,114 @@ def analyze_timing_prediction(
     comm_trend = comm_sens.get("trend_direction", "ỔN ĐỊNH")
     comm_name = comm_sens.get("commodity_name", "Vĩ mô chung")
 
-    # =====================================================================
-    # 5. MÔ HÌNH HÓA KỊCH BẢN TĂNG ("KHI NÀO SẼ TĂNG?")
-    # =====================================================================
+    # 5. Điểm số Điều kiện Kỹ thuật Tăng (Setup Quality Score: 0 - 100)
     surge_points = 0
     surge_catalysts = []
 
-    # Tiêu chí 1: Hành vi VSA cạn cung hoặc Spring rũ bỏ
     if "No Supply" in vsa_signal or vol_ratio < 0.75:
         surge_points += 25
-        surge_catalysts.append(f"VSA Cạn Cung (No Supply Bar): Khối lượng chỉ bằng {vol_ratio:.2f}x MA20 vol cho thấy lượng cung trôi nổi đã được Smart Money hấp thụ cạn kiệt.")
-    elif "Stopping" in vsa_signal or "Spring" in vsa_signal or "Shakeout" in vsa_signal:
+        surge_catalysts.append(f"VSA Cạn Cung: Khối lượng chỉ đạt {vol_ratio:.2f}x MA20 vol, áp lực bán cạn kiệt.")
+    elif "Spring" in vsa_signal or "Shakeout" in vsa_signal:
         surge_points += 25
-        surge_catalysts.append("VSA Rũ Bỏ Thành Công: Xuất hiện nến rút chân gom hàng của tay to quanh vùng hỗ trợ.")
+        surge_catalysts.append("VSA Rũ Bỏ: Xuất hiện nến rút chân quanh vùng hỗ trợ kỹ thuật.")
     elif vol_ratio >= 1.3 and change_pct > 1.5:
         surge_points += 30
-        surge_catalysts.append(f"Volume Bùng Nổ ({vol_ratio:.2f}x MA20): Dòng tiền lớn nhập cuộc đẩy giá bứt phá.")
+        surge_catalysts.append(f"Volume Tăng Đột Biến ({vol_ratio:.2f}x MA20): Dòng tiền chủ động gia tăng.")
     else:
         surge_points += 10
-        surge_catalysts.append("Nền giá đang tích lũy chặt chẽ quanh đường EMA hỗ trợ.")
+        surge_catalysts.append("Nền giá đang tích lũy chặt chẽ quanh các đường hỗ trợ.")
 
-    # Tiêu chí 2: Lệnh mua chủ động áp đảo
     if active_buy_pct >= 60:
         surge_points += 15
-        surge_catalysts.append(f"Lực Mua Chủ Động Đột Biến ({active_buy_pct:.1f}%): Phe mua chủ động quét lệnh ăn lên quyết liệt.")
+        surge_catalysts.append(f"Lực Cầu Chủ Động Tích Cực ({active_buy_pct:.1f}%).")
 
-    # Tiêu chí 3: Vị thế xu hướng (Trend Template)
-    if "Tăng mạnh" in trend_state or "Uptrend" in trend_state:
+    if "Tăng" in trend_state or "Uptrend" in trend_state:
         surge_points += 20
-        surge_catalysts.append("Trend Template Chuẩn: Giá nằm trên EMA20 và EMA50 dốc lên xác nhận sóng lớn.")
-    elif "Sideway" in trend_state:
+        surge_catalysts.append("Xu hướng tăng trung hạn: Giá nằm trên EMA20 và EMA50 dốc lên.")
+    elif "Sideway" in trend_state or "tích lũy" in trend_state.lower():
         surge_points += 12
-        surge_catalysts.append("Đang nén biên độ (Mẫu hình VCP) chuẩn bị cho nhịp mở band tăng giá.")
+        surge_catalysts.append("Đang nén biên độ tích lũy, chuẩn bị cho nhịp bứt phá mới.")
 
-    # Tiêu chí 4: Động lượng RSI lành mạnh
     if 50 <= rsi <= 65:
         surge_points += 15
-        surge_catalysts.append(f"RSI({rsi:.1f}) ở Vùng Vàng: Xung lực tăng giá mạnh mẽ nhưng chưa bị quá mua.")
+        surge_catalysts.append(f"RSI({rsi:.1f}) ở Vùng Lành Mạnh: Xung lực tăng giá duy trì tốt, chưa quá mua.")
     elif 40 <= rsi < 50:
         surge_points += 10
-        surge_catalysts.append(f"RSI({rsi:.1f}) chạm vùng hỗ trợ bật lên, dư địa tăng giá còn rất rộng.")
+        surge_catalysts.append(f"RSI({rsi:.1f}) chạm vùng hỗ trợ bật lên.")
 
-    # Tiêu chí 5: Hưởng lợi từ Hàng hóa & Vĩ mô thế giới
     if "TĂNG" in comm_trend:
         surge_points += 15
-        surge_catalysts.append(f"Thiên Thời Hàng Hóa: {comm_name} đang trong xu thế {comm_trend}, tạo cú hích độ trễ 1-3 phiên cho nhóm {sector_name}.")
+        surge_catalysts.append(f"Hưởng lợi chu kỳ hàng hóa: {comm_name} có xu thế {comm_trend}.")
     elif tailwind_score >= 80:
         surge_points += 10
-        surge_catalysts.append(f"Gió Xuôi Chiều Vĩ Mô: Ngành {sector_name} đạt {tailwind_score:.0f} điểm vĩ mô tích cực.")
+        surge_catalysts.append(f"Gió xuôi vĩ mô tích cực cho ngành {sector_name} ({tailwind_score:.0f} điểm).")
 
-    # Điểm xác nhận bứt phá (Trigger Pivot Price)
     trigger_pivot = round(max(resistance, price * 1.02) / 100) * 100
     if trigger_pivot <= 0 and price > 0:
         trigger_pivot = round(price * 1.03 / 50) * 50
-    surge_prob = min(88, max(35, surge_points))
+    setup_quality_score = min(88, max(30, surge_points))
 
-    # Khung thời gian tăng dự kiến
-    if vol_ratio >= 1.3 or "No Supply" in vsa_signal or active_buy_pct >= 65:
-        surge_timeframe = "1 - 3 phiên tới (Cận kề điểm nổ Pocket Pivot)"
-    elif 50 <= rsi <= 65 and "TĂNG" in comm_trend:
-        surge_timeframe = "3 - 5 phiên tới (Theo nhịp nén tích lũy T+)"
+    # Diễn giải trạng thái kỹ thuật (thay vì hứa hẹn T+1..T+3 cố định)
+    if vol_ratio >= 1.3 and active_buy_pct >= 65:
+        surge_status_desc = "Đang xuất hiện xung lực dòng tiền nổ Volume bứt phá"
+    elif "No Supply" in vsa_signal or vol_ratio < 0.75:
+        surge_status_desc = "Pha cạn cung kiệt quệ, chờ phiên kích hoạt dòng tiền mồi (Pocket Pivot)"
     else:
-        surge_timeframe = "1 - 2 tuần tới (Chờ dòng tiền xác nhận vượt cản)"
+        surge_status_desc = "Đang vận động tích lũy trong nền giá, kiên nhẫn chờ điểm vượt cản"
 
-    # =====================================================================
-    # 6. MÔ HÌNH HÓA KỊCH BẢN SẬP / ĐẢO CHIỀU ("KHI NÀO SẼ SẬP?")
-    # =====================================================================
+    # 6. Rủi ro Đảo chiều / Gãy Hỗ trợ
     crash_points = 0
     crash_warnings = []
 
-    # Cảnh báo 1: Quá mua & Phân kỳ âm
     if rsi >= 75:
         crash_points += 30
-        crash_warnings.append(f"Báo Động Quá Mua RSI({rsi:.1f}): Cổ phiếu đã tăng nóng vào vùng rủi ro điều chỉnh mạnh.")
+        crash_warnings.append(f"Quá mua RSI({rsi:.1f}): Cổ phiếu tăng nóng, rủi ro điều chỉnh kỹ thuật ngắn hạn.")
     elif rsi >= 68 and change_pct < 0:
         crash_points += 20
         crash_warnings.append("Áp lực chốt lời ngắn hạn xuất hiện tại vùng kháng cự.")
 
-    # Cảnh báo 2: Lệnh bán chủ động xả mạnh
     if active_sell_pct >= 62.0:
         crash_points += 25
-        crash_warnings.append(f"Lực Bán Chủ Động Đột Biến ({active_sell_pct:.1f}%): Phe bán đang xả thẳng lệnh MP vào giá dư mua.")
+        crash_warnings.append(f"Lực bán chủ động tăng cao ({active_sell_pct:.1f}%).")
 
-    # Cảnh báo 3: Nến Upthrust hoặc Nỗ lực không tương xứng
     if "Upthrust" in vsa_signal:
         crash_points += 35
-        crash_warnings.append("VSA Upthrust Bar: Râu nến trên dài kèm khối lượng lớn báo hiệu tay to đang âm thầm xả hàng.")
+        crash_warnings.append("VSA Upthrust: Râu nến trên dài kèm khối lượng lớn báo hiệu áp lực bán chốt lời mạnh.")
     elif vol_ratio >= 1.8 and abs(change_pct) < 0.6:
         crash_points += 30
-        crash_warnings.append(f"Hiện Tượng Phân Phối Giấu Vol: Khối lượng giao dịch đột biến ({vol_ratio:.2f}x MA20) nhưng giá không tăng được.")
+        crash_warnings.append(f"Khối lượng đột biến ({vol_ratio:.2f}x MA20) nhưng giá không tăng (Chững lại tại kháng cự).")
 
-    # Cảnh báo 4: Bẫy truyền thông 'Tin ra là bán'
-    if "Đỉnh" in macro_data.get("cycle_phase", ""):
-        crash_points += 20
-        crash_warnings.append("Cảnh Báo Đỉnh Chu Kỳ: Lợi nhuận ngành đạt đỉnh cao nhất, nguy cơ 'Tin ra là bán'.")
-
-    # Cảnh báo 5: Khối ngoại xả ròng
     if foreign_net_vol < -500_000:
         crash_points += 20
-        crash_warnings.append(f"Khối Ngoại Xả Ròng Mạnh ({foreign_net_vol:,.0f} CP): Áp lực rút vốn của dòng tiền lớn ngoại khối.")
+        crash_warnings.append(f"Khối ngoại bán ròng mạnh ({foreign_net_vol:,.0f} CP).")
 
-    # Mức giá vi phạm kích hoạt gãy (Failure Breakdown Level)
     failure_level = round(min(support, price * 0.965) / 100) * 100
     if failure_level <= 0 and price > 0:
         failure_level = round(price * 0.95 / 50) * 50
-    crash_prob = min(85, max(15, crash_points))
+    risk_points = min(85, max(15, crash_points))
 
-    # Khung thời gian rủi ro sập
     if crash_points >= 40:
-        crash_timeframe = "CẢNH BÁO CAO: Có thể điều chỉnh ngay trong 1 - 2 phiên tới!"
+        crash_status_desc = "Cảnh báo rủi ro rung lắc hoặc điều chỉnh ngắn hạn cao"
     elif crash_points >= 25:
-        crash_timeframe = "Tiềm ẩn rủi ro rung lắc mạnh trong 3 - 5 phiên tới nếu không vượt cản"
+        crash_status_desc = "Rủi ro rung lắc kiểm định lại hỗ trợ nếu không bứt phá thành công"
     else:
-        crash_timeframe = "Rủi ro sập thấp trong ngắn hạn, hỗ trợ cứng đang bảo vệ giá tốt"
+        crash_status_desc = "Rủi ro điều chỉnh sâu ở mức thấp, vùng hỗ trợ đang bảo vệ giá tốt"
 
-    # =====================================================================
-    # 7. TỔNG HỢP PHÁN QUYẾT THỜI ĐIỂM (TIMING VERDICT)
-    # =====================================================================
-    if surge_prob >= 70 and crash_prob < 35:
-        timing_verdict = "ĐIỂM NỔ VOL TĂNG GIÁ CẬN KỀ (SẴN SÀNG BÙNG NỔ)"
+    # 7. Tổng hợp Phán Quyết
+    if setup_quality_score >= 70 and risk_points < 35:
+        timing_verdict = "ĐIỀU KIỆN KỸ THUẬT TÍCH CỰC - CHỜ ĐIỂM XÁC NHẬN BỨT PHÁ"
         timing_badge = "BULLISH_SURGE"
         timing_color = "#10b981"
-    elif crash_prob >= 50:
-        timing_verdict = "CẢNH BÁO RỦI RO ĐẢO CHIỀU (TRÁNH MUA ĐUỔI - CHUẨN BỊ CHỐT LỜI)"
+    elif risk_points >= 50:
+        timing_verdict = "CẢNH BÁO RỦI RO ĐIỀU CHỈNH - HẠN CHẾ MUA ĐUỔI"
         timing_badge = "BEARISH_DUMP"
         timing_color = "#ef4444"
-    elif surge_prob >= 55:
-        timing_verdict = "TÍCH LŨY TÍCH CỰC - CHỜ ĐỢI TÍN HIỆU DÒNG TIỀN VƯỢT PIVOT"
+    elif setup_quality_score >= 50:
+        timing_verdict = "TÍCH LŨY THEO DÕI - CHỜ DÒNG TIỀN VƯỢT PIVOT"
         timing_badge = "ACCUMULATING"
         timing_color = "#38bdf8"
     else:
-        timing_verdict = "GIAO DỊCH THẬN TRỌNG - QUAN SÁT VÙNG HỖ TRỢ CHƯA RÕ XU HƯỚNG"
+        timing_verdict = "GIAO DỊCH THẬN TRỌNG - QUAN SÁT VÙNG HỖ TRỢ"
         timing_badge = "NEUTRAL_WATCH"
         timing_color = "#f59e0b"
 
@@ -314,9 +289,9 @@ def analyze_timing_prediction(
         "timing_verdict": timing_verdict,
         "timing_badge": timing_badge,
         "timing_color": timing_color,
-        "overall_timing_score": int(surge_prob),
+        "overall_timing_score": int(setup_quality_score),
+        "setup_quality_score": int(setup_quality_score),
         
-        # Nhịp đập Dòng tiền Lớn & Khớp lệnh
         "smart_money_pulse": {
             "active_buy_pct": round(active_buy_pct, 1),
             "active_sell_pct": round(active_sell_pct, 1),
@@ -324,27 +299,29 @@ def analyze_timing_prediction(
             "order_pressure_color": order_pressure_color,
             "foreign_net_vol": foreign_net_vol,
             "foreign_verdict": foreign_verdict,
-            "foreign_badge": foreign_badge
+            "foreign_badge": foreign_badge,
+            "estimation_proxy_note": "Tỷ lệ mua/bán ước tính từ diễn biến giá và khối lượng (Price-Volume Proxy), không phải dữ liệu sổ lệnh tick-by-tick."
         },
 
-        # Lịch Xúc Tác Sự Kiện Trọng Yếu
         "catalyst_calendar": catalyst_events,
 
-        # Chi tiết Kịch bản Tăng
         "surge_scenario": {
-            "probability_pct": surge_prob,
-            "timing_window": surge_timeframe,
+            "setup_quality_score": setup_quality_score,
+            "probability_pct": setup_quality_score,  # Giữ alias cho backward-compatibility
+            "timing_window": surge_status_desc,
             "trigger_pivot_price": trigger_pivot,
             "catalysts": surge_catalysts,
-            "action_advice": f"Giải ngân 30-40% vị thế thăm dò quanh vùng giá hiện tại ({price:,.0f} đ). Khi giá vượt dứt khoát mốc {trigger_pivot:,.0f} đ kèm Vol lớn > 1.3x MA20, gia tăng tỷ trọng lên mức tối đa."
+            "action_advice": f"Theo dõi mốc Pivot {trigger_pivot:,.0f} đ. Khi giá vượt qua mốc này kèm khối lượng xác nhận > 1.3x MA20, xem xét gia tăng vị thế."
         },
         
-        # Chi tiết Kịch bản Sập / Đảo chiều
         "crash_scenario": {
-            "risk_probability_pct": crash_prob,
-            "timing_window": crash_timeframe,
+            "risk_score": risk_points,
+            "risk_probability_pct": risk_points,  # Giữ alias cho backward-compatibility
+            "timing_window": crash_status_desc,
             "failure_trigger_level": failure_level,
-            "warnings": crash_warnings if crash_warnings else ["Chưa phát hiện tín hiệu phân phối lớn hay phân kỳ âm nguy hiểm."],
-            "invalidation_rule": f"Nếu giá xuyên thủng mốc hỗ trợ {failure_level:,.0f} đ kèm khối lượng gia tăng, toàn bộ kịch bản tăng giá sẽ BỊ MẤT HIỆU LỰC HOÀN TOÀN. Buộc phải cắt lỗ/bán hạ tỷ trọng ngay lập tức để bảo toàn vốn."
-        }
+            "warnings": crash_warnings if crash_warnings else ["Chưa phát hiện tín hiệu phân phối lớn hay phân kỳ âm."],
+            "invalidation_rule": f"Nếu giá đóng cửa xuyên thủng mốc {failure_level:,.0f} đ, thiết lập tăng giá sẽ mất hiệu lực, cần tuân thủ kỷ luật cắt lỗ."
+        },
+
+        "methodology_disclaimer": "Điểm số và phân tích dựa trên mô hình Heuristic VSA & Xu hướng kỹ thuật, không phải dự báo tương lai chắc chắn hay xác suất thống kê cam kết."
     }
