@@ -1,0 +1,76 @@
+{
+  "company_name": "Công ty Cổ phần Vàng bạc Đá quý Phú Nhuận",
+  "business_model_summary": "Doanh nghiệp bán lẻ trang sức và kim hoàn số 1 Việt Nam, hoạt động khép kín từ khâu thiết kế, chế tác sản xuất tại nhà máy riêng đến phân phối bán lẻ qua chuỗi hơn 400 cửa hàng PNJ trên toàn quốc và dịch vụ kiểm định kim hoàn PNJ-Lab.",
+  "segments": [
+    {
+      "name": "Bán lẻ Trang sức Vàng bạc & Kim cương Đá quý",
+      "service_description": "Kinh doanh bán lẻ trang sức cao cấp (vàng đính kim cương, đá quý, ngọc trai, trang sức bạc và phụ kiện thời trang cao cấp) qua hệ thống cửa hàng PNJ Gold, PNJ Silver, CAO Fine Jewellery và Style by PNJ.",
+      "target_customers": "Tầng lớp trung lưu, phụ nữ, gia đình trẻ và khách hàng có thu nhập khá trở lên có nhu cầu làm đẹp, quà tặng và tự thưởng.",
+      "rev_share_pct": 52.0,
+      "gross_profit_share_pct": 80.0,
+      "gross_margin_pct": 19.5,
+      "role": "Cỗ máy tạo lợi nhuận cốt lõi (Profit Engine)",
+      "strategic_role": "PROFIT_ENGINE",
+      "status": "Chịu áp lực thu đổi lớn từ biến cố kim cương",
+      "highlights": "Mảng kinh doanh mang lại tỷ trọng lợi nhuận lớn nhất với biên lãi gộp vượt trội nhờ năng lực thiết kế độc quyền và mạng lưới hơn 400 cửa hàng.",
+      "risks": "Khủng hoảng niềm tin về kiểm định kim cương và áp lực khách hàng đòi thu đổi hoàn tiền theo chính sách cam kết."
+    },
+    {
+      "name": "Kinh doanh Vàng 24K (Vàng miếng & Nhẫn trơn)",
+      "service_description": "Mua bán vàng nhẫn trơn PNJ 24K, vàng tài lộc và vàng miếng phục vụ nhu cầu tích trữ, phòng ngừa lạm phát của người dân.",
+      "target_customers": "Người dân, nhà đầu tư cá nhân có nhu cầu tích sản và bảo toàn giá trị tài sản bằng vàng vật chất.",
+      "rev_share_pct": 36.0,
+      "gross_profit_share_pct": 11.0,
+      "gross_margin_pct": 2.2,
+      "role": "Duy trì quy mô doanh thu & Thu hút lượt khách",
+      "strategic_role": "SCALE_BASE",
+      "status": "Nhu cầu cao nhưng biên lãi rất mỏng",
+      "highlights": "Doanh số tăng mạnh theo đà tăng của giá vàng thế giới, đóng vai trò kéo lưu lượng khách hàng đến các cửa hàng PNJ.",
+      "risks": "Biên lợi nhuận gộp cực thấp (chỉ 1.5 - 2.5%), rủi ro biến động giá vàng nguyên liệu và sự siết chặt quản lý nguồn gốc vàng từ Ngân hàng Nhà nước."
+    },
+    {
+      "name": "Bán sỉ Trang sức (Wholesale)",
+      "service_description": "Cung cấp trang sức vàng bạc chế tác sẵn cho các tiệm vàng và đại lý bán lẻ truyền thống trên toàn quốc.",
+      "target_customers": "Các tiệm vàng truyền thống tại các tỉnh thành chưa có cửa hàng PNJ hiện diện.",
+      "rev_share_pct": 10.5,
+      "gross_profit_share_pct": 7.5,
+      "gross_margin_pct": 8.0,
+      "role": "Tối ưu hóa công suất xưởng chế tác",
+      "strategic_role": "CAPACITY_OPTIMIZER",
+      "status": "Duy trì ổn định",
+      "highlights": "Tận dụng tối đa công suất của 2 xưởng chế tác trang sức lớn nhất Việt Nam, mở rộng độ phủ thương hiệu.",
+      "risks": "Biên lợi nhuận thấp hơn mảng bán lẻ, thời gian quay vòng vốn và thu hồi công nợ đại lý chậm hơn bán lẻ tiền mặt."
+    },
+    {
+      "name": "Dịch vụ Giám định Kim hoàn (PNJ-Lab) & Khác",
+      "service_description": "Cung cấp dịch vụ kiểm định chất lượng kim cương, đá quý, kim loại quý cho khách hàng nội bộ và đối tác bên ngoài.",
+      "target_customers": "Khách hàng mua bán đá quý, đối tác kinh doanh kim hoàn và nội bộ PNJ.",
+      "rev_share_pct": 1.5,
+      "gross_profit_share_pct": 1.5,
+      "gross_margin_pct": 25.0,
+      "role": "Bảo chứng uy tín kỹ thuật",
+      "strategic_role": "CREDIBILITY_ANCHOR",
+      "status": "Tâm điểm rủi ro pháp lý năm 2026",
+      "highlights": "Từng là đơn vị kiểm định đá quý uy tín hàng đầu Việt Nam được cấp chứng nhận quốc tế.",
+      "risks": "Biến cố nguyên Giám đốc PNJ-Lab bị điều tra do cấp kiểm định cho kim cương nhập lậu làm tổn hại nghiêm trọng thương hiệu."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Hệ thống Mạng lưới Hơn 400 Cửa hàng Bán lẻ PNJ Toàn quốc",
+      "location": "Phủ sóng 55/63 tỉnh thành Việt Nam (Tập trung tại TP.HCM, Hà Nội và các đô thị loại 1)",
+      "scale": "Mạng lưới bán lẻ kim hoàn lớn nhất Việt Nam, tích hợp đa mô hình (PNJ Gold, PNJ Next, Style by PNJ)",
+      "status": "Đang vận hành khai thác tạo dòng tiền",
+      "profit_contribution": "Đóng góp hơn 80% lợi nhuận gộp toàn tập đoàn, là con hào kinh tế hữu hình bảo vệ doanh nghiệp trước khủng hoảng.",
+      "bottlenecks_and_risks": "Chi phí thuê mặt bằng đắc địa lớn và áp lực sụt giảm sức mua trang sức cao cấp."
+    },
+    {
+      "name": "Nhà máy Chế tác Trang sức PNJ (Công suất 4 triệu sản phẩm/năm)",
+      "location": "Quận Gò Vấp, TP.HCM & Long An",
+      "scale": "Tổ hợp chế tác kim hoàn công nghệ cao lớn nhất Đông Nam Á",
+      "status": "Đang hoạt động",
+      "profit_contribution": "Giúp PNJ tự chủ 100% khâu sản xuất trang sức, tối ưu hóa giá thành so với các đối thủ phải nhập khẩu hoặc gia công nhỏ lẻ.",
+      "bottlenecks_and_risks": "Áp lực quản lý nguyên vật liệu vàng/đá quý và rủi ro hao hụt trong quá trình chế tác."
+    }
+  ]
+}

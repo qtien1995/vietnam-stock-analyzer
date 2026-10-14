@@ -36,3 +36,10 @@ data/*.db
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Backup & Temporary files
+*.bak
+*.tmp
+*.temp
+*~
+

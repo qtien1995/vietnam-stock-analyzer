@@ -15,10 +15,15 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-# Disable telemetry noise from vnstock
+# Disable telemetry noise and deprecation banners from vnstock
 os.environ["VNSTOCK_TELEMETRY"] = "off"
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="vnstock.*")
+warnings.filterwarnings("ignore", message=".*vnstock.*", category=DeprecationWarning)
+warnings.filterwarnings("ignore", message=".*StockComponents.*", category=DeprecationWarning)
 
 HEADERS = {
+
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Accept": "application/json",
 }

@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sổ Tay Toàn Diện: Hệ Thống Phân Tích Cổ Phiếu 360° | Vietnam Stock Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #050811;
+            --bg-surface-1: #0a0f1d;
+            --bg-surface-2: #10172c;
+            --bg-surface-3: #16203a;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(56, 189, 248, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-cyan: #38bdf8;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --accent-amber: #f59e0b;
+            --accent-violet: #a855f7;
+            --accent-indigo: #6366f1;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 80px;
+        }
+
+        code, pre, .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Top Sticky Header */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(5, 8, 17, 0.88);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-badge {
+            background: linear-gradient(135deg, #38bdf8, #6366f1);
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            list-style: none;
+            font-size: 0.85rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* Layout Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        /* Hero Banner */
+        .hero {
+            background: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 40%),
+                        var(--bg-surface-1);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            margin-bottom: 36px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 900px;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+        }
+
+        .stat-card .num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin-bottom: 4px;
+        }
+
+        .stat-card .lbl {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Flow Overview Section */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .section-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-pill {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-cyan { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-rose { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.3); }
+        .badge-amber { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-violet { background: rgba(168, 85, 247, 0.15); color: var(--accent-violet); border: 1px solid rgba(168, 85, 247, 0.3); }
+
+        /* Module Bento Grid */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .col-12 { grid-column: span 12; }
+        .col-8  { grid-column: span 8; }
+        .col-6  { grid-column: span 6; }
+        .col-4  { grid-column: span 4; }
+
+        @media (max-width: 992px) {
+            .col-8, .col-6, .col-4 { grid-column: span 12; }
+            .hero { padding: 24px; }
+            .hero h1 { font-size: 1.8rem; }
+            .nav-links { display: none; }
+        }
+
+        .card {
+            background: var(--bg-surface-1);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: rgba(56, 189, 248, 0.35);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Detail List & Items */
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+        }
+
+        .feature-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+        }
+
+        .feature-desc {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        .formula-box {
+            background: rgba(15, 23, 42, 0.8);
+            border-left: 3px solid var(--accent-cyan);
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #bae6fd;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Tables */
+        .data-table-wrap {
+            overflow-x: auto;
+            margin-top: 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg-surface-2);
+            padding: 12px 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: #cbd5e1;
+            vertical-align: top;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        /* Pipeline Flow Diagram */
+        .pipeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .pipeline-step {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            background: var(--bg-surface-2);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+
+        .step-index {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-cyan);
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid var(--border-subtle);
+        }
+
+        .step-body {
+            padding: 14px 18px;
+        }
+
+        .step-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #fff;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-details {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* 5 Schools Matrix */
+        .school-card {
+            border-left: 4px solid var(--accent-cyan);
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        /* Highlights */
+        .highlight-emerald { color: var(--accent-emerald); font-weight: 600; }
+        .highlight-rose { color: var(--accent-rose); font-weight: 600; }
+        .highlight-cyan { color: var(--accent-cyan); font-weight: 600; }
+        .highlight-amber { color: var(--accent-amber); font-weight: 600; }
+
+        /* Footer */
+        .footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-subtle);
+            text-align: center;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAVIGATION -->
+    <header class="top-nav">
+        <div class="brand-box">
+            <span class="brand-badge">ARCHITECTURE SPECS</span>
+            <span class="brand-title">Vietnam Stock Analyzer Terminal</span>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#pipeline">Quy trình Top-Down</a></li>
+                <li><a href="#eli5">Phân hệ ELI5</a></li>
+                <li><a href="#macro">Vĩ mô & Hàng hóa</a></li>
+                <li><a href="#fa">Cơ bản 360°</a></li>
+                <li><a href="#ta">Kỹ thuật 360°</a></li>
+                <li><a href="#timing">Thời điểm Tăng/Sập</a></li>
+                <li><a href="#council">Hội đồng 5 Trường phái</a></li>
+                <li><a href="#risk">Quản trị Rủi ro</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <span class="badge-pill badge-cyan" style="margin-bottom: 12px; display: inline-block;">ĐẶC TẢ CHI TIẾT NĂNG LỰC PHÂN TÍCH</span>
+            <h1>Khi Phân Tích 1 Cổ Phiếu, Hệ Thống Sẽ Bóc Tách Những Gì?</h1>
+            <p>
+                Dự án <strong>Vietnam Stock Analyzer</strong> không chỉ xem giá hay vài đường chỉ báo thông thường. Mỗi mã cổ phiếu đều được đưa qua một 
+                <strong>Hội đồng Tham mưu Đầu tư Độc lập</strong> với kiến trúc <strong>Top-Down 360 Độ</strong> kết hợp giữa <em>Khoa học Định lượng (Quantitative Models)</em>, 
+                <em>Kiểm toán Pháp y Báo cáo Tài chính (Financial Forensic)</em>, <em>Hành vi Nến Wyckoff VSA</em> và <em>Động cơ Thời điểm Tăng/Sập (Timing Matrix)</em>.
+            </p>
+
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="num">7 Phân Hệ</div>
+                    <div class="lbl">Chuẩn phân tích 360° AGENTS.md</div>
+                </div>
+                <div class="stat-card">
+                    <div class="num">5 Trường Phái</div>
+                    <div class="lbl">Hội đồng phản biện độc lập</div>
+                </div>
+                <div class="stat-card">
+                    <div class="num">35+ Tiêu Chí FA</div>
+                    <div class="lbl">Bóc tách dòng tiền thật & tài sản</div>
+                </div>
+                <div class="stat-card">
+                    <div class="num">20+ Chỉ Báo TA</div>
+                    <div class="lbl">Wyckoff, VCP, Fibo & Smart Money</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 1. QUY TRÌNH THỰC THI 8 BƯỚC (DATA PIPELINE) -->
+        <section id="pipeline" style="margin-bottom: 40px;">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>⚡</span> 1. Luồng Dữ Liệu & Quy Trình Phân Tích Thực Tế (Top-Down Flow)
+                </div>
+                <span class="badge-pill badge-indigo">AUTOMATED PIPELINE</span>
+            </div>
+
+            <div class="pipeline-container">
+                <div class="pipeline-step">
+                    <div class="step-index">01</div>
+                    <div class="step-body">
+                        <div class="step-title">Thu thập Dữ liệu Đa tầng (Data Ingestion)</div>
+                        <div class="step-details">
+                            Quét bảng giá khớp lệnh Realtime 3 sàn (HOSE, HNX, UPCoM), chuỗi nến lịch sử 250 phiên OHLCV, Báo cáo tài chính 4 quý liên tiếp (Kết quả kinh doanh, Bảng cân đối, Lưu chuyển tiền tệ), cơ cấu cổ đông, danh sách ban lãnh đạo, và mạng lưới công ty con.
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-index">02</div>
+                    <div class="step-body">
+                        <div class="step-title">Phân tích Bối cảnh Vĩ mô & Độ nhạy Hàng hóa (Macro & Commodities Engine)</div>
+                        <div class="step-details">
+                            Định vị pha chu kỳ ngành, đo lường điểm Gió xuôi Vĩ mô (Tailwind Score 0-100), cập nhật Lãi suất FED, Lạm phát Mỹ CPI, DXY, Tỷ giá USD/VND và ma trận giá hàng hóa thế giới (Dầu Brent, Vàng, Thép HRC, Cao su TSR20, Phân Urea).
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-index">03</div>
+                    <div class="step-body">
+                        <div class="step-title">Kiểm toán Pháp y Cơ bản & Dòng tiền Thật (FA Forensic & Balance Sheet)</div>
+                        <div class="step-details">
+                            Chấm điểm Piotroski F-Score (thang 9), Altman Z''-Score (nguy cơ kiệt quệ tài chính), đối chiếu CFO vs LNST kế toán (chất lượng lợi nhuận Hạng A/B/C/D), tính toán FCF, thẩm định giá trị sổ sách BVPS, định giá P/B, tỷ lệ tài sản đọng vốn, và kích hoạt Radar cảnh báo Bẫy Giá Trị (Value Trap).
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-index">04</div>
+                    <div class="step-body">
+                        <div class="step-title">Rà soát Quản trị Doanh nghiệp & Radar Hệ sinh thái (Governance & Shell Radar)</div>
+                        <div class="step-details">
+                            Chấm điểm G-Score (0-100), kiểm tra cơ cấu sở hữu (Free-float, Khối ngoại, Cổ đông TNHH cá nhân), đo lường mức độ cam kết của ban lãnh đạo (Skin in the game), và phát hiện mạng lưới chân rết đa tầng có rủi ro tăng vốn ảo hay luân chuyển vốn lòng vòng (Circular Capital).
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-index">05</div>
+                    <div class="step-body">
+                        <div class="step-title">Phân tích Kỹ thuật Nâng cao & Dòng tiền Lớn (Advanced TA & Wyckoff VSA)</div>
+                        <div class="step-details">
+                            Đo lường xu hướng (EMA20, EMA50, SMA200), động lượng RSI 14, MACD, ATR 14, kiểm tra mẫu hình thu hẹp biến động VCP (Mark Minervini), xác định pha Wyckoff (Tích lũy / Đẩy giá / Phân phối), dấu chân nến VSA (No Supply Test, Shakeout, SOS), thoái lui Fibonacci và vùng cung kẹp hàng đỉnh cũ (Overhead Supply).
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-index">06</div>
+                    <div class="step-body">
+                        <div class="step-title">Động cơ Thời điểm Tăng/Sập & Thước đo Giá (Timing Matrix & Price Ladder)</div>
+                        <div class="step-details">
+                            Trả lời hai câu hỏi lớn: "Khi nào tăng?" (Điểm nổ Pivot, khối lượng xác nhận, độ trễ vĩ mô 1-3 phiên) và "Khi nào sập?" (Failure Level, tín hiệu Upthrust, RSI phân kỳ âm). Đồng thời vẽ Thước đo giá (Price Ladder) thể hiện trực quan khoảng cách % tới Cắt lỗ, Pivot và Mục tiêu chốt lời.
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-index">07</div>
+                    <div class="step-body">
+                        <div class="step-title">Kiểm định Cổng Rủi ro & Hoạch định 2 Kế hoạch Giao dịch (Setup Gate & Sizing)</div>
+                        <div class="step-details">
+                            Cổng Setup Validation Gate tự động khóa vị thế nếu cổ phiếu vi phạm kỷ luật (Downtrend sâu, CFO âm nặng, Z-score nguy hiểm). Nếu đạt chuẩn, hệ thống tính toán 2 kế hoạch: Tích sản Giá trị (Fair Value, MoS) và Lướt sóng Kỹ thuật (Buy zone, Stop Loss tuân thủ biên độ sàn HOSE ≤7% / HNX ≤10% / UPCoM ≤14%, Take Profit 1 & 2, R:R ≥ 2:1, Sizing kiểm soát rủi ro 1.5% NAV).
+                        </div>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-index">08</div>
+                    <div class="step-body">
+                        <div class="step-title">Tranh biện Hội đồng AI 5 Trường phái & Xuất bản Báo cáo (Council & Publishing)</div>
+                        <div class="step-details">
+                            5 chuyên gia đại diện cho 5 trường phái (Buffett, Lynch, Wyckoff, Dalio, Marks/CRO) tranh biện, bóc tách Điểm mâu thuẫn lớn nhất (Conflict Spotlight), viết lời giải thích mộc mạc cho đứa trẻ lên 5 (ELI5), dự phóng 3 kịch bản kèm điều kiện mất hiệu lực (Invalidation Triggers), rồi xuất bản Báo cáo HTML trực quan và tự động bắn về Telegram.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. BÓC TÁCH CHI TIẾT TỪNG PHÂN HỆ -->
+        <div class="section-header">
+            <div class="section-title">
+                <span>🔬</span> 2. Bóc Tách Chi Tiết Từng Phân Hệ & Chỉ Số Định Lượng
+            </div>
+            <span class="badge-pill badge-cyan">DEEP-DIVE MODULES</span>
+        </div>
+
+        <div class="bento-grid">
+
+            <!-- PHÂN HỆ 1: ELI5 -->
+            <div class="card col-6" id="eli5">
+                <div class="card-top">
+                    <div>
+                        <div class="card-title">🧒 Phân Hệ 1: Giải Thích Cho Đứa Trẻ Lên 5 (ELI5)</div>
+                        <div class="card-subtitle">Bản chất cốt lõi kinh doanh qua ẩn dụ đời thường</div>
+                    </div>
+                    <span class="badge-pill badge-violet">ELI5 CORE</span>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+                    Trước khi đi vào ma trận số liệu kỹ thuật phức tạp, hệ thống bắt buộc phải diễn giải doanh nghiệp bằng những ví dụ gần gũi nhất (tiệm tạp hóa của bác Ba, hũ heo đất, người đi câu cá, bão biển...):
+                </p>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>1. Công ty này bán cái gì để kiếm tiền?</span>
+                            <span class="badge-pill badge-cyan">Mô hình thật</span>
+                        </div>
+                        <div class="feature-desc">Bóc trần bản chất hoạt động kinh doanh thật sự thay vì những thuật ngữ mỹ miều trên báo chí.</div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>2. Tiền thật hay tiền trên giấy?</span>
+                            <span class="badge-pill badge-emerald">Chất lượng tiền</span>
+                        </div>
+                        <div class="feature-desc">Tiền có thực sự chảy vào túi hay chỉ là con số ghi sổ nợ mà đối tác không chịu trả hoặc nằm đọng trong hàng ế?</div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>3. Món hời hay chiếc bẫy chuột?</span>
+                            <span class="badge-pill badge-rose">Bẫy giá trị</span>
+                        </div>
+                        <div class="feature-desc">Giải mã tại sao giá cổ phiếu lại rẻ? Rẻ vì thị trường bỏ quên hay rẻ vì doanh nghiệp sắp phá sản?</div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>4. Đội lái và "cá mập" đang làm gì?</span>
+                            <span class="badge-pill badge-amber">Smart Money</span>
+                        </div>
+                        <div class="feature-desc">Họ đang âm thầm gom hàng trong bóng tối hay đang dựng rạp diễn xiếc để chuyền hòn than nóng cho người khác?</div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>5. Lời khuyên bỏ tiền ống heo</span>
+                            <span class="badge-pill badge-violet">Quyết định</span>
+                        </div>
+                        <div class="feature-desc">Có nên đập ống heo mua cổ phiếu này lúc này không, hay nên cất tiền chờ cơ hội tốt hơn?</div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PHÂN HỆ 2: VĨ MÔ & HÀNG HÓA -->
+            <div class="card col-6" id="macro">
+                <div class="card-top">
+                    <div>
+                        <div class="card-title">🌐 Phân Hệ 2: Vĩ Mô & Ma Trận Hàng Hóa Thế Giới</div>
+                        <div class="card-subtitle">Top-Down Macro Engine & Commodity Sensitivity</div>
+                    </div>
+                    <span class="badge-pill badge-cyan">GLOBAL MACRO</span>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+                    Không một cổ phiếu nào có thể tách rời khỏi dòng chảy tiền tệ quốc tế và chu kỳ kinh tế trong nước. Hệ thống phân tích:
+                </p>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Biến số Vĩ mô & Tiền tệ then chốt</span>
+                        </div>
+                        <div class="feature-desc">
+                            • <strong>Lãi suất FED:</strong> Chu kỳ nới lỏng hay thắt chặt tiền tệ.<br>
+                            • <strong>Chỉ số DXY & Tỷ giá USD/VND:</strong> Áp lực rút vốn ngoại & tác động doanh nghiệp vay nợ USD.<br>
+                            • <strong>Chính sách NHNN:</strong> Lãi suất tái cấp vốn, tăng trưởng tín dụng & giải ngân đầu tư công.
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Ma trận Hàng hóa Trọng yếu (Commodities Radar)</span>
+                        </div>
+                        <div class="feature-desc">
+                            Theo dõi giá Dầu Brent (Dầu khí PVD, PVS), Vàng thế giới & SJC (PNJ), Cao su TSR20 (GVR, PHR), Thép cuộn cán nóng HRC (HPG, NKG), Phân Urea (DPM, DCM).
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Định vị Pha Chu kỳ Ngành & Điểm Gió xuôi (Tailwind Score)</span>
+                        </div>
+                        <div class="feature-desc">
+                            Xác định ngành đang ở pha nào: <em>Đáy tích lũy, Tăng tốc mở rộng, Đỉnh chu kỳ, hay Suy thoái</em>. Chấm điểm Gió xuôi Vĩ mô từ <strong>0 đến 100 điểm</strong>.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PHÂN HỆ 3: CƠ BẢN DOANH NGHIỆP 360° -->
+            <div class="card col-12" id="fa">
+                <div class="card-top">
+                    <div>
+                        <div class="card-title">🔬 Phân Hệ 3: Bóc Tách Chuyên Sâu Cơ Bản (FA Deep-Dive 360°)</div>
+                        <div class="card-subtitle">Kiểm toán BCTC, Pháp y Dòng tiền thật & Radar Thao túng Tài sản</div>
+                    </div>
+                    <span class="badge-pill badge-emerald">FA QUANT & FORENSIC</span>
+                </div>
+
+                <div class="bento-grid" style="margin-bottom: 0;">
+                    <!-- Cột 1: Dòng tiền & Sức khỏe -->
+                    <div class="col-6">
+                        <h4 style="color: var(--accent-cyan); margin-bottom: 12px; font-size: 0.95rem;">A. Pháp Y Dòng Tiền Thật & Cảnh Báo Phá Sản</h4>
+                        <ul class="feature-list">
+                            <li class="feature-item">
+                                <div class="feature-item-header">
+                                    <span>BCTC 4 Quý Gần Nhất (Chuỗi Quý Độc Lập)</span>
+                                </div>
+                                <div class="feature-desc">
+                                    Bóc tách từng quý: <strong>Doanh thu thuần, LNST kế toán, Tiền mặt thuần từ HĐKD (CFO), Chi tiêu vốn CapEx, và Dòng tiền tự do FCF (CFO - CapEx)</strong>.
+                                </div>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-item-header">
+                                    <span>Kiểm định Chất lượng Lợi nhuận (Earnings Quality Grade)</span>
+                                    <span class="badge-pill badge-emerald">Hạng A - D</span>
+                                </div>
+                                <div class="feature-desc">
+                                    So sánh tỷ lệ <code>CFO / LNST</code>. Nếu tỷ lệ &ge; 1.0x: Hạng A (Lợi nhuận đi kèm tiền thật). Nếu CFO âm trong khi LNST báo lãi đậm: <strong>Báo động đỏ Hạng D (Lợi nhuận ảo trên giấy!)</strong>.
+                                </div>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-item-header">
+                                    <span>Chỉ số Kiệt Quệ Tài Chính Altman Z''-Score</span>
+                                    <span class="badge-pill badge-rose">Emerging Markets</span>
+                                </div>
+                                <div class="feature-desc">
+                                    Áp dụng mô hình Altman Z'' cho thị trường mới nổi (Emerging Markets):
+                                    <div class="formula-box">Z'' = 6.56*X1 + 3.26*X2 + 6.72*X3 + 1.05*X4</div>
+                                    Phân định 3 vùng: <strong>An toàn (Z'' &ge; 2.60)</strong>, <strong>Vùng xám (1.10 - 2.60)</strong>, và <strong>Vùng nguy hiểm kiệt quệ tài chính (Z'' &lt; 1.10)</strong>. *(Miễn trừ cho Ngân hàng & Chứng khoán)*.
+                                </div>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-item-header">
+                                    <span>Piotroski F-Score (Thang Điểm 0 - 9)</span>
+                                    <span class="badge-pill badge-cyan">Sức khỏe 9 tiêu chí</span>
+                                </div>
+                                <div class="feature-desc">
+                                    Chấm điểm toàn diện qua 3 trụ cột: <em>Khả năng sinh lời (ROA, CFO, tăng trưởng LNST)</em>, <em>Cơ cấu đòn bẩy & thanh khoản (Nợ vay/VCSH, Current Ratio, không pha loãng)</em>, và <em>Hiệu quả hoạt động (Biên lãi gộp, vòng quay tài sản)</em>.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Cột 2: Tài sản, Quản trị & Mô hình -->
+                    <div class="col-6">
+                        <h4 style="color: var(--accent-amber); margin-bottom: 12px; font-size: 0.95rem;">B. Radar Tài Sản, Bẫy Giá Trị & Quản Trị Hệ Sinh Thái</h4>
+                        <ul class="feature-list">
+                            <li class="feature-item">
+                                <div class="feature-item-header">
+                                    <span>Định Giá Tài Sản & Thang 5 Cấp Độ Rủi Ro Thao Túng</span>
+                                    <span class="badge-pill badge-amber">P/B & BVPS</span>
+                                </div>
+                                <div class="feature-desc">
+                                    Tính Giá trị sổ sách mỗi cổ phiếu <code>BVPS</code>, <code>TBVPS</code> (trừ vô hình), <code>NCAVPS</code> (Net-Net Graham), và Bội số <code>P/B</code>. Phân cấp từ <strong>Cấp 1 (Món hời tài sản chiết khấu P/B &lt; 1.0x)</strong> tới <strong>Cấp 5 (Định giá tách rời tài sản thực / Bong bóng đầu cơ P/B &gt; 6.0x)</strong>.
+                                </div>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-item-header">
+                                    <span>Radar Nhận Diện Bẫy Giá Trị (Value Trap Detection)</span>
+                                    <span class="badge-pill badge-rose">Bảo vệ vốn</span>
+                                </div>
+                                <div class="feature-desc">
+                                    Tự động phát hiện khi <code>P/B &lt; 1.0x</code> nhưng tài sản đọng vốn <em>(Phải thu + Tồn kho) / Tổng tài sản &gt; 45%</em> hoặc <em>Nợ vay / Tiền mặt &gt; 5.0x</em> &rarr; <strong>Hạ điểm an toàn vốn, gắn nhãn BẪY GIÁ TRỊ, cấm khuyến nghị mua!</strong>
+                                </div>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-item-header">
+                                    <span>Bóc Tách Mô Hình Cốt Lõi & Pipeline Dự Án Trọng Điểm</span>
+                                </div>
+                                <div class="feature-desc">
+                                    Phân loại mảng kinh doanh: <em>Con bò sữa tạo tiền (Cash Cow)</em>, <em>Trụ cột quy mô (Scale Base)</em>, hay <em>Ngòi nổ bùng nổ (Catalyst)</em>. Rà soát tiến độ thực tế, quy mô, và rủi ro pháp lý của từng dự án lớn.
+                                </div>
+                            </li>
+                            <li class="feature-item">
+                                <div class="feature-item-header">
+                                    <span>Quản Trị G-Score & Radar Tăng Vốn Ảo (Circular Capital)</span>
+                                    <span class="badge-pill badge-violet">G-Score</span>
+                                </div>
+                                <div class="feature-desc">
+                                    Đánh giá Cơ cấu sở hữu (Free-float %, Khối ngoại %), Cam kết ban lãnh đạo <em>(Skin in the game - % cổ phần Chủ tịch/CEO)</em>. Quét mạng lưới công ty con/liên kết đa tầng để phát hiện thủ thuật <strong>tăng vốn ảo, luân chuyển vốn lòng vòng hoặc phát hành trái phiếu nội bộ</strong>.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHÂN HỆ 4: KỸ THUẬT & DÒNG TIỀN 360° -->
+            <div class="card col-12" id="ta">
+                <div class="card-top">
+                    <div>
+                        <div class="card-title">📈 Phân Hệ 4: Bóc Tách Chuyên Sâu Kỹ Thuật (TA Deep-Dive 360°)</div>
+                        <div class="card-subtitle">Hệ thống Đa chỉ báo, Wyckoff VSA, Mô hình VCP & Fibonacci</div>
+                    </div>
+                    <span class="badge-pill badge-cyan">TA QUANT & VOLUME</span>
+                </div>
+
+                <div class="data-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">Phương Pháp / Nhóm</th>
+                                <th style="width: 28%;">Chỉ Báo & Thông Số Đo Lường</th>
+                                <th style="width: 50%;">Ý Nghĩa Nghiệp Vụ & Cơ Chế Định Lượng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong style="color: #38bdf8;">Đường Xu Hướng (Trend Template)</strong></td>
+                                <td>EMA20, EMA50, SMA200, Khoảng cách tới EMA20 (%)</td>
+                                <td>
+                                    • Đánh giá cấu trúc xu hướng: <em>Uptrend hoàn hảo khi Giá &gt; EMA20 &gt; EMA50 &gt; SMA200</em>.<br>
+                                    • <strong>Nguyên tắc chống mua rượt (Anti-Overextended):</strong> Nếu giá chạy quá xa nền ngắn hạn (cách EMA20 &gt; 10%), hệ thống phạt điểm và cảnh báo không mua đuổi.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: #fbbf24;">Động Lượng & Biên Độ (Momentum)</strong></td>
+                                <td>RSI 14, MACD (12, 26, 9), ATR 14 (Average True Range)</td>
+                                <td>
+                                    • <strong>RSI 14:</strong> Nhận diện quá mua (&ge; 70) chực chờ điều chỉnh, hoặc quá bán (&le; 30) cạn lực xả.<br>
+                                    • <strong>MACD & Signal & Histogram:</strong> Đón điểm giao cắt động lượng tăng/giảm.<br>
+                                    • <strong>ATR 14:</strong> Đo lường biến động thực tế để đặt biên cắt lỗ và xác định kích thước thân nến.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: #a855f7;">CANSLIM & Mark Minervini</strong></td>
+                                <td>Mô hình Thu hẹp Biến động VCP, Nền giá phẳng Tight Flat Base</td>
+                                <td>
+                                    • <strong>Mô hình VCP:</strong> Đo lường chuỗi co thắt biên độ (ví dụ: từ 15% xuống 7%), thanh khoản cạn kiệt ở nhịp co thắt cuối cùng trước phiên bùng nổ.<br>
+                                    • <strong>Nền giá phẳng:</strong> Dao động biên độ hẹp &le; 6.5% trong 20 phiên, lực bán cạn sạch.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: #10b981;">Hành Vi Dòng Tiền Wyckoff VSA</strong></td>
+                                <td>4 Pha Chu kỳ, Nến No Supply Test, Shakeout/Spring, SOS</td>
+                                <td>
+                                    • Định vị 4 pha: <strong>Tích lũy (Accumulation) &rarr; Đẩy giá (Markup) &rarr; Phân phối (Distribution) &rarr; Đè giá (Markdown)</strong>.<br>
+                                    • <strong>No Supply Test:</strong> Biên độ hẹp, vol &lt; 0.65x MA20 (nhỏ lẻ hết hàng).<br>
+                                    • <strong>Spring / Shakeout:</strong> Đạp thủng hỗ trợ trong phiên rồi rút chân đóng cửa cao nhất.<br>
+                                    • <strong>SOS (Sign of Strength):</strong> Nến tăng dứt khoát kèm thanh khoản bùng nổ gấp &gt; 1.4x MA20.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color: #f43f5e;">Phòng Thủ & Vùng Cung Kẹp Hàng</strong></td>
+                                <td>Fibonacci Retracement (38.2%, 50%, 61.8%), Overhead Supply</td>
+                                <td>
+                                    • <strong>Fibo Retracement:</strong> Tính toán các ngưỡng hỗ trợ vàng từ đáy/đỉnh 60-120 phiên.<br>
+                                    • <strong>Overhead Supply:</strong> Đo lường lượng cung kẹp hàng tại đỉnh cũ 52 tuần. Cảnh báo áp lực xả hòa vốn khi giá hồi phục về vùng đỉnh cũ.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PHÂN HỆ 5: ĐỘNG CƠ THỜI ĐIỂM -->
+            <div class="card col-6" id="timing">
+                <div class="card-top">
+                    <div>
+                        <div class="card-title">⚡ Phân Hệ 5: Động Cơ Thời Điểm (Timing Matrix)</div>
+                        <div class="card-subtitle">Khi nào sẽ tăng? Khi nào sẽ sập? & Price Ladder Gauge</div>
+                    </div>
+                    <span class="badge-pill badge-amber">TIMING ENGINE</span>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+                    Động cơ định lượng giải quyết câu hỏi số 1 của nhà đầu tư: <em>"Thời điểm này mua đã chuẩn chưa, hay phải đợi thêm?"</em>
+                </p>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Kịch Bản Tăng ("Khi nào sẽ tăng?")</span>
+                            <span class="badge-pill badge-emerald">Surge Setup</span>
+                        </div>
+                        <div class="feature-desc">
+                            Chấm <strong>Điểm Hội tụ Điều kiện Tăng (Setup Quality Score 0 - 88)</strong> dựa trên nến cạn cung, RSI lành mạnh, gió xuôi vĩ mô. Tính toán mốc <strong>Pivot Kích Hoạt</strong> kèm điều kiện Vol &gt; 1.3x MA20 và độ trễ thẩm thấu vĩ mô 1-3 phiên.
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Kịch Bản Sập ("Khi nào sẽ sập?")</span>
+                            <span class="badge-pill badge-rose">Crash Risk</span>
+                        </div>
+                        <div class="feature-desc">
+                            Cảnh báo bẫy Upthrust, Buying Climax, phân kỳ âm RSI tại vùng quá mua. Xác định chính xác <strong>Ngưỡng Gãy Sóng (Failure Trigger Level)</strong>: nếu thủng mốc này, kịch bản tăng chính thức bị hủy bỏ.
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Thước Đo Kích Hoạt (Price Ladder Gauge)</span>
+                        </div>
+                        <div class="feature-desc">
+                            Trực quan hóa khoảng cách tương đối (%) giữa: <code>Cắt lỗ (SL) &rarr; Ngưỡng gãy sóng &rarr; Thị giá hiện tại &rarr; Điểm nổ Pivot &rarr; Mục tiêu chốt lời (TP1)</code>.
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Smart Money Pulse & Lịch Xúc Tác Sự Kiện (Catalyst)</span>
+                        </div>
+                        <div class="feature-desc">
+                            Ước tính tỷ lệ Khớp lệnh Mua/Bán chủ động, theo dõi động thái gom/xả khối ngoại ròng và đếm ngược ngày tới <em>Đáo hạn phái sinh VN30, Hạn chót BCTC quý, Kỳ cơ cấu ETF</em>.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PHÂN HỆ 6: QUẢN TRỊ RỦI RO & SETUP -->
+            <div class="card col-6" id="risk">
+                <div class="card-top">
+                    <div>
+                        <div class="card-title">🎯 Phân Hệ 6: Quản Trị Rủi Ro & Kế Hoạch Giao Dịch</div>
+                        <div class="card-subtitle">Setup Validation Gate, Kỷ luật Cắt lỗ & Phân bổ Vốn</div>
+                    </div>
+                    <span class="badge-pill badge-rose">RISK MANAGER</span>
+                </div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 14px;">
+                    Hệ thống đặt nguyên tắc <strong>bảo toàn vốn gốc</strong> lên trên lợi nhuận. Nếu cổ phiếu xấu, kiên quyết từ chối giải ngân:
+                </p>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Cổng Kiểm Định Thiết Lập (Setup Validation Gate)</span>
+                        </div>
+                        <div class="feature-desc">
+                            Nếu cổ phiếu rơi vào <em>Downtrend sâu, Z''-Score Distress, CFO âm nặng hoặc Consensus &lt; 45</em> &rarr; <strong>Trả về trạng thái NO_VALID_SETUP, Tỷ trọng = 0% NAV</strong>. Tuyệt đối không sinh vùng mua hay R:R giả mạo!
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Tách Bạch 2 Kế Hoạch Giao Dịch Độc Lập</span>
+                        </div>
+                        <div class="feature-desc">
+                            • <strong>Đầu tư Giá trị (Tích sản):</strong> Tính Giá trị thực (Fair value), Vùng gom an toàn với Biên an toàn (Margin of Safety &ge; 15 - 20%).<br>
+                            • <strong>Lướt sóng Ngắn hạn (Swing):</strong> Vùng mua ngắn hạn, Điểm cắt lỗ cứng, Mục tiêu chốt lời TP1 & TP2.
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Kỷ Luật Cắt Lỗ Theo Đặc Thù Sàn Việt Nam</span>
+                        </div>
+                        <div class="feature-desc">
+                            Tuân thủ biên độ sàn: <strong>HOSE &le; 7.0%</strong>, <strong>HNX &le; 10.0%</strong>, <strong>UPCoM &le; 14.0%</strong>. Tỷ lệ Lợi nhuận / Rủi ro <code>R:R &ge; 2.0:1</code>.
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-item-header">
+                            <span>Quản Trị Quy Mô Vị Thế (Position Sizing)</span>
+                        </div>
+                        <div class="feature-desc">
+                            Giới hạn mức rủi ro tối đa cho mỗi thương vụ ở mức <strong>1.5% tổng tài sản (NAV)</strong>. Trần giải ngân tối đa không quá 25% NAV cho một mã cổ phiếu.
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- PHÂN HỆ 7: HỘI ĐỒNG 5 TRƯỜNG PHÁI -->
+            <div class="card col-12" id="council">
+                <div class="card-top">
+                    <div>
+                        <div class="card-title">🏛️ Phân Hệ 7: Bảng Góc Nhìn 5 Trường Phái & Khối Mâu Thuẫn Lớn Nhất</div>
+                        <div class="card-subtitle">Investment Council Matrix & Conflict Spotlight (Clash of Perspectives)</div>
+                    </div>
+                    <span class="badge-pill badge-violet">AI COUNCIL</span>
+                </div>
+
+                <div class="bento-grid" style="margin-bottom: 20px;">
+                    <div class="col-4">
+                        <div class="school-card" style="border-left-color: #38bdf8;">
+                            <div style="font-weight: 700; color: #38bdf8; margin-bottom: 4px;">1. Giá Trị & Con Hào Kinh Tế</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px;">Benjamin Graham – Warren Buffett – Charlie Munger</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">
+                                Đánh giá con hào kinh tế bền vững (Moat), ROE/ROIC liên tục, dòng tiền thuần HĐKD tạo tiền thật, biên an toàn P/B và BVPS.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="school-card" style="border-left-color: #10b981;">
+                            <div style="font-weight: 700; color: #10b981; margin-bottom: 4px;">2. Tăng Trưởng Chất Lượng</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px;">Peter Lynch – Philip Fisher – William O'Neil</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">
+                                Soi tăng trưởng EPS/Doanh thu quý và năm, hệ số PEG (GARP), sản phẩm mới, câu chuyện mở rộng chuỗi và vị thế dẫn đầu ngành.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="school-card" style="border-left-color: #a855f7;">
+                            <div style="font-weight: 700; color: #a855f7; margin-bottom: 4px;">3. Kỹ Thuật & Dòng Tiền Lớn</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px;">Charles Dow – Richard Wyckoff – Mark Minervini</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">
+                                Bóc tách cấu trúc giá, mẫu hình tích lũy VCP, nến kiểm tra cung cầu VSA, khối lượng gom hàng và điểm bứt phá Pivot.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="school-card" style="border-left-color: #fbbf24;">
+                            <div style="font-weight: 700; color: #fbbf24; margin-bottom: 4px;">4. Vĩ Mô & Chu Kỳ Ngành</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px;">Ray Dalio – George Soros – Howard Marks</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">
+                                Định vị chu kỳ nợ, dòng chảy lãi suất, tỷ giá, chu kỳ hàng hóa và tâm lý bầy đàn đang ở trạng thái tham lam hay hoảng loạn.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="school-card" style="border-left-color: #f43f5e;">
+                            <div style="font-weight: 700; color: #f43f5e; margin-bottom: 4px;">5. Quản Trị Rủi Ro & Phản Biện</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 6px;">Howard Marks – Nassim Taleb – Chief Risk Officer (CRO)</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.5;">
+                                Lập giả định kịch bản tồi tệ nhất (Pre-mortem), rà soát rủi ro thanh khoản, pha loãng vốn, biến cố pháp lý và bẫy giá trị.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conflict Spotlight Box -->
+                <div style="background: rgba(244, 63, 94, 0.08); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: var(--radius-sm); padding: 18px;">
+                    <div style="font-weight: 800; color: #f43f5e; margin-bottom: 8px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                        <span>⚔️</span> Điểm Mâu Thuẫn Lớn Nhất Giữa Các Trường Phái (Conflict Spotlight)
+                    </div>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.6;">
+                        Hội đồng không chỉ đồng thanh khen ngợi mà tập trung làm sáng tỏ <strong>sự va chạm gay gắt nhất</strong>. Ví dụ: Phía <em>Định giá Tài sản</em> thấy P/B &lt; 0.7x là món hời chiết khấu sâu; trong khi phía <em>Dòng tiền & CRO</em> phản bác rằng tiền kinh doanh CFO âm nặng, tài sản toàn nợ khó đòi và lãnh đạo cam kết cổ phần quá thấp &rarr; <strong>Phán quyết điều hòa của Giám đốc Quản trị Rủi ro (CRO) sẽ đưa ra kết luận bảo vệ vốn tối cao.</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHÂN HỆ 8: DỰ PHÓNG KỊCH BẢN & MẤT HIỆU LỰC -->
+            <div class="card col-12">
+                <div class="card-top">
+                    <div>
+                        <div class="card-title">🔮 Phân Hệ 8: Dự Phóng 3 Kịch Bản & Điều Kiện Mất Hiệu Lực (Invalidation)</div>
+                        <div class="card-subtitle">Scenario Planning, Invalidation Triggers & Missing Data Audit</div>
+                    </div>
+                    <span class="badge-pill badge-indigo">SCENARIO & AUDIT</span>
+                </div>
+
+                <div class="bento-grid" style="margin-bottom: 0;">
+                    <div class="col-4">
+                        <div style="background: rgba(56, 189, 248, 0.06); border-top: 3px solid #38bdf8; border-radius: 8px; padding: 14px;">
+                            <div style="font-weight: 700; color: #38bdf8; margin-bottom: 4px;">Kịch Bản Cơ Sở (Base - 60%)</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.55;">
+                                Giá tiếp tục tích lũy co thắt trong nền giá hiện tại, kiểm định lực cung trước khi bứt phá vượt Pivot. Hành động: Thăm dò 30-50% tại nền, gia tăng khi vượt Pivot.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div style="background: rgba(16, 185, 129, 0.06); border-top: 3px solid #10b981; border-radius: 8px; padding: 14px;">
+                            <div style="font-weight: 700; color: #10b981; margin-bottom: 4px;">Kịch Bản Tích Cực (Bull - 25%)</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.55;">
+                                Dòng tiền lớn kích hoạt vượt dứt khoát đỉnh ngắn hạn, tiến nhanh về các mốc chốt lời TP1 & TP2. Hành động: Nâng chặn lãi (trailing stop) để tối đa hóa lợi nhuận.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div style="background: rgba(244, 63, 94, 0.06); border-top: 3px solid #f43f5e; border-radius: 8px; padding: 14px;">
+                            <div style="font-weight: 700; color: #f43f5e; margin-bottom: 4px;">Kịch Bản Tiêu Cực (Bear - 15%)</div>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.55;">
+                                Thị trường chung điều chỉnh xấu, giá gãy hỗ trợ và chạm mốc cắt lỗ. Hành động: Cắt lỗ dứt khoát không do dự, bảo toàn 100% vốn gốc.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6" style="margin-top: 14px;">
+                        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px;">
+                            <h5 style="color: #fca5a5; font-size: 0.9rem; margin-bottom: 8px;">⛔ Điều Kiện Làm Luận Điểm Mất Hiệu Lực (Invalidation Triggers)</h5>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6;">
+                                Quy định rõ ràng các sự kiện khiến toàn bộ khuyến nghị lập tức bị hủy bỏ:<br>
+                                • Giá đóng cửa gãy thủng ngưỡng hỗ trợ cứng hoặc đường xu hướng EMA50.<br>
+                                • Báo cáo tài chính kỳ tiếp theo ghi nhận dòng tiền HĐKD (CFO) tiếp tục âm nặng.<br>
+                                • Ban lãnh đạo bất ngờ bán chui hoặc phát sinh tranh chấp pháp lý nghiêm trọng.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6" style="margin-top: 14px;">
+                        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px;">
+                            <h5 style="color: #fde047; font-size: 0.9rem; margin-bottom: 8px;">🔎 Dữ Kiện Còn Thiếu Cần Thẩm Định Thêm (Missing Data Audit)</h5>
+                            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6;">
+                                Tuân thủ nguyên tắc trung thực tuyệt đối, không đoán mò khi thiếu số liệu:<br>
+                                • Tiến độ pháp lý thực địa và tỷ lệ người mua trả tiền trước tại các dự án dở dang.<br>
+                                • Phụ lục thuyết minh chi tiết các khoản tạm ứng cho bên liên quan.<br>
+                                • Kết luận của kiểm toán viên trong báo cáo tài chính soát xét bán niên/năm.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHÂN HỆ 9: KIẾN TRÚC ZERO-SERVER & ĐẦU RA -->
+            <div class="card col-12">
+                <div class="card-top">
+                    <div>
+                        <div class="card-title">📱 Phân Hệ 9: Kiến Trúc Zero-Server & Báo Cáo Trực Quan Độc Lập</div>
+                        <div class="card-subtitle">Bảo mật Cục bộ, Tốc độ Mở &lt; 100ms & Tự động Bắn Telegram</div>
+                    </div>
+                    <span class="badge-pill badge-emerald">ZERO-SERVER</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                    <div style="background: rgba(255,255,255,0.02); padding: 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                        <div style="font-weight: 700; color: #38bdf8; margin-bottom: 4px;">🚀 Hoàn Toàn Không Chạy Server Nền</div>
+                        <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.55;">
+                            Không chạy web server nền (Flask/NodeJS localhost:5000) gây chiếm dụng RAM. Tận dụng giao thức file cục bộ chạy trực tiếp trên Microsoft Edge với tốc độ tải trang siêu tốc.
+                        </div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.02); padding: 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                        <div style="font-weight: 700; color: #10b981; margin-bottom: 4px;">📊 Báo Cáo HTML Standalone & Đồ Thị Kép</div>
+                        <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.55;">
+                            Xuất bản thành file HTML độc lập tại <code>reports/YYYY-MM-DD_TICKER.html</code>. Tích hợp biểu đồ nến tương tác Lightweight Charts, Chart.js dòng tiền theo quý và SVG nội tuyến khi offline.
+                        </div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.02); padding: 14px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+                        <div style="font-weight: 700; color: #a855f7; margin-bottom: 4px;">📢 Tự Động Bắn Telegram 1 Chiều</div>
+                        <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.55;">
+                            Mỗi khi phân tích hoàn tất, bot tự động bắn tin nhắn tóm tắt kèm Ma trận Thời điểm và <strong>đính kèm trực tiếp file HTML nguyên bản</strong> về Telegram cá nhân để đọc ngay trên smartphone.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FOOTER & DISCLAIMER -->
+        <footer class="footer">
+            <p><strong>VIETNAM STOCK ANALYZER &bull; HỘI ĐỒNG THAM MƯU ĐẦU TƯ TTCK VIỆT NAM</strong></p>
+            <p style="margin-top: 6px; font-size: 0.78rem;">
+                Tài liệu đặc tả kiến trúc phân tích định lượng & định tính. Mọi phân tích là sản phẩm tham mưu hỗ trợ quyết định, không cấu thành lời mời chào hay khuyến nghị bảo đảm sinh lời.
+            </p>
+        </footer>
+
+    </main>
+
+</body>
+</html>

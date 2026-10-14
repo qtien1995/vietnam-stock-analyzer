@@ -115,23 +115,18 @@ TELEGRAM_CHAT_ID=
 
 ### Bước 3: Vận hành ứng dụng
 
-#### 🚀 Cách 1 (Khuyên dùng): Web App Trực Tiếp Trên Trình Duyệt Edge (`http://localhost:5000`)
-Không cần dùng file `.bat`, chỉ cần 1 lệnh đơn giản để khởi chạy giao diện Web offline:
-```bash
-python app.py
-```
-> **Trải nghiệm:** Server sẽ khởi động ngầm tại `http://localhost:5000` và **tự động mở Microsoft Edge** đưa bạn vào Bảng điều khiển Trung tâm:
-> - **Ô tìm kiếm 1-Click:** Nhập bất kỳ mã CP (`HPG`, `SSI`, `GVR`, `VHM`, `FPT`...) và bấm **Phân Tích 🚀**.
-> - **Thư viện Báo cáo:** Quản lý và mở trực tiếp tất cả các báo cáo chiến lược đã tạo.
-> - **Hỏi Đáp Tương Tác với Hội Đồng 6 AI:** Đặt câu hỏi thực chiến cho từng chuyên gia (Buffett, Minervini, Wyckoff, Lynch, Dalio, Taleb/CRO).
-> - **Đo Lực Khớp Lệnh Chủ Động (Buy Up vs Sell Down) & Dấu vết Khối ngoại.**
-> - **Lịch Xúc tác Sự kiện:** Đếm ngược ngày Đáo hạn phái sinh, Hạn chót BCTC Quý, Cơ cấu ETF.
+#### 🚀 Cách 1 (Khuyên dùng): Phân Tích 360 Độ Trực Tiếp Trên Đoạn Chat Antigravity
+Chỉ cần mở một đoạn chat trong Antigravity IDE và yêu cầu phân tích mã cổ phiếu (ví dụ: *"Phân tích cổ phiếu HPG/IDJ/FPT"*).
+> **Trải nghiệm:** Hội đồng Tham mưu AI sẽ cung cấp:
+> - **Phân tích 360 độ chuẩn nhà đầu tư chuyên nghiệp:** Bóc tách BCTC 4 quý, dòng tiền thực (CFO/FCF), kiểm toán tài sản, định giá P/E & P/B, chỉ báo kỹ thuật, Wyckoff VSA, mô hình VCP, động cơ thời điểm (khi nào tăng, khi nào sập), 3 kịch bản giá & điều kiện mất hiệu lực.
+> - **Giải thích như đứa trẻ lên 5 (ELI5):** Dùng các hình ảnh ẩn dụ đời thường dễ hiểu nhất để bóc trần bản chất cốt lõi của doanh nghiệp và thương vụ đầu tư.
+> - **Tự động xuất bản Báo cáo HTML cao cấp:** Lưu vào thư mục `reports/` và tự động bắn trực tiếp file HTML về Telegram cá nhân.
 
 ---
 
 #### 🌟 Cách 2: Mở Bảng Điều Khiển Offline trên Microsoft Edge (`DASHBOARD.html`)
 Bạn có thể mở trực tiếp không cần dòng lệnh:
-1. Nhấp đúp chuột vào file [`DASHBOARD.html`](file:///d:/AI/vietnam-stock-analyzer/DASHBOARD.html).
+1. **1-Click khởi chạy siêu tốc:** Nhấp đúp chuột vào file [`Mo_Dashboard.bat`](file:///d:/AI/vietnam-stock-analyzer/Mo_Dashboard.bat) hoặc [`Mo_Web_App.vbs`](file:///d:/AI/vietnam-stock-analyzer/Mo_Web_App.vbs).
 2. Hoặc chạy lệnh để cập nhật dữ liệu mới nhất và tự động kích hoạt Edge:
 ```bash
 python main.py --mode dashboard
@@ -144,14 +139,14 @@ python main.py --mode dashboard
 
 ---
 
-#### 🧠 Cách 2: Xem Sơ đồ Tư duy Dự án trên Microsoft Edge (`PROJECT_MINDMAP.html`)
+#### 🧠 Cách 3: Xem Sơ đồ Tư duy Dự án trên Microsoft Edge (`PROJECT_MINDMAP.html`)
 Nhấp đúp chuột vào file [`PROJECT_MINDMAP.html`](file:///d:/AI/vietnam-stock-analyzer/PROJECT_MINDMAP.html) để khám phá:
 * Cây sơ đồ tư duy tương tác D3.js (phóng to, thu nhỏ, đóng/mở nhánh phân hệ).
 * Bảng điều khiển Bento Grid trực quan trình bày chi tiết năng lực của **7 Phân hệ hoàn chỉnh**.
 
 ---
 
-#### 🔍 Cách 3: Soi sâu 1 mã cổ phiếu bất kỳ (`analyze`)
+#### 🔍 Cách 4: Soi sâu 1 mã cổ phiếu bất kỳ (`analyze`)
 ```bash
 # Phân tích mã PVD (Dầu khí)
 python main.py --mode analyze --ticker PVD
@@ -169,7 +164,25 @@ python main.py --mode analyze --ticker HPG
 
 ---
 
-#### 🌐 Cách 4: Quét Ma trận Vĩ mô & Hàng hóa Thế giới (`macro`)
+#### 💬 Cách 5: Bàn Tròn Hỏi-Đáp Trực Tiếp với 11 Chuyên Gia Hội Đồng (`ask`)
+Tương tác trực tiếp với bất kỳ ai trong 11 trường phái đầu tư đỉnh cao:
+```bash
+# Xem danh mục 11 chuyên gia và mã viết tắt
+python main.py --list-experts
+
+# Hỏi Warren Buffett về con hào kinh tế của HPG
+python main.py --mode ask --ticker HPG --expert buffett --question "Con hào kinh tế của Hòa Phát có bền vững không?"
+
+# Hỏi Nassim Taleb & CRO Arbiter về kịch bản rủi ro xấu nhất
+python main.py --mode ask --ticker IDJ --expert cro --question "Kịch bản xấu nhất (Pre-Mortem) của cổ phiếu này là gì?"
+
+# Hỏi Chuyên gia Thẩm định Quỹ PE (Private Equity)
+python main.py --mode ask --ticker GVR --expert pe --question "Chất lượng tài sản và triển vọng thoái vốn KCN thế nào?"
+```
+
+---
+
+#### 🌐 Cách 6: Quét Ma trận Vĩ mô & Hàng hóa Thế giới (`macro`)
 ```bash
 python main.py --mode macro
 ```
@@ -177,12 +190,13 @@ python main.py --mode macro
 
 ---
 
-#### 🚀 Cách 5: Quét toàn sàn tìm điểm nổ Vol (`scan`)
+#### 🚀 Cách 7: Quét toàn sàn tìm điểm nổ Vol (`scan`)
 ```bash
 # Quét tìm top 5 mã bùng nổ thanh khoản và bứt phá nền giá
 python main.py --mode scan --top 5
 ```
 *Kết quả:* Bảng xếp hạng các mã nổ Vol ($> 1.3x$ MA20) đạt tiêu chí CANSLIM và VSA kèm vùng mua, cắt lỗ và chốt lời.
+
 
 ---
 

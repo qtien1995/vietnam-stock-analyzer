@@ -340,6 +340,9 @@ def analyze_technicals(df: pd.DataFrame) -> Dict[str, Any]:
             "atr14": float(latest.get("atr14", 0.0)),
             "res_20d": float(latest.get("res_20d", float(latest["close"]))),
             "sup_20d": float(latest.get("sup_20d", float(latest["close"]))),
+            "macd": float(latest.get("macd", 0.0)),
+            "macd_signal": float(latest.get("macd_signal", 0.0)),
+            "macd_hist": float(latest.get("macd_hist", 0.0)),
             "vol_ratio": float(oneil["vol_ratio"])
         }
     }

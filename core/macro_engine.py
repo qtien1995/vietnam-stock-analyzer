@@ -172,7 +172,7 @@ KNOWN_TICKER_SECTORS = {
     "KDH": "RESIDENTIAL_REAL_ESTATE", "NLG": "RESIDENTIAL_REAL_ESTATE", "PDR": "RESIDENTIAL_REAL_ESTATE",
     "DXG": "RESIDENTIAL_REAL_ESTATE", "DIG": "RESIDENTIAL_REAL_ESTATE", "CEO": "RESIDENTIAL_REAL_ESTATE",
     "TCH": "RESIDENTIAL_REAL_ESTATE", "HDG": "RESIDENTIAL_REAL_ESTATE", "VRE": "RESIDENTIAL_REAL_ESTATE",
-    "BIG": "RESIDENTIAL_REAL_ESTATE",
+    "BIG": "RESIDENTIAL_REAL_ESTATE", "IDJ": "RESIDENTIAL_REAL_ESTATE", "API": "RESIDENTIAL_REAL_ESTATE",
 
     # Xuất khẩu: Thủy sản, Dệt may
     "VHC": "EXPORT_SEAFOOD_TEXTILE", "ANV": "EXPORT_SEAFOOD_TEXTILE", "FMC": "EXPORT_SEAFOOD_TEXTILE",
@@ -231,10 +231,13 @@ def classify_sector(symbol: str, overview_data: Optional[Dict[str, Any]] = None)
     raw_sector = str(overview_data.get("sector", "")).lower()
     text = f"{organ_name} {profile} {raw_sector}"
 
-    # Nhận diện Chứng khoán (ưu tiên cao)
+    clean_profile = profile.replace("sàn giao dịch chứng khoán", "").replace("sở giao dịch chứng khoán", "").replace("thị trường chứng khoán", "")
+    text = f"{organ_name} {clean_profile} {raw_sector}"
+
+    # Nhận diện Chứng khoán (ưu tiên cao khi đúng là CTCK)
     if "chứng khoán" in organ_name or "securities" in organ_name:
         return "SECURITIES"
-    if any(k in text for k in ["chứng khoán", "securities", "môi giới chứng khoán", "financial services"]):
+    if any(k in clean_profile for k in ["môi giới chứng khoán", "tự doanh chứng khoán", "công ty chứng khoán"]) and "bất động sản" not in text:
         return "SECURITIES"
 
     # Nhận diện Ngân hàng

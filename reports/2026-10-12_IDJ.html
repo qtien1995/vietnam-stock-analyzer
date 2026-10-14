@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Báo cáo Chiến lược Toàn diện IDJ | Hội đồng Tham mưu Đầu tư TTCK Việt Nam</title>
+    <!-- Chart.js & Lightweight Charts via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        :root {
+            --bg-main: #060913;
+            --bg-card: #0d1424;
+            --bg-card-alt: #141e34;
+            --border: #1e293b;
+            --border-highlight: #38bdf8;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #38bdf8;
+            --accent-amber: #f59e0b;
+            --accent-purple: #a855f7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .top-navbar {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(6, 9, 19, 0.95);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .brand-title {
+            font-size: 0.9rem; font-weight: 800; color: #fff;
+            letter-spacing: 0.8px; text-transform: uppercase;
+        }
+        .report-time { font-size: 0.8rem; color: var(--text-muted); }
+        .container { max-width: 1240px; margin: 0 auto; padding: 24px 18px; }
+        
+        /* HERO & EXECUTIVE VERDICT */
+        .hero-card {
+            background: linear-gradient(145deg, #101828, #0b1120);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 26px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+        }
+        .hero-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-wrap: wrap; gap: 18px;
+        }
+        .hero-left h1 {
+            font-size: 2.3rem; font-weight: 800; color: #fff;
+            letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px;
+        }
+        .hero-price { font-size: 1.9rem; font-weight: 800; color: #f59e0b; }
+        .hero-change {
+            font-size: 1.05rem; font-weight: 700; color: #f59e0b;
+            background: rgba(255, 255, 255, 0.06); padding: 4px 10px; border-radius: 8px;
+        }
+        
+        /* EXECUTIVE ONE-LINE VERDICT BOX */
+        .verdict-box {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1.5px solid #ef4444;
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-top: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 16px;
+        }
+        .verdict-title {
+            font-size: 1.45rem; font-weight: 900; color: #f87171;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .verdict-reason {
+            font-size: 0.95rem; color: #cbd5e1; margin-top: 6px; line-height: 1.6;
+        }
+        
+        /* QUICK NAV */
+        .quick-nav-bar {
+            position: sticky; top: 48px; z-index: 95;
+            background: rgba(6, 9, 19, 0.95);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 18px; margin: -12px -18px 26px -18px;
+            display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+        }
+        .quick-nav-bar::-webkit-scrollbar { display: none; }
+        .q-link {
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 12px; font-weight: 700; padding: 6px 14px;
+            border-radius: 8px; background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06); white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .q-link:hover { color: #fff; background: var(--bg-card-alt); border-color: var(--accent-blue); }
+        
+        /* CARDS & TABLES */
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 22px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+        .card-header {
+            font-size: 1.05rem; font-weight: 800; color: #f1f5f9;
+            margin-bottom: 16px; display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 12px;
+        }
+        .badge {
+            display: inline-block; font-size: 0.75rem; font-weight: 700;
+            padding: 4px 10px; border-radius: 6px; letter-spacing: 0.3px;
+        }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: left; }
+        th { background: rgba(15, 23, 42, 0.85); color: var(--text-muted); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; }
+        
+        /* TABS */
+        .qa-tabs-nav { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .qa-tab-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+            color: #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: 700;
+            font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+        }
+        .qa-tab-btn:hover { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .qa-tab-active { background: #38bdf8 !important; color: #070c16 !important; border-color: #38bdf8 !important; }
+        .qa-answer-box { background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; font-size: 0.92rem; color: #cbd5e1; line-height: 1.7; }
+        .qa-speaker { font-weight: 800; color: #38bdf8; }
+        
+        /* PRICE LADDER GAUGE */
+        .price-ladder-box {
+            background: rgba(2, 6, 23, 0.65);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-top: 18px;
+        }
+        .ladder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+        .ladder-track {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow-x: auto;
+            padding: 10px 0;
+            gap: 6px;
+        }
+        .ladder-step {
+            text-align: center;
+            padding: 10px 14px;
+            border-radius: 10px;
+            min-width: 125px;
+            border: 1px solid;
+            background: rgba(15, 23, 42, 0.85);
+        }
+        .step-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .step-price {
+            font-family: -apple-system, sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+        }
+        .step-dist {
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .step-fail { border-color: #ef4444; color: #fca5a5; }
+        .step-sl { border-color: #f87171; color: #fca5a5; }
+        .step-current {
+            border-color: #fbbf24;
+            background: rgba(251, 191, 36, 0.12);
+            color: #fff;
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.25);
+            transform: scale(1.04);
+        }
+        .step-pin {
+            font-size: 10px;
+            font-weight: 800;
+            color: #fbbf24;
+            margin-bottom: 4px;
+        }
+        .step-pivot { border-color: #10b981; color: #6ee7b7; background: rgba(16, 185, 129, 0.08); }
+        .step-tp1 { border-color: #38bdf8; color: #7dd3fc; }
+        .ladder-connector {
+            flex: 1;
+            height: 3px;
+            min-width: 16px;
+            background: #334155;
+            border-radius: 2px;
+        }
+        .conn-danger { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .conn-current { background: linear-gradient(90deg, #f87171, #fbbf24); }
+        .conn-pivot { background: linear-gradient(90deg, #fbbf24, #10b981); }
+        .conn-tp { background: linear-gradient(90deg, #10b981, #38bdf8); }
+        .ladder-summary-bar {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-header { flex-direction: column; align-items: stretch; }
+            .verdict-box { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAVBAR -->
+    <div class="top-navbar">
+        <div class="brand-title">🏛️ VIETNAM STOCK ANALYZER &bull; BÁO CÁO THAM MƯU ĐẦU TƯ TOÀN DIỆN</div>
+        <div class="report-time">12/10/2026 19:42:01</div>
+    </div>
+
+    <div class="container">
+
+        <!-- EXECUTIVE HERO CARD -->
+        <div class="hero-card">
+            <div class="hero-header">
+                <div class="hero-left">
+                    <h1>
+                        IDJ
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">HNX (±10%)</span>
+                        <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid #8b5cf6;">Bất động sản Dân dụng & Nhà ở</span>
+                    </h1>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px;">Công ty Cổ phần Đầu tư IDJ Việt Nam</p>
+                    <div style="display: flex; align-items: baseline; gap: 12px; margin-top: 10px; flex-wrap: wrap;">
+                        <span class="hero-price">2,900 đ</span>
+                        <span class="hero-change">0.00%</span>
+                        <span style="font-size: 0.85rem; color: #94a3b8;">Khối lượng: <b>348,600</b> CP (0.99x MA20)</span>
+                    </div>
+                </div>
+
+                <div style="text-align: right;">
+                    <div style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Độ đồng thuận Hội đồng AI</div>
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #f87171; margin-top: 2px;">
+                        15/100 <span style="font-size: 0.9rem; font-weight: normal; color: #94a3b8;">điểm</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">FA: <b>10/100</b> &bull; TA: <b>20/100</b></div>
+                </div>
+            </div>
+
+            <!-- HỘP KẾT LUẬN MỘT DÒNG BẮT BUỘC (EXECUTIVE 1-LINE VERDICT) -->
+            <div class="verdict-box">
+                <div style="flex: 1;">
+                    <div class="verdict-title">
+                        <span>🎯 KẾT LUẬN MỘT DÒNG:</span> BÁN / TRÁNH XA (AVOID) 
+                        <span class="badge" style="background: rgba(255,255,255,0.1); color: #fff; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.2);">Độ tin cậy: CAO</span>
+                    </div>
+                    <div class="verdict-reason">
+                        <b>Lý giải cốt lõi:</b> Cổ phiếu nằm trong xu hướng giảm (Downtrend), dưới các đường trung bình động; không giải ngân bắt đáy.
+                    </div>
+                </div>
+            </div>
+
+            <!-- TÁCH BẠCH 2 KẾ HOẠCH GIAO DỊCH -->
+            <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                <!-- Chiến lược Đầu tư Giá trị -->
+                <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 14px; padding: 18px;">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: #38bdf8; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">
+                        <span>🏛️ ĐẦU TƯ GIÁ TRỊ (BUFFETT & GRAHAM)</span>
+                        <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #38bdf8;">RẺ / CÓ BIÊN AN TOÀN CAO</span>
+                    </div>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                        • Giá trị thực ước tính: <b style="color: #fff; font-size: 1.05rem;">10,951 đ</b><br>
+                        • Vùng gom an toàn: <b style="color: #34d399;">KHÔNG ÁP DỤNG</b><br>
+                        • Cơ sở định giá: <i>Không giải ngân khi cổ phiếu vi phạm bộ lọc rủi ro.</i>
+                    </div>
+                </div>
+
+                <!-- Chiến lược Lướt sóng Kỹ thuật -->
+                <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 14px; padding: 18px;">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: #fbbf24; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">
+                        <span>🏄 LƯỚT SÓNG NGẮN HẠN (SWING / KỸ THUẬT)</span>
+                        <span class="badge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid #fbbf24;">N/A</span>
+                    </div>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                        • Vùng mua lướt sóng: <b style="color: #38bdf8;">KHÔNG CÓ VÙNG MUA (BẢO TOÀN VỐN)</b><br>
+                        • Cắt lỗ nghiêm ngặt (SL): <b style="color: #f87171;">N/A (Chưa mở vị thế)</b><br>
+                        • Chốt lời (Mục tiêu 1 &bull; 2): <b style="color: #34d399;">N/A</b><br>
+                        • Tỷ trọng tối đa: <b>0% (Đứng ngoài quan sát)</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUICK NAV BAR -->
+        <div class="quick-nav-bar">
+            <a href="#sec-matrix" class="q-link">🏛️ Bảng 5 Trường Phái</a>
+            <a href="#sec-fa" class="q-link">🔬 Phân Tích Cơ Bản (FA)</a>
+            <a href="#sec-ta" class="q-link">📈 Phân Tích Kỹ Thuật (TA)</a>
+            <a href="#sec-timing" class="q-link">⚡ Động Cơ Thời Điểm</a>
+            <a href="#sec-scenarios" class="q-link">🔮 Kịch Bản & Invalidation</a>
+            <a href="#sec-qa" class="q-link">💬 Bàn Tròn Hỏi Đáp</a>
+            <a href="#sec-glossary" class="q-link">📚 Sổ Tay Thuật Ngữ</a>
+        </div>
+
+        <!-- PHẦN 1: BẢNG GÓC NHÌN 5 TRƯỜNG PHÁI & KHỐI MÂU THUẪN -->
+        <div id="sec-matrix">
+            
+    <div class="card" style="margin-bottom: 24px; border-left: 4px solid var(--accent-blue);">
+        <div class="card-header">
+            <span>🏛️ BẢNG TỔNG HỢP GÓC NHÌN 5 TRƯỜNG PHÁI ĐẦU TƯ (COUNCIL MATRIX)</span>
+            <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">ĐỘ ĐỘNG THUẬN: 15/100</span>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 22%;">Trường phái Tư duy</th>
+                        <th style="width: 20%;">Nhận định & Khuyến nghị</th>
+                        <th style="width: 46%;">Luận điểm then chốt kèm Số liệu</th>
+                        <th style="width: 12%; text-align: center;">Đánh giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><b>1. Giá trị & Con hào kinh tế</b><br><span style="font-size: 0.78rem; color: #94a3b8;">Graham – Buffett – Munger</span></td>
+                        <td style="color: #f87171; font-weight: 700;">TRÁNH XA (KHÔNG ĐẠT CHUẨN)</td>
+                        <td style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.55;">P/B: <b>0.26x</b> (BVPS 10,951 đ). CFO TTM: <b>-30.06 tỷ đ</b>. Cảnh báo Bẫy giá trị: Lỗ kế toán hoặc thâm hụt tiền mặt HĐKD, biên an toàn sổ sách không đảm bảo khả năng bảo toàn vốn.</td>
+                        <td style="text-align: center;"><span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;">🔴 BẪY GIÁ TRỊ</span></td>
+                    </tr>
+                    <tr>
+                        <td><b>2. Tăng trưởng chất lượng</b><br><span style="font-size: 0.78rem; color: #94a3b8;">Lynch – Fisher – O'Neil</span></td>
+                        <td style="color: #f87171; font-weight: 700;">TRÁNH XA (DÒNG TIỀN YẾU)</td>
+                        <td style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.55;">EPS TTM: <b>-1,242 đ</b>. LNST TTM: <b>-215.41 tỷ đ</b>. Doanh nghiệp tăng trưởng âm hoặc kinh doanh thua lỗ, không đạt tiêu chí CANSLIM hay GARP của Peter Lynch.</td>
+                        <td style="text-align: center;"><span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;">🔴 KHÔNG ĐẠT CHUẨN</span></td>
+                    </tr>
+                    <tr>
+                        <td><b>3. Kỹ thuật & Dòng tiền</b><br><span style="font-size: 0.78rem; color: #94a3b8;">Dow – Wyckoff – Minervini</span></td>
+                        <td style="color: #f87171; font-weight: 700;">DOWNTREND / ĐỨNG NGOÀI</td>
+                        <td style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.55;">Giá (2,900 đ) < EMA20 (3,082 đ). RSI: <b>25.0</b>. Vol: <b>0.99x MA20</b>. Nằm dưới các đường xu hướng ngắn và trung hạn, không có tín hiệu dòng tiền lớn bảo kê, chưa có điểm nổ.</td>
+                        <td style="text-align: center;"><span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;">🔴 DOWNTREND</span></td>
+                    </tr>
+                    <tr>
+                        <td><b>4. Vĩ mô & Chu kỳ ngành</b><br><span style="font-size: 0.78rem; color: #94a3b8;">Ray Dalio – Howard Marks</span></td>
+                        <td style="color: #fbbf24; font-weight: 700;">CHU KỲ PHÂN HÓA</td>
+                        <td style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.55;">Ngành: <b>Bất động sản Dân dụng & Nhà ở</b> (Pha: <i>Phân hóa gỡ khó (Tích lũy đáy chu kỳ)</i>). Điểm Gió xuôi Vĩ mô: <b>68/100</b>. Mặt bằng lãi suất tiết kiệm thấp kích thích dòng tiền đầu tư, tuy nhiên phân khúc BĐS nghỉ dưỡng/condotel vẫn đối mặt áp lực thanh khoản và tái cơ cấu nợ.</td>
+                        <td style="text-align: center;"><span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b;">🟡 PHÂN HÓA</span></td>
+                    </tr>
+                    <tr>
+                        <td><b>5. Quản trị Rủi ro & Phản biện</b><br><span style="font-size: 0.78rem; color: #94a3b8;">Howard Marks – Taleb – CRO</span></td>
+                        <td style="color: #f87171; font-weight: 700;">BÁN / TRÁNH XA (AVOID)</td>
+                        <td style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.55;">Tỷ lệ trôi nổi Free-float: <b>80.0%</b>. Cam kết lãnh đạo (Skin in game): <b>0.58%</b>. Ban điều hành nắm giữ tỷ lệ cổ phần không đáng kể (<1%), rủi ro pha loãng và biến cố pháp lý hệ sinh thái ảnh hưởng tiêu cực tới uy tín thương hiệu.</td>
+                        <td style="text-align: center;"><span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;">🔴 RỦI RO CAO</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+            
+    <div style="background: linear-gradient(145deg, #1f1b2e, #131224); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 16px; padding: 20px; margin-bottom: 24px; box-shadow: 0 8px 25px rgba(0,0,0,0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(239, 68, 68, 0.2); padding-bottom: 10px;">
+            <div style="font-weight: 800; color: #f87171; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                <span>⚔️</span> ĐIỂM MÂU THUẪN LỚN NHẤT GIỮA CÁC TRƯỜNG PHÁI: Định giá Tài sản ròng & Biên an toàn vs Động lực Tăng trưởng Hoạt động cốt lõi
+            </div>
+            <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;">CLASH OF PERSPECTIVES</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div style="background: rgba(15, 23, 42, 0.65); padding: 14px 16px; border-radius: 10px; border-left: 3px solid #38bdf8;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">Trường phái Giá trị & Phòng thủ vốn (Buffett–Taleb)</div>
+                <div style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.6;">"Thị giá hiện tại (2,900 đ) so với giá trị sổ sách ròng BVPS (10,951 đ/CP, P/B 0.26x). Cần biên an toàn chiết khấu thỏa đáng và phải đặt Stop Loss chặt chẽ tại 0 đ (-0.0%)."</div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.65); padding: 14px 16px; border-radius: 10px; border-left: 3px solid #fbbf24;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: #fbbf24; margin-bottom: 6px;">Trường phái Tăng trưởng & Dòng tiền Kỹ thuật (Lynch–O'Neil–VSA)</div>
+                <div style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.6;">"Động lực mở rộng hoạt động kinh doanh cốt lõi, hành vi nến kiểm tra cung cạn kiệt, dòng tiền lớn duy trì vị thế. Giá trị sổ sách tĩnh chưa phản ánh đầy đủ tiềm năng tạo dòng tiền tương lai."</div>
+            </div>
+        </div>
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 14px 16px;">
+            <div style="font-weight: 800; color: #34d399; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+                <span>🛡️</span> PHÁN QUYẾT ĐIỀU HÒA CỦA GIÁM ĐỐC QUẢN TRỊ RỦI RO (CHIEF RISK OFFICER):
+            </div>
+            <div style="font-size: 0.88rem; color: #f1f5f9; margin-top: 6px; line-height: 1.6;">
+                Cho phép mở vị thế giải ngân thăm dò từng phần (tối đa 0.0% NAV) để đón đầu nhịp tăng, nhưng bắt buộc tuân thủ cắt lỗ kỷ luật tại 0 đ (-0.0%), không gồng lỗ dưới mọi hình thức.
+            </div>
+        </div>
+    </div>
+    
+        </div>
+
+        <!-- PHẦN 2: PHÂN TÍCH CƠ BẢN DOANH NGHIỆP CHUYÊN SÂU (FA DEEP-DIVE) -->
+        <div id="sec-fa">
+            
+    <!-- KHỐI 1: BÁO CÁO KẾT QUẢ KINH DOANH & DÒNG TIỀN THEO QUÝ -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <span>🔬 1. KẾT QUẢ KINH DOANH & DÒNG TIỀN THẬT 4 QUÝ GẦN NHẤT (CASH FLOW FORENSIC)</span>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">TIỀN THẬT VS LỢI NHUẬN SỔ SÁCH</span>
+        </div>
+        <div style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 14px; line-height: 1.6;">
+            So sánh trực tiếp giữa <b>Lợi nhuận sau thuế kế toán (LNST)</b> với <b>Tiền mặt kinh doanh thực thu (CFO)</b> và <b>Dòng tiền tự do (FCF)</b> để phát hiện dấu hiệu doanh nghiệp có đang "bán chịu ghi nhận lãi ảo" hay không:
+        </div>
+        <div class="table-responsive" style="margin-bottom: 16px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kỳ Báo Cáo</th>
+                        <th style="text-align: right;">LNST Kế Toán</th>
+                        <th style="text-align: right;">Tiền Kinh Doanh Thật (CFO)</th>
+                        <th style="text-align: right;">Chi Tiêu Vốn (CapEx)</th>
+                        <th style="text-align: right;">Dòng Tiền Tự Do (FCF)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td style="font-weight: 700; color: #fff;">2025-Q3</td>
+                <td style="text-align: right; font-weight: 600; color: #34d399;">5.86 tỷ đ</td>
+                <td style="text-align: right; font-weight: 700; color: #f87171;">-21.92 tỷ đ</td>
+                <td style="text-align: right; color: #cbd5e1;">895.1 triệu đ</td>
+                <td style="text-align: right; font-weight: 700; color: #f87171;">-22.81 tỷ đ</td>
+            </tr>
+            
+            <tr>
+                <td style="font-weight: 700; color: #fff;">2025-Q4</td>
+                <td style="text-align: right; font-weight: 600; color: #f87171;">-183.60 tỷ đ</td>
+                <td style="text-align: right; font-weight: 700; color: #34d399;">176.39 tỷ đ</td>
+                <td style="text-align: right; color: #cbd5e1;">1.24 tỷ đ</td>
+                <td style="text-align: right; font-weight: 700; color: #fbbf24;">175.15 tỷ đ</td>
+            </tr>
+            
+            <tr>
+                <td style="font-weight: 700; color: #fff;">2026-Q1</td>
+                <td style="text-align: right; font-weight: 600; color: #f87171;">-4.44 tỷ đ</td>
+                <td style="text-align: right; font-weight: 700; color: #f87171;">-12.26 tỷ đ</td>
+                <td style="text-align: right; color: #cbd5e1;">151.5 triệu đ</td>
+                <td style="text-align: right; font-weight: 700; color: #f87171;">-12.42 tỷ đ</td>
+            </tr>
+            
+            <tr>
+                <td style="font-weight: 700; color: #fff;">2026-Q2</td>
+                <td style="text-align: right; font-weight: 600; color: #f87171;">-33.22 tỷ đ</td>
+                <td style="text-align: right; font-weight: 700; color: #f87171;">-172.27 tỷ đ</td>
+                <td style="text-align: right; color: #cbd5e1;">164.6 triệu đ</td>
+                <td style="text-align: right; font-weight: 700; color: #f87171;">-172.43 tỷ đ</td>
+            </tr>
+            
+                </tbody>
+            </table>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 14px;">
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #38bdf8;">
+                <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">Tỷ lệ Tiền thật / Lãi sổ sách (CFO / LNST)</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-top: 2px;">1.00x</div>
+                <div style="font-size: 0.8rem; color: #94a3b8;">Chuẩn an toàn: &ge; 1.0x (Tiền mặt về tương xứng lợi nhuận)</div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #fbbf24;">
+                <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">Xếp hạng Chất lượng Lợi nhuận</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #f87171; margin-top: 2px;">Hạng D</div>
+                <div style="font-size: 0.8rem; color: #cbd5e1;">DOANH NGHIỆP ĐANG LỖ HOẶC THÂM HỤT TIỀN</div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #10b981;">
+                <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">Chỉ số Kiệt quệ Tài chính Altman Z''</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-top: 2px;">1.82 điểm</div>
+                <div style="font-size: 0.8rem; color: #94a3b8;">Chỉ số Altman Z''-Score đạt 1.82 (trong ngưỡng 1.10 - 2.60). Sức khỏe tài chính trung bình.</div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #a855f7;">
+                <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">Piotroski F-Score Sức khỏe BCTC</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #c084fc; margin-top: 2px;">2/9 điểm</div>
+                <div style="font-size: 0.8rem; color: #94a3b8;">Đạt chuẩn an toàn vốn khi F-Score &ge; 5/9</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHỐI 2: BẢNG CÂN ĐỐI KẾ TOÁN & RADAR TÀI SẢN ĐỌNG VỐN -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <span>💎 2. KIỂM TOÁN TÀI SẢN, NỢ VAY & RADAR BẪY GIÁ TRỊ (BALANCE SHEET AUDIT)</span>
+            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">CHẤT LƯỢNG TÀI SẢN</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-bottom: 18px;">
+            <!-- Cột Tài sản & Đọng vốn -->
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #38bdf8; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px;">
+                    📦 Cơ cấu Tài sản & Khả năng Thanh khoản
+                </div>
+                <div style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.8;">
+                    • <b>Tổng tài sản:</b> 3.21 nghìn tỷ đ<br>
+                    • <b>Vốn chủ sở hữu (VCSH):</b> 1.90 nghìn tỷ đ<br>
+                    • <b>Tiền & tương đương tiền:</b> 140.37 tỷ đ (<span style="color: #34d399; font-weight: 700;">4.4%</span> tài sản)<br>
+                    • <b>Các khoản phải thu:</b> 611.13 tỷ đ (<span style="color: #fbbf24; font-weight: 700;">19.0%</span> tài sản)<br>
+                    • <b>Hàng tồn kho (BĐS dở dang):</b> 692.22 tỷ đ (<span style="color: #fbbf24; font-weight: 700;">21.5%</span> tài sản)<br>
+                    • <b>Tổng tài sản đọng vốn (Phải thu + Tồn kho):</b> <b style="color: #f87171;">1.30 nghìn tỷ đ (40.5% tổng tài sản)</b>
+                </div>
+                <div style="margin-top: 10px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #fca5a5;">
+                    ⚠️ <b>Cảnh báo thanh khoản tài sản:</b> Tài sản đọng vốn chiếm 40.5% tổng tài sản. Nếu đối tác chậm thanh toán hoặc dự án condotel đóng băng không bán được, doanh nghiệp sẽ đối mặt áp lực kiệt quệ thanh khoản tiền mặt.
+                </div>
+            </div>
+
+            <!-- Cột Nợ vay & Định giá sổ sách -->
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #fbbf24; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px;">
+                    💳 Cơ cấu Nợ Vay & Định Giá Khối Tài Sản (P/B)
+                </div>
+                <div style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.8;">
+                    • <b>Tổng nợ vay chịu lãi:</b> 409.43 tỷ đ (Ngắn hạn: 275.55 tỷ đ | Dài hạn: 133.88 tỷ đ)<br>
+                    • <b>Tỷ lệ Nợ vay / Vốn CSH:</b> <b style="color: #fff;">0.22x</b> (Ngưỡng an toàn ngành: &le; 1.0x)<br>
+                    • <b>Giá trị sổ sách ròng (BVPS):</b> <b style="color: #38bdf8;">10,951 đ/CP</b><br>
+                    • <b>Thị giá / Sổ sách (P/B):</b> <b style="color: #34d399;">0.26x</b><br>
+                    • <b>Mức chiết khấu so với sổ sách:</b> <b style="color: #34d399;">+73.5%</b><br>
+                    • <b>Radar Đánh giá Bẫy Giá Trị:</b> <span style="color: #fbbf24; font-weight: 700;">MÓN HỜI TÀI SẢN CHIẾT KHẤU SÂU (DEEP ASSET DISCOUNT)</span>
+                </div>
+                <div style="margin-top: 10px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #bae6fd;">
+                    💡 <b>Giải mã định giá P/B:</b> Mức chiết khấu sâu +73.5% phản ánh sự e ngại của thị trường về chất lượng các khoản nợ phải thu và rủi ro trích lập giảm giá hàng tồn kho dự án.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHỐI 3: MÔ HÌNH KINH DOANH CỐT LÕI & DỰ ÁN TRỌNG ĐIỂM -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <span>🏢 3. MÔ HÌNH KINH DOANH CỐT LÕI & DANH MỤC DỰ ÁN TRỌNG ĐIỂM (PROJECT PIPELINE)</span>
+            <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">PHÂN KHÚC & DỰ ÁN</span>
+        </div>
+        <div style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 14px; line-height: 1.6;">
+            <b>Tóm lược mô hình hoạt động:</b> Doanh nghiệp hoạt động trong lĩnh vực RESIDENTIAL_REAL_ESTATE. Hệ thống chưa có hồ sơ bóc tách phân khúc chi tiết từ thuyết minh BCTC được kiểm chứng cho mã IDJ. Cần tra cứu phụ lục BCTC kiểm toán gần nhất để nắm cơ cấu doanh thu và lợi nhuận theo từng mảng kinh doanh.
+        </div>
+        <div class="table-responsive" style="margin-bottom: 18px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tên Dự Án / Phân Khúc Trọng Điểm</th>
+                        <th>Quy Mô & Vị Trí</th>
+                        <th>Hiện Trạng Tiến Độ Thực Tế</th>
+                        <th>Rà Soát Pháp Lý & Giải Phóng Mặt Bằng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr>
+            <td style="font-weight: 700; color: #f1f5f9;">Apec Mandala Wyndham Mũi Né (Bình Thuận)</td>
+            <td style="color: #38bdf8;">Gần 3,000 căn condotel/khách sạn</td>
+            <td style="color: #f87171; font-size: 0.85rem;">Đã cất nóc/hoàn thiện, thị trường condotel thứ cấp đóng băng</td>
+            <td style="color: #f87171; font-size: 0.85rem;">Pháp lý condotel chậm, phát sinh tranh chấp cam kết vận hành</td>
+        </tr>
+        <tr>
+            <td style="font-weight: 700; color: #f1f5f9;">Apec Diamond Park (Lạng Sơn)</td>
+            <td style="color: #38bdf8;">Shophouse & Đô thị thương mại</td>
+            <td style="color: #fbbf24; font-size: 0.85rem;">Đang bán và bàn giao từng phần</td>
+            <td style="color: #cbd5e1; font-size: 0.85rem;">Tiến độ giải phóng mặt bằng và thanh khoản địa phương chậm</td>
+        </tr>
+        <tr>
+            <td style="font-weight: 700; color: #f1f5f9;">Tổ hợp Grand Plaza (Trần Duy Hưng, Hà Nội)</td>
+            <td style="color: #38bdf8;">Sàn thương mại & Văn phòng cho thuê</td>
+            <td style="color: #34d399; font-size: 0.85rem;">Đang vận hành khai thác tạo dòng tiền mặt ổn định</td>
+            <td style="color: #34d399; font-size: 0.85rem;">Pháp lý hoàn tất đầy đủ</td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- KHỐI 4: QUẢN TRỊ DOANH NGHIỆP, CỔ ĐÔNG & RADAR HỆ SINH THÁI -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <span>👥 4. QUẢN TRỊ DOANH NGHIỆP, CỔ ĐÔNG & RADAR HỆ SINH THÁI (GOVERNANCE & SHELL AUDIT)</span>
+            <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">G-SCORE 70/100</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 16px;">
+            <!-- Cột Cơ cấu Cổ đông & Lãnh đạo -->
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">
+                    🏛️ Cơ cấu Sở hữu & Cam kết Lãnh đạo (Skin in the game)
+                </div>
+                <div style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.7; margin-bottom: 12px;">
+                    • <b>Tỷ lệ cổ phiếu trôi nổi (Free-Float):</b> <b style="color: #fbbf24;">80.0%</b> (Phân mảnh cao, dễ bị đầu cơ lướt sóng)<br>
+                    • <b>Tỷ lệ sở hữu khối ngoại:</b> <b>0.56%</b> | Nhà nước: <b>0.0%</b><br>
+                    • <b>Cam kết vốn của Ban điều hành:</b> <b style="color: #f87171;">0.58%</b> (CỰC THẤP / RỦI RO BỎ RƠI CỔ ĐÔNG)<br>
+                    • <b>Chủ tịch HĐQT:</b> Nguyễn Đức Quân (Chủ tịch Hội đồng Quản trị/Phụ trách Công bố thông tin/Người phụ trách quản trị công ty)
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cổ Đông Chủ Chốt</th>
+                                <th style="text-align: right;">Tỷ Lệ</th>
+                                <th style="text-align: right;">Số Lượng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty Cổ phần Tập đoàn Apec Group</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 700;">10.33%</td>
+            <td style="text-align: right; color: #94a3b8;">15,194,200 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty Cổ phần Tập đoàn Apec Group</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 700;">9.77%</td>
+            <td style="text-align: right; color: #94a3b8;">16,943,446 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty Cổ phần Chứng khoán Châu Á - Thái Bình Dương</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 700;">9.47%</td>
+            <td style="text-align: right; color: #94a3b8;">16,433,201 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty Cổ phần Đầu tư APEC Holding</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 700;">5.92%</td>
+            <td style="text-align: right; color: #94a3b8;">4,349,400 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Nguyễn Thu Trang</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 700;">5.14%</td>
+            <td style="text-align: right; color: #94a3b8;">7,561,260 CP</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Asean Small Cap Fund</td>
+            <td style="text-align: right; color: #38bdf8; font-weight: 700;">4.93%</td>
+            <td style="text-align: right; color: #94a3b8;">1,607,400 CP</td>
+        </tr>
+        
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Cột Mạng lưới Công ty con & Vết sẹo Hệ sinh thái -->
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #f87171; margin-bottom: 8px;">
+                    🌐 Mạng lưới Chân rết & Rủi ro Biến cố Hệ sinh thái
+                </div>
+                <div style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.7; margin-bottom: 12px;">
+                    • <b>Quy mô hệ sinh thái:</b> 5 công ty con, 3 công ty liên kết<br>
+                    • <b>Radar Luân chuyển Vốn & Nợ nội bộ:</b> MINH BẠCH / KHÔNG CÓ DẤU HIỆU LUÂN CHUYỂN VỐN BẤT THƯỜNG<br>
+                    • <b>Cảnh báo Rủi ro Hệ sinh thái Apec:</b> Cổ phiếu IDJ nằm trong hệ sinh thái Apec (APEC Group, APS, API). Vụ án khởi tố thao túng thị trường chứng khoán năm 2023 đối với các cựu lãnh đạo nhóm Apec là bài học đắt giá về rủi ro quản trị, làm suy giảm uy tín và hạn chế khả năng tiếp cận kênh vốn trái phiếu/ngân hàng.
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Đơn Vị Thành Viên Trọng Yếu</th>
+                                <th style="text-align: right;">Sở Hữu</th>
+                                <th>Vai Trò</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty Cổ Phần In Thái Nguyên</td>
+            <td style="text-align: right; color: #34d399; font-weight: 600;">99.9%</td>
+            <td style="color: #94a3b8; font-size: 0.8rem;">Công ty con trực thuộc</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty Cổ Phần Đầu Tư Apec Hòa Bình</td>
+            <td style="text-align: right; color: #34d399; font-weight: 600;">69.98%</td>
+            <td style="color: #94a3b8; font-size: 0.8rem;">Công ty con trực thuộc</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty Cổ Phần Đầu Tư Quốc Tế Dubai</td>
+            <td style="text-align: right; color: #34d399; font-weight: 600;">40.0%</td>
+            <td style="color: #94a3b8; font-size: 0.8rem;">Công ty con trực thuộc</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">Công ty Cổ Phần Tư Vấn Đầu Tư Xây Dựng Asc</td>
+            <td style="text-align: right; color: #34d399; font-weight: 600;">37.0%</td>
+            <td style="color: #94a3b8; font-size: 0.8rem;">Công ty con trực thuộc</td>
+        </tr>
+        
+        <tr>
+            <td style="color: #f1f5f9; font-weight: 500;">CÔNG TY CỔ PHẦN ĐẦU TƯ CÔNG NGHỆ GIÁO DỤC IDJ</td>
+            <td style="text-align: right; color: #34d399; font-weight: 600;">33.58%</td>
+            <td style="color: #94a3b8; font-size: 0.8rem;">Công ty con trực thuộc</td>
+        </tr>
+        
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        </div>
+
+        <!-- BIỂU ĐỒ DÒNG TIỀN THẬT CHART.JS -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <span>🔬 SO SÁNH DÒNG TIỀN THẬT (CFO) VS LNST KẾ TOÁN (TỶ VNĐ)</span>
+                <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">4 QUÝ GẦN NHẤT</span>
+            </div>
+            <div style="min-height: 250px; position: relative;" id="cashFlowChartContainer">
+                <canvas id="cashFlowChart"></canvas>
+                <div id="cashFlowOfflineFallback" style="display: none;">
+                    <svg width="100%" height="240" viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" style="background: rgba(10, 14, 23, 0.6); border-radius: 10px; font-family: -apple-system, sans-serif;">
+        <!-- Lưới trục Zero -->
+        <line x1="60" y1="120.6" x2="540" y2="120.6" stroke="#475569" stroke-width="1.5" stroke-dasharray="2,2"/>
+        <text x="52" y="124.6" fill="#94a3b8" font-size="10" text-anchor="end">0 tỷ</text>
+        <text x="52" y="40" fill="#38bdf8" font-size="10" text-anchor="end">176 tỷ</text>
+        <text x="52" y="215" fill="#f87171" font-size="10" text-anchor="end">-184 tỷ</text>
+        <rect x="96.0" y="117.6" width="22.0" height="3.0" rx="3" fill="#38bdf8" opacity="0.85"/><rect x="122.0" y="120.6" width="22.0" height="11.3" rx="3" fill="#f87171" opacity="0.85"/><circle cx="120.0" cy="132.4" r="4" fill="#fbbf24" stroke="#0f172a" stroke-width="1.5"/><text x="120.0" y="248" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="middle">2025-Q3</text><rect x="216.0" y="120.6" width="22.0" height="94.4" rx="3" fill="#38bdf8" opacity="0.85"/><rect x="242.0" y="30.0" width="22.0" height="90.6" rx="3" fill="#34d399" opacity="0.85"/><circle cx="240.0" cy="30.6" r="4" fill="#fbbf24" stroke="#0f172a" stroke-width="1.5"/><text x="240.0" y="248" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="middle">2025-Q4</text><rect x="336.0" y="120.6" width="22.0" height="2.3" rx="3" fill="#38bdf8" opacity="0.85"/><rect x="362.0" y="120.6" width="22.0" height="6.3" rx="3" fill="#f87171" opacity="0.85"/><circle cx="360.0" cy="127.0" r="4" fill="#fbbf24" stroke="#0f172a" stroke-width="1.5"/><text x="360.0" y="248" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="middle">2026-Q1</text><rect x="456.0" y="120.6" width="22.0" height="17.1" rx="3" fill="#38bdf8" opacity="0.85"/><rect x="482.0" y="120.6" width="22.0" height="88.5" rx="3" fill="#f87171" opacity="0.85"/><circle cx="480.0" cy="209.2" r="4" fill="#fbbf24" stroke="#0f172a" stroke-width="1.5"/><text x="480.0" y="248" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="middle">2026-Q2</text>
+        <polyline fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="4,2" points="120.0,132.4 240.0,30.6 360.0,127.0 480.0,209.2"/>
+    </svg>
+                </div>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 12px;">
+                Cột xanh dương: Lợi nhuận sau thuế kế toán &bull; Cột xanh lá: Tiền kinh doanh thật (CFO) &bull; Đường vàng: Dòng tiền tự do (FCF)
+            </div>
+        </div>
+
+        <!-- PHẦN 3: PHÂN TÍCH KỸ THUẬT & DÒNG TIỀN CHUYÊN SÂU (TA DEEP-DIVE) -->
+        <div id="sec-ta">
+            
+    <!-- KHỐI 1: BIỂU ĐỒ NẾN NHẬT TƯƠNG TÁC (TRADINGVIEW LIGHTWEIGHT CHARTS) -->
+    <div id="sec-chart" class="card" style="margin-bottom: 24px; padding: 20px;">
+        <div class="card-header" style="margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.05rem; font-weight: 800; color: #fff;">📊 ĐỒ THỊ NẾN NHẬT OHLCV, KHỐI LƯỢNG & ĐƯỜNG GIÁ CHỈ BÁO</span>
+                <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">160 PHIÊN GẦN NHẤT</span>
+            </div>
+            <div style="font-size: 0.8rem; color: #94a3b8; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #fbbf24; border-radius: 2px;"></span> EMA20</span>
+                <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 10px; height: 10px; background: #38bdf8; border-radius: 2px;"></span> EMA50</span>
+                <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 2px; background: #10b981;"></span> Pivot Kích Hoạt</span>
+                <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 2px; background: #ef4444;"></span> Cắt Lỗ (SL)</span>
+                <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 12px; height: 2px; background: #38bdf8;"></span> Mục Tiêu 1</span>
+            </div>
+        </div>
+        
+        <div id="tvChartContainer" style="width: 100%; height: 460px; position: relative; border-radius: 10px; overflow: hidden; background: #070c16; border: 1px solid rgba(255,255,255,0.06);">
+            <div id="tvChartOfflineFallback" style="display: none; width: 100%; height: 100%;">
+                <svg width="100%" height="320" viewBox="0 0 740 320" xmlns="http://www.w3.org/2000/svg" style="background: #070c16; border-radius: 10px; font-family: -apple-system, sans-serif;">
+        <!-- Trục giá Min/Max -->
+        <text x="52" y="35" fill="#94a3b8" font-size="10" text-anchor="end">3,900 đ</text>
+        <text x="52" y="290" fill="#94a3b8" font-size="10" text-anchor="end">2,700 đ</text>
+        <line x1="60" y1="25" x2="720" y2="25" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <line x1="60" y1="290" x2="720" y2="290" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <line x1="67.3" y1="47.1" x2="67.3" y2="69.2" stroke="#ef4444" stroke-width="1.2"/><rect x="62.6" y="47.1" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="82.0" y1="47.1" x2="82.0" y2="91.2" stroke="#10b981" stroke-width="1.2"/><rect x="77.2" y="47.1" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="96.7" y1="47.1" x2="96.7" y2="69.2" stroke="#ef4444" stroke-width="1.2"/><rect x="91.9" y="47.1" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="111.3" y1="47.1" x2="111.3" y2="69.2" stroke="#10b981" stroke-width="1.2"/><rect x="106.6" y="47.1" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="126.0" y1="47.1" x2="126.0" y2="91.2" stroke="#ef4444" stroke-width="1.2"/><rect x="121.2" y="47.1" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="140.7" y1="25.0" x2="140.7" y2="69.2" stroke="#10b981" stroke-width="1.2"/><rect x="135.9" y="47.1" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="155.3" y1="47.1" x2="155.3" y2="69.2" stroke="#ef4444" stroke-width="1.2"/><rect x="150.6" y="47.1" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="170.0" y1="69.2" x2="170.0" y2="91.2" stroke="#10b981" stroke-width="1.2"/><rect x="165.2" y="69.2" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="184.7" y1="47.1" x2="184.7" y2="91.2" stroke="#ef4444" stroke-width="1.2"/><rect x="179.9" y="47.1" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="199.3" y1="69.2" x2="199.3" y2="91.2" stroke="#10b981" stroke-width="1.2"/><rect x="194.6" y="91.2" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="214.0" y1="69.2" x2="214.0" y2="113.3" stroke="#ef4444" stroke-width="1.2"/><rect x="209.2" y="69.2" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="228.7" y1="69.2" x2="228.7" y2="113.3" stroke="#10b981" stroke-width="1.2"/><rect x="223.9" y="69.2" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="243.3" y1="47.1" x2="243.3" y2="91.2" stroke="#ef4444" stroke-width="1.2"/><rect x="238.6" y="47.1" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="258.0" y1="69.2" x2="258.0" y2="91.2" stroke="#ef4444" stroke-width="1.2"/><rect x="253.2" y="69.2" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="272.7" y1="47.1" x2="272.7" y2="91.2" stroke="#10b981" stroke-width="1.2"/><rect x="267.9" y="69.2" width="9.5" height="22.1" fill="#10b981" rx="1"/><line x1="287.3" y1="47.1" x2="287.3" y2="91.2" stroke="#ef4444" stroke-width="1.2"/><rect x="282.6" y="47.1" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="302.0" y1="69.2" x2="302.0" y2="91.2" stroke="#ef4444" stroke-width="1.2"/><rect x="297.2" y="69.2" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="316.7" y1="69.2" x2="316.7" y2="113.3" stroke="#ef4444" stroke-width="1.2"/><rect x="311.9" y="69.2" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="331.3" y1="69.2" x2="331.3" y2="113.3" stroke="#10b981" stroke-width="1.2"/><rect x="326.6" y="91.2" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="346.0" y1="91.2" x2="346.0" y2="113.3" stroke="#10b981" stroke-width="1.2"/><rect x="341.2" y="91.2" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="360.7" y1="91.2" x2="360.7" y2="113.3" stroke="#10b981" stroke-width="1.2"/><rect x="355.9" y="91.2" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="375.3" y1="91.2" x2="375.3" y2="113.3" stroke="#10b981" stroke-width="1.2"/><rect x="370.6" y="91.2" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="390.0" y1="91.2" x2="390.0" y2="113.3" stroke="#10b981" stroke-width="1.2"/><rect x="385.2" y="91.2" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="404.7" y1="91.2" x2="404.7" y2="113.3" stroke="#10b981" stroke-width="1.2"/><rect x="399.9" y="113.3" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="419.3" y1="91.2" x2="419.3" y2="135.4" stroke="#ef4444" stroke-width="1.2"/><rect x="414.6" y="91.2" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="434.0" y1="113.3" x2="434.0" y2="135.4" stroke="#10b981" stroke-width="1.2"/><rect x="429.2" y="113.3" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="448.7" y1="113.3" x2="448.7" y2="135.4" stroke="#ef4444" stroke-width="1.2"/><rect x="443.9" y="113.3" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="463.3" y1="113.3" x2="463.3" y2="135.4" stroke="#ef4444" stroke-width="1.2"/><rect x="458.6" y="113.3" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="478.0" y1="113.3" x2="478.0" y2="135.4" stroke="#10b981" stroke-width="1.2"/><rect x="473.2" y="135.4" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="492.7" y1="113.3" x2="492.7" y2="157.5" stroke="#ef4444" stroke-width="1.2"/><rect x="487.9" y="113.3" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="507.3" y1="113.3" x2="507.3" y2="157.5" stroke="#ef4444" stroke-width="1.2"/><rect x="502.6" y="135.4" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="522.0" y1="135.4" x2="522.0" y2="179.6" stroke="#ef4444" stroke-width="1.2"/><rect x="517.2" y="135.4" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="536.7" y1="135.4" x2="536.7" y2="179.6" stroke="#ef4444" stroke-width="1.2"/><rect x="531.9" y="135.4" width="9.5" height="44.2" fill="#ef4444" rx="1"/><line x1="551.3" y1="135.4" x2="551.3" y2="201.7" stroke="#ef4444" stroke-width="1.2"/><rect x="546.6" y="135.4" width="9.5" height="66.2" fill="#ef4444" rx="1"/><line x1="566.0" y1="179.6" x2="566.0" y2="223.8" stroke="#ef4444" stroke-width="1.2"/><rect x="561.2" y="179.6" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="580.7" y1="201.7" x2="580.7" y2="223.8" stroke="#10b981" stroke-width="1.2"/><rect x="575.9" y="223.8" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="595.3" y1="201.7" x2="595.3" y2="223.8" stroke="#10b981" stroke-width="1.2"/><rect x="590.6" y="223.8" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="610.0" y1="201.7" x2="610.0" y2="245.8" stroke="#ef4444" stroke-width="1.2"/><rect x="605.2" y="223.8" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="624.7" y1="223.8" x2="624.7" y2="290.0" stroke="#ef4444" stroke-width="1.2"/><rect x="619.9" y="245.8" width="9.5" height="22.1" fill="#ef4444" rx="1"/><line x1="639.3" y1="245.8" x2="639.3" y2="290.0" stroke="#10b981" stroke-width="1.2"/><rect x="634.6" y="245.8" width="9.5" height="22.1" fill="#10b981" rx="1"/><line x1="654.0" y1="245.8" x2="654.0" y2="290.0" stroke="#10b981" stroke-width="1.2"/><rect x="649.2" y="267.9" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="668.7" y1="245.8" x2="668.7" y2="267.9" stroke="#10b981" stroke-width="1.2"/><rect x="663.9" y="245.8" width="9.5" height="22.1" fill="#10b981" rx="1"/><line x1="683.3" y1="223.8" x2="683.3" y2="267.9" stroke="#10b981" stroke-width="1.2"/><rect x="678.6" y="245.8" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="698.0" y1="223.8" x2="698.0" y2="267.9" stroke="#10b981" stroke-width="1.2"/><rect x="693.2" y="245.8" width="9.5" height="2.0" fill="#10b981" rx="1"/><line x1="712.7" y1="223.8" x2="712.7" y2="267.9" stroke="#10b981" stroke-width="1.2"/><rect x="707.9" y="245.8" width="9.5" height="2.0" fill="#10b981" rx="1"/>
+    </svg>
+            </div>
+        </div>
+        <div id="chartTooltip" style="margin-top: 10px; font-size: 0.82rem; color: #94a3b8; font-family: monospace; display: flex; gap: 16px; flex-wrap: wrap;">
+            <span>Rê chuột trên biểu đồ để xem chi tiết nến OHLCV và Khối lượng</span>
+        </div>
+    </div>
+
+    <!-- KHỐI 2: BẢNG CHỈ BÁO KỸ THUẬT ĐẦY ĐỦ CHI TIẾT (FULL INDICATOR SUITE) -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <span>📈 BẢNG CHỈ BÁO KỸ THUẬT & TRẠNG THÁI XU HƯỚNG CHI TIẾT (TECHNICAL INDICATORS)</span>
+            <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">ĐIỂM TA: 32/100</span>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nhóm Chỉ Báo</th>
+                        <th>Tên Chỉ Báo & Thông Số</th>
+                        <th style="text-align: right;">Giá Trị Đo Lường</th>
+                        <th>Trạng Thái & Ý Nghĩa Tín Hiệu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="3" style="font-weight: 700; color: #38bdf8;">Đường Trung Bình Động (Trend Following)</td>
+                        <td>Đường xu hướng ngắn hạn <b>EMA 20</b></td>
+                        <td style="text-align: right; font-weight: 700; color: #fbbf24;">3,082 đ (-5.9%)</td>
+                        <td style="color: #f87171;">Giá nằm dưới EMA20 - Kênh giảm ngắn hạn</td>
+                    </tr>
+                    <tr>
+                        <td>Đường xu hướng trung hạn <b>EMA 50</b></td>
+                        <td style="text-align: right; font-weight: 700; color: #38bdf8;">3,389 đ (-14.4%)</td>
+                        <td style="color: #f87171;">Dưới EMA50 - Áp lực cản trung hạn đè nặng</td>
+                    </tr>
+                    <tr>
+                        <td>Đường xu hướng dài hạn <b>SMA 200</b></td>
+                        <td style="text-align: right; font-weight: 700; color: #cbd5e1;">4,090 đ (-29.1%)</td>
+                        <td style="color: #f87171;">Downtrend dài hạn - Chưa có điểm xoay chiều</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2" style="font-weight: 700; color: #fbbf24;">Động Lượng & Xung Lực (Momentum & Volatility)</td>
+                        <td>Chỉ số sức mạnh tương đối <b>RSI (14)</b></td>
+                        <td style="text-align: right; font-weight: 800; color: #f87171;">25.0</td>
+                        <td style="color: #cbd5e1;">Vùng Quá Bán (Oversold) - Áp lực bán tạm chững lại</td>
+                    </tr>
+                    <tr>
+                        <td>Chỉ báo <b>MACD (12, 26, 9)</b> & Tín hiệu</td>
+                        <td style="text-align: right; font-weight: 700; color: #cbd5e1;">MACD: -184.8 | Sig: -184.6</td>
+                        <td style="color: #f87171;">MACD nằm dưới Signal - Động lượng giảm tiếp diễn</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2" style="font-weight: 700; color: #34d399;">Thanh Khoản & Biên Độ (Volume & Volatility)</td>
+                        <td>Khối lượng phiên vs <b>MA20 Volume</b></td>
+                        <td style="text-align: right; font-weight: 700; color: #fff;">348,600 CP (0.99x MA20)</td>
+                        <td style="color: #94a3b8;">Thanh khoản duy trì ở mức bình thường</td>
+                    </tr>
+                    <tr>
+                        <td>Biên độ biến động thực tế <b>ATR (14)</b></td>
+                        <td style="text-align: right; font-weight: 700; color: #cbd5e1;">193 đ</td>
+                        <td style="color: #94a3b8;">Biên độ dao động bình quân mỗi phiên giao dịch</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2" style="font-weight: 700; color: #f87171;">Vùng Giá & Khung 52 Tuần (Key Levels)</td>
+                        <td>Vùng Kháng cự & Hỗ trợ 20 phiên</td>
+                        <td style="text-align: right; font-weight: 700; color: #fff;">Kháng cự: 3,600 đ | Hỗ trợ: 2,700 đ</td>
+                        <td style="color: #cbd5e1;">Biên dao động tích lũy ngắn hạn</td>
+                    </tr>
+                    <tr>
+                        <td>Khung giá 52 Tuần (52-Week Range)</td>
+                        <td style="text-align: right; font-weight: 700; color: #fff;">Đáy: 2,700 đ | Đỉnh: 6,700 đ</td>
+                        <td style="color: #cbd5e1;">Khoảng biến động lớn nhất trong 1 năm qua</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- KHỐI 3: WYCKOFF VSA & MÔ HÌNH VCP MINERVINI -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; margin-bottom: 24px;">
+        <!-- VCP Minervini -->
+        <div class="card">
+            <div class="card-header">
+                <span>🎯 MÔ HÌNH THU HẸP BIẾN ĐỘNG VCP (MARK MINERVINI)</span>
+                <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">CANSLIM</span>
+            </div>
+            <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                • <b>Trạng thái mẫu hình:</b> <b style="color: #fff;">Nền dao động tích lũy</b><br>
+                • <b>Chuỗi các nhịp co thắt biên độ:</b> <span style="color: #fbbf24; font-weight: 700;">Nhịp co thắt trước: ~14.7% &rarr; Nhịp gần nhất: 29.6%</span><br>
+                • <b>Đánh giá theo chuẩn Minervini:</b> <i>Giá dao động trong biên độ 29.6% trong 20 phiên gần nhất.</i><br>
+                • <b>Bộ lọc Trend Template:</b> YẾU / KHÔNG MUA
+            </div>
+        </div>
+
+        <!-- Wyckoff VSA -->
+        <div class="card">
+            <div class="card-header">
+                <span>🐋 HÀNH VI DÒNG TIỀN LỚN & WYCKOFF VSA</span>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">SMART MONEY</span>
+            </div>
+            <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                • <b>Pha thị trường hiện tại:</b> <b style="color: #38bdf8;">Pha Pha Dao động tích lũy (Consolidation)</b><br>
+                • <b>Hành động của Cá mập / Big Boys:</b> <b style="color: #fff;">Vận động cung cầu tự nhiên</b><br>
+                • <b>Dấu chân nến VSA chuyên sâu:</b>
+                <ul style="margin: 6px 0 0 16px; font-size: 0.84rem; color: #cbd5e1;">
+                    <li style='margin-bottom: 6px;'>Thanh khoản ổn định: Cung cầu vận động tự nhiên theo nhịp điệu thị trường.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHỐI 4: FIBONACCI RETRACEMENT & VÙNG CUNG KẸP HÀNG ĐỈNH CŨ -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <span>📐 MỐC HỖ TRỢ FIBONACCI & VÙNG CUNG KẸP HÀNG ĐỈNH CŨ (OVERHEAD SUPPLY)</span>
+            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">NGƯỠNG PHÒNG THỦ</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px;">
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.88rem; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">Mốc Hồi Quy Fibonacci (Sóng gần nhất):</div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.8;">
+                    • Đáy sóng: <b>2,700 đ</b> &bull; Đỉnh sóng: <b>5,800 đ</b><br>
+                    • <b>Fibo 38.2%:</b> <span style="color: #34d399; font-weight: 700;">4,616 đ</span> (Hỗ trợ nhịp sóng rất khỏe)<br>
+                    • <b>Fibo 50.0%:</b> <span style="color: #fbbf24; font-weight: 700;">4,250 đ</span> (Mốc cân bằng tâm lý cung cầu)<br>
+                    • <b>Fibo 61.8%:</b> <span style="color: #f87171; font-weight: 700;">3,884 đ</span> (Hỗ trợ vàng sống còn)<br>
+                    • <b>Vị thế hiện tại:</b> <i>Vùng hỗ trợ Fibo 61.8% (Ngưỡng phòng thủ quan trọng)</i>
+                </div>
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.88rem; font-weight: 700; color: #f87171; margin-bottom: 8px;">Áp Lực Vùng Cung Kẹp Hàng Đỉnh Cũ (Overhead Supply):</div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.8;">
+                    • <b>Vùng kẹp hàng lớn:</b> <b style="color: #fca5a5;">5,800 đ (Đỉnh cao nhất 120 phiên)</b><br>
+                    • <b>Mức độ áp lực bán:</b> <b style="color: #f87171;">Đáng kể (Cách đỉnh >8%)</b><br>
+                    • <b>Chi tiết đánh giá:</b> <i>Vùng cản tâm lý của nhà đầu tư kẹp hàng đỉnh cũ quanh 5,800 đ. Cần theo dõi thêm thanh khoản khi giá tiến về kiểm tra vùng đỉnh này.</i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+        </div>
+
+        <!-- PHẦN 4: ĐỘNG CƠ THỜI ĐIỂM TĂNG/SẬP & THƯỚC ĐO KÍCH HOẠT -->
+        <div id="sec-timing" style="background: linear-gradient(145deg, #131c2e, #0c1220); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 18px; padding: 22px; margin-bottom: 28px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 14px;">
+                <div>
+                    <div style="font-size: 0.8rem; font-weight: 700; color: #38bdf8; text-transform: uppercase;">⚡ ĐỘNG CƠ DỰ BÁO THỜI ĐIỂM (TIMING PREDICTION MATRIX)</div>
+                    <div style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-top: 2px;">
+                        Phán Quyết: <span style="color: #f59e0b;">GIAO DỊCH THẬN TRỌNG - QUAN SÁT VÙNG HỖ TRỢ</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.85rem; color: #94a3b8;">Điểm Thời Điểm Tối Ưu:</span>
+                    <span style="font-size: 1.4rem; font-weight: 800; color: #f59e0b; background: rgba(255,255,255,0.06); padding: 4px 14px; border-radius: 10px; border: 1px solid #f59e0b;">
+                        30/100
+                    </span>
+                </div>
+            </div>
+
+            
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin-bottom: 18px;">
+        <!-- Box 1: Khớp lệnh Chủ động (Pulse) -->
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 14px 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: #38bdf8;">⚡ TỶ LỆ KHỚP LỆNH CHỦ ĐỘNG (REALTIME PULSE)</span>
+                <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">Trung lập</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px;">
+                <span style="color: #34d399; font-weight: 700;">Mua chủ động: 50.0%</span>
+                <span style="color: #f87171; font-weight: 700;">Bán chủ động: 50.0%</span>
+            </div>
+            <div style="height: 8px; background: rgba(239, 68, 68, 0.3); border-radius: 4px; overflow: hidden; display: flex;">
+                <div style="width: 50.0%; background: #10b981; height: 100%;"></div>
+            </div>
+            <div style="margin-top: 8px; font-size: 0.82rem; color: #94a3b8;">
+                Nhận định: <b style="color: #fff;">Cung cầu cân bằng</b>
+            </div>
+        </div>
+
+        <!-- Box 2: Lịch Xúc tác Sự kiện -->
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 12px; padding: 14px 16px;">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #fbbf24; margin-bottom: 10px;">
+                📅 LỊCH TRÌNH CHẤT XÚC TÁC & CATALYSTS SẮP DIỄN RA
+            </div>
+            <div style="font-size: 0.84rem; color: #94a3b8;">Chưa ghi nhận sự kiện xúc tác đột biến trong 30 ngày tới.</div>
+        </div>
+    </div>
+    
+
+            <!-- 2 CỘT: KHI NÀO TĂNG vs KHI NÀO SẬP -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; margin-bottom: 18px;">
+                <!-- KHI NÀO TĂNG -->
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-weight: 800; color: #10b981; font-size: 0.95rem;">🚀 KỊCH BẢN BỨT PHÁ (KHI NÀO TĂNG?)</span>
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">Xác suất 30%</span>
+                    </div>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                        • <b>Khung thời gian bùng nổ:</b> <span style="color: #34d399; font-weight: 700;">Đang vận động tích lũy trong nền giá, kiên nhẫn chờ điểm vượt cản</span><br>
+                        • <b>Mốc giá kích hoạt xác nhận:</b> Vượt qua <b style="color: #fff;">3,600 đ</b> kèm Vol &ge; 1.3x MA20.<br>
+                        • <b>Hướng dẫn hành động:</b> Theo dõi mốc Pivot 3,600 đ. Khi giá vượt qua mốc này kèm khối lượng xác nhận > 1.3x MA20, xem xét gia tăng vị thế.
+                    </div>
+                </div>
+
+                <!-- KHI NÀO SẬP -->
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 14px; padding: 18px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-weight: 800; color: #ef4444; font-size: 0.95rem;">⚠️ KỊCH BẢN RỦI RO (KHI NÀO SẬP?)</span>
+                        <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">Rủi ro 15%</span>
+                    </div>
+                    <div style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.7;">
+                        • <b>Khung thời gian rủi ro:</b> <span style="color: #f87171; font-weight: 700;">Rủi ro điều chỉnh sâu ở mức thấp, vùng hỗ trợ đang bảo vệ giá tốt</span><br>
+                        • <b>Mức giá vi phạm kích hoạt gãy:</b> Thủng mốc <b style="color: #f87171;">2,700 đ</b>.<br>
+                        • <b>Nguyên tắc mất hiệu lực:</b> Nếu giá đóng cửa xuyên thủng mốc 2,700 đ, thiết lập tăng giá sẽ mất hiệu lực, cần tuân thủ kỷ luật cắt lỗ.
+                    </div>
+                </div>
+            </div>
+
+            <!-- THƯỚC ĐO KÍCH HOẠT TRỰC QUAN (PRICE LADDER) -->
+            
+        <div class="price-ladder-box" style="border: 1px solid rgba(239, 68, 68, 0.35);">
+            <div class="ladder-header">
+                <span>🪜 THƯỚC ĐO KÍCH HOẠT THỜI ĐIỂM (PRICE LADDER & DISTANCE GAUGE)</span>
+                <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;">KHÔNG CÓ ĐIỂM MUA HỢP LỆ</span>
+            </div>
+            <div style="padding: 18px 20px; text-align: center; color: #cbd5e1; font-size: 0.9rem; line-height: 1.7;">
+                <div style="font-size: 1.15rem; margin-bottom: 6px;">🛡️ <b>Trạng thái: Đứng ngoài bảo toàn vốn (No Trade Setup)</b></div>
+                <div>Cổ phiếu nằm trong xu hướng giảm (Downtrend), dưới các đường trung bình động; không giải ngân bắt đáy.</div>
+                <div style="margin-top: 10px; font-size: 0.84rem; color: #94a3b8;">
+                    Ngưỡng hỗ trợ quan sát đáy: <b style="color: #ef4444;">2,700 đ</b> &bull; Mốc cản Pivot cần vượt để xác nhận đảo chiều: <b style="color: #38bdf8;">3,600 đ</b>
+                </div>
+            </div>
+        </div>
+        
+        </div>
+
+        <!-- PHẦN 5: DỰ PHÓNG KỊCH BẢN & ĐIỀU KIỆN MẤT HIỆU LỰC -->
+        <div id="sec-scenarios">
+            
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <span>🔮 5. DỰ PHÓNG CÁC KỊCH BẢN THỊ TRƯỜNG & ĐIỀU KIỆN MẤT HIỆU LỰC (SCENARIO PLANNING)</span>
+            <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">ĐA KỊCH BẢN</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 18px;">
+            
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid var(--border); border-top: 3px solid #fbbf24; border-radius: 12px; padding: 16px;">
+            <div style="font-weight: 800; color: #fbbf24; font-size: 0.95rem; margin-bottom: 6px;">Kịch bản Cơ sở (Xác suất 70%)</div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 10px;">Giá tiếp tục vận động đi ngang sideway quanh vùng đáy 2,697 - 3,045 đ với thanh khoản teo tóp. Kết quả kinh doanh chưa có dấu hiệu bứt phá do thị trường BĐS nghỉ dưỡng đóng băng.</div>
+            <div style="font-size: 0.82rem; color: #fff; background: rgba(255,255,255,0.05); padding: 8px 10px; border-radius: 6px;">
+                <b>👉 Kế hoạch hành động:</b> ĐỨNG NGOÀI QUAN SÁT, tuyệt đối không bắt đáy dò dẫm.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid var(--border); border-top: 3px solid #f87171; border-radius: 12px; padding: 16px;">
+            <div style="font-weight: 800; color: #f87171; font-size: 0.95rem; margin-bottom: 6px;">Kịch bản Tiêu cực (Xác suất 25%)</div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 10px;">Áp lực trích lập nợ xấu hoặc đáo hạn nghĩa vụ tài chính khiến công ty tiếp tục lỗ nặng, giá gãy thủng đáy hỗ trợ 2,697 đ và rơi vào đà bán tháo tìm đáy mới.</div>
+            <div style="font-size: 0.82rem; color: #fff; background: rgba(255,255,255,0.05); padding: 8px 10px; border-radius: 6px;">
+                <b>👉 Kế hoạch hành động:</b> Bắt buộc cắt lỗ toàn bộ danh mục kẹp hàng, không giữ tỷ trọng.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid var(--border); border-top: 3px solid #38bdf8; border-radius: 12px; padding: 16px;">
+            <div style="font-weight: 800; color: #38bdf8; font-size: 0.95rem; margin-bottom: 6px;">Kịch bản Tích cực (Xác suất 5%)</div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 10px;">Xuất hiện nhịp sóng hồi kỹ thuật đầu cơ ngắn hạn ăn theo nhóm penny lên vùng cản EMA50 (3,335 đ).</div>
+            <div style="font-size: 0.82rem; color: #fff; background: rgba(255,255,255,0.05); padding: 8px 10px; border-radius: 6px;">
+                <b>👉 Kế hoạch hành động:</b> Tận dụng nhịp hồi kỹ thuật để cơ cấu thoát hàng, tuyệt đối không mua mới.
+            </div>
+        </div>
+        
+        </div>
+        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 16px;">
+            <div style="font-weight: 800; color: #f87171; font-size: 0.92rem; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                <span>⛔</span> ĐIỀU KIỆN LÀM LUẬN ĐIỂM "TRÁNH XA / ĐỨNG NGOÀI" MẤT HIỆU LỰC (INVALIDATION TRIGGERS):
+            </div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
+                Hội đồng đầu tư chỉ xem xét đánh giá lại cổ phiếu IDJ khi đồng thời thỏa mãn các điều kiện định lượng sau:
+                <ul style="margin: 8px 0 0 18px; color: #fca5a5;">
+                    <li style='margin-bottom: 6px;'>Báo cáo tài chính soát xét/kiểm toán tối thiểu 2 quý liên tiếp ghi nhận LNST dương và CFO tạo tiền thật dương.</li><li style='margin-bottom: 6px;'>Doanh nghiệp công bố phương án minh bạch xử lý các khoản phải thu lớn và giải phóng tồn kho tại các dự án trọng điểm.</li><li style='margin-bottom: 6px;'>Về kỹ thuật: Giá hình thành cấu trúc đảo chiều tin cậy (2 đáy/VCP), vượt dứt khoát EMA50 kèm Volume tối thiểu gấp 2.5x MA20.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+            
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+            <span>🔎 6. DỮ KIỆN CÒN THIẾU CẦN NHÀ ĐẦU TƯ KIỂM TRA THÊM (MISSING DATA AUDIT)</span>
+            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">THẨM ĐỊNH THỰC ĐỊA</span>
+        </div>
+        <div style="font-size: 0.86rem; color: #94a3b8; margin-bottom: 12px;">
+            Theo quy tắc minh bạch của Hội đồng AI (AGENTS.md), không đưa ra giả định võ đoán khi dữ liệu chưa đầy đủ. Các điểm trọng yếu cần người dùng xác minh độc lập:
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #fbbf24; margin-bottom: 10px;">
+            <div style="font-weight: 700; color: #fbbf24; font-size: 0.88rem; margin-bottom: 4px;">1. Tiến độ pháp lý & cam kết vận hành dự án trọng điểm</div>
+            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.55;">Cần kiểm tra biên bản ĐHĐCĐ và phụ lục thuyết minh BCTC để nắm rõ tỷ lệ hoàn thành, người mua trả tiền trước và tiến độ cấp sổ/giải chấp tài sản tại các dự án BĐS nghỉ dưỡng.</div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #fbbf24; margin-bottom: 10px;">
+            <div style="font-weight: 700; color: #fbbf24; font-size: 0.88rem; margin-bottom: 4px;">2. Diễn biến thi hành án & vụ việc pháp lý hệ sinh thái</div>
+            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.55;">Cần cập nhật các quyết định xét xử, nghĩa vụ bồi thường dân sự hoặc biện pháp bảo đảm có thể phát sinh ảnh hưởng tới dòng tiền của doanh nghiệp.</div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 12px 16px; border-radius: 10px; border-left: 3px solid #fbbf24; margin-bottom: 10px;">
+            <div style="font-weight: 700; color: #fbbf24; font-size: 0.88rem; margin-bottom: 4px;">3. Báo cáo tài chính kiểm toán các kỳ tiếp theo</div>
+            <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.55;">Theo dõi sát sao mức độ trích lập nợ phải thu khó đòi và suy giảm giá trị hàng tồn kho trong báo cáo tài chính soát xét kỳ tới.</div>
+        </div>
+        
+    </div>
+    
+        </div>
+
+        <!-- PHẦN 6: MA TRẬN VĨ MÔ & HÀNG HÓA -->
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header">
+                <span>📡 RADAR VĨ MÔ QUỐC TẾ & HÀNG HÓA TOÀN CẦU (COMMODITY MATRIX)</span>
+                <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">CHI PHÍ & ĐẦU RA</span>
+            </div>
+            
+    <div style="margin-top: 14px;">
+        <div style="font-size: 0.85rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
+            🔎 Phân tích Chi tiết Tương quan Vĩ mô & Hàng hóa Thế giới:
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">🏛️ Lãi Suất & Tín Dụng Bất Động Sản</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: #34d399;">4.88% Fed Rate • Lãi suất tiết kiệm nội địa chạm đáy</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid #10b981; font-size: 0.72rem;">TÍCH CỰC DÒNG TIỀN 🟢</span>
+                </div>
+            </div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
+                <span style="color: #38bdf8; font-weight: 600;">Mức độ nhạy cảm:</span> Rất cao (Bậc 1) • Độ trễ: 1-2 quý<br>
+                <span style="color: #94a3b8; font-weight: 600;">Cơ chế tác động:</span> Mặt bằng lãi suất thấp kích thích dòng tiền đầu tư tìm kiếm tài sản sinh lời. Tuy nhiên với IDJ, dòng tiền thị trường đang phân hóa mạnh: phân khúc nhà ở thực phục hồi trước, trong khi BĐS nghỉ dưỡng/condotel (dự án trọng điểm của IDJ) vẫn đối mặt với bài toán pháp lý và thanh khoản đóng băng.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">🛢️ Giá Dầu Thô Brent Thế Giới</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: #94a3b8;">78.5 USD/thùng</span>
+                    <span class="badge" style="background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid #64748b; font-size: 0.72rem;">GIÁN TIẾP 🟡</span>
+                </div>
+            </div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
+                <span style="color: #38bdf8; font-weight: 600;">Mức độ nhạy cảm:</span> Thấp • Tác động qua chi phí logistics và lạm phát<br>
+                <span style="color: #94a3b8; font-weight: 600;">Cơ chế tác động:</span> Giá dầu biến động trong tầm kiểm soát, không tạo cú sốc chi phí vận hành trực tiếp.
+            </div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                <div style="font-weight: 700; color: #fff; font-size: 0.95rem;">💵 Tỷ Giá USD/VND & Dòng Vốn Ngoại</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.85rem; font-weight: 700; color: #fbbf24;">25,380 VND (Biến động: +0.3%)</span>
+                    <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid #f59e0b; font-size: 0.72rem;">CẦN THEO DÕI 🟡</span>
+                </div>
+            </div>
+            <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.6;">
+                <span style="color: #38bdf8; font-weight: 600;">Mức độ nhạy cảm:</span> Toàn thị trường<br>
+                <span style="color: #94a3b8; font-weight: 600;">Cơ chế tác động:</span> Tỷ giá hạ nhiệt tạo dư địa cho chính sách tiền tệ nới lỏng nội địa và giảm áp lực bán ròng của khối ngoại.
+            </div>
+        </div>
+        
+    </div>
+    
+        </div>
+
+        <!-- PHẦN 7: BÀN TRÒN HỎI ĐÁP & GLOSSARY -->
+        
+    <div id="sec-qa" class="card" style="margin-top: 24px;">
+        <div class="card-header">
+            <span>💬 BÀN TRÒN HỎI ĐÁP TRỰC TIẾP VỚI HỘI ĐỒNG AI</span>
+            <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">TƯƠNG TÁC THEO NHU CẦU</span>
+        </div>
+        <div class="qa-tabs-nav">
+            <button class="qa-tab-btn qa-tab-active" onclick="switchQATab(&quot;qa1&quot;)">1. Giá hiện tại rẻ hay đắt so với giá trị thực?</button><button class="qa-tab-btn " onclick="switchQATab(&quot;qa2&quot;)">2. Dòng tiền thật của doanh nghiệp có lành mạnh không?</button><button class="qa-tab-btn " onclick="switchQATab(&quot;qa3&quot;)">3. Kế hoạch cắt lỗ và chốt lời kỷ luật ra sao?</button><button class="qa-tab-btn " onclick="switchQATab(&quot;qa4&quot;)">4. Khi nào dòng tiền lớn (Smart Money) xác nhận đảo chiều?</button>
+        </div>
+        <div class="qa-tabs-body">
+            <div id="qa1" class="qa-pane" style="display: block;"><div class="qa-answer-box"><span class="qa-speaker">🏛️ Ý kiến Hội đồng:</span> Thị giá 2,900 đ so với giá trị sổ sách BVPS (10,951 đ, P/B 0.26x) và giá trị thực ước tính (10,951 đ). Tuy nhiên, rẻ không đồng nghĩa với an toàn nếu doanh nghiệp đang thua lỗ và dòng tiền kinh doanh thâm hụt (Bẫy giá trị).</div></div><div id="qa2" class="qa-pane" style="display: none;"><div class="qa-answer-box"><span class="qa-speaker">🏛️ Ý kiến Hội đồng:</span> Dòng tiền thuần HĐKD (CFO TTM) ghi nhận -30.06 tỷ đ, Dòng tiền tự do (FCF TTM) đạt -30.72 tỷ đ. Cần theo dõi chặt chẽ liệu tiền mặt bán hàng có chuyển hóa thành dòng tiền kinh doanh dương hay bị đọng vốn ở các khoản phải thu.</div></div><div id="qa3" class="qa-pane" style="display: none;"><div class="qa-answer-box"><span class="qa-speaker">🏛️ Ý kiến Hội đồng:</span> Ngưỡng cắt lỗ nghiêm ngặt: N/A (Chưa mở vị thế mua). Mục tiêu chốt lời ngắn hạn (TP1): N/A. Luôn bảo vệ vốn trước tiên, tuyệt đối không gồng lỗ hay bình quân giá xuống khi vi phạm nguyên tắc bảo vệ tài khoản.</div></div><div id="qa4" class="qa-pane" style="display: none;"><div class="qa-answer-box"><span class="qa-speaker">🏛️ Ý kiến Hội đồng:</span> Cần theo dõi ngưỡng Pivot bứt phá tại 3,600 đ kèm khối lượng giao dịch đột biến tối thiểu gấp 1.3x đến 2.0x mức trung bình 20 phiên, đồng thời tỷ lệ mua chủ động duy trì áp đảo trên 60%.</div></div>
+        </div>
+    </div>
+    <script>
+    function switchQATab(tabId) {
+        document.querySelectorAll('.qa-pane').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.qa-tab-btn').forEach(el => el.classList.remove('qa-tab-active'));
+        const target = document.getElementById(tabId);
+        if (target) target.style.display = 'block';
+        event.currentTarget.classList.add('qa-tab-active');
+    }
+    </script>
+    
+        
+    <div id="sec-glossary" style="margin-top: 36px; background: rgba(10, 14, 23, 0.8); border: 1px solid var(--border); border-radius: 16px; padding: 22px;">
+        <div class="section-title" style="margin: 0 0 16px 0;">📚 SỔ TAY TRA CỨU NHANH THUẬT NGỮ TÀI CHÍNH (FINANCIAL GLOSSARY)</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+            
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
+            <div style="font-weight: 700; color: #38bdf8; font-size: 0.9rem; margin-bottom: 2px;">CFO (Cash Flow from Operations)</div>
+            <div style="font-size: 0.8rem; color: #fbbf24; font-weight: 600; margin-bottom: 6px;">Dòng tiền thuần từ Hoạt động Kinh doanh</div>
+            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.5;">Tiền mặt thực tế thu về từ bán hàng và cung cấp dịch vụ sau khi trừ chi phí trả tiền mặt. Khác với LNST kế toán (có thể bị 'vẽ' trên giấy qua bán chịu), CFO là 'tiền tươi thóc thật' chảy vào tài khoản ngân hàng.</div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
+            <div style="font-weight: 700; color: #38bdf8; font-size: 0.9rem; margin-bottom: 2px;">FCF (Free Cash Flow)</div>
+            <div style="font-size: 0.8rem; color: #fbbf24; font-weight: 600; margin-bottom: 6px;">Dòng tiền Tự do</div>
+            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.5;">Là số tiền còn dư lại sau khi lấy CFO trừ đi chi phí đầu tư mua sắm tài sản cố định (CapEx). Đây là nguồn tiền thật sự thuộc về cổ đông để chia cổ tức tiền mặt hoặc trả nợ ngân hàng.</div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
+            <div style="font-weight: 700; color: #38bdf8; font-size: 0.9rem; margin-bottom: 2px;">BVPS & Hệ số P/B</div>
+            <div style="font-size: 0.8rem; color: #fbbf24; font-weight: 600; margin-bottom: 6px;">Giá trị sổ sách & Định giá theo Tài sản</div>
+            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.5;">BVPS là giá trị tài sản ròng thuộc về mỗi cổ phiếu sau khi trả hết nợ. P/B thể hiện thị trường đang trả bao nhiêu đồng cho 1 đồng tài sản ròng. P/B < 1.0x nghĩa là thị giá đang chiết khấu so với sổ sách.</div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
+            <div style="font-weight: 700; color: #38bdf8; font-size: 0.9rem; margin-bottom: 2px;">Bẫy Giá Trị (Value Trap)</div>
+            <div style="font-size: 0.8rem; color: #fbbf24; font-weight: 600; margin-bottom: 6px;">Rủi ro mua cổ phiếu rẻ tưởng bở</div>
+            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.5;">Cổ phiếu có P/B hoặc P/E rất thấp nhưng hoạt động kinh doanh thua lỗ triền miên, tài sản đọng ở nợ khó đòi hoặc hàng tồn kho không thanh lý được, khiến giá trị sổ sách liên tục bốc hơi.</div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
+            <div style="font-weight: 700; color: #38bdf8; font-size: 0.9rem; margin-bottom: 2px;">Free-Float & Skin in the Game</div>
+            <div style="font-size: 0.8rem; color: #fbbf24; font-weight: 600; margin-bottom: 6px;">Tỷ lệ Trôi nổi & Cam kết Lãnh đạo</div>
+            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.5;">Free-float là tỷ lệ cổ phiếu trôi nổi tự do ngoài thị trường. Skin in the game là tỷ lệ sở hữu của Ban điều hành; lãnh đạo nắm giữ quá ít cổ phần (<1%) đồng nghĩa với rủi ro bỏ rơi cổ đông nhỏ lẻ khi doanh nghiệp gặp biến cố.</div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
+            <div style="font-weight: 700; color: #38bdf8; font-size: 0.9rem; margin-bottom: 2px;">VCP (Volatility Contraction Pattern)</div>
+            <div style="font-size: 0.8rem; color: #fbbf24; font-weight: 600; margin-bottom: 6px;">Mô hình Thu hẹp Độ biến động</div>
+            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.5;">Mẫu hình kinh điển của Mark Minervini: giá cổ phiếu trải qua các nhịp co thắt biên độ ngày càng hẹp dần kèm khối lượng cạn kiệt trước khi dòng tiền lớn kích hoạt điểm bứt phá (Breakout).</div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
+            <div style="font-weight: 700; color: #38bdf8; font-size: 0.9rem; margin-bottom: 2px;">VSA (Volume Spread Analysis)</div>
+            <div style="font-size: 0.8rem; color: #fbbf24; font-weight: 600; margin-bottom: 6px;">Phương pháp Phân tích Khối lượng & Chênh lệch giá</div>
+            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.5;">Phương pháp đọc dấu chân của dòng tiền thông minh (Smart Money / Cá mập) qua sự tương quan giữa biên độ nến và khối lượng giao dịch (No Supply Test, Shakeout, SOS, Upthrust).</div>
+        </div>
+        
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;">
+            <div style="font-weight: 700; color: #38bdf8; font-size: 0.9rem; margin-bottom: 2px;">Overhead Supply</div>
+            <div style="font-size: 0.8rem; color: #fbbf24; font-weight: 600; margin-bottom: 6px;">Vùng Cung Kẹp Hàng Đỉnh Cũ</div>
+            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.5;">Lượng cổ phiếu bị kẹp hàng ở vùng giá cao trong quá khứ. Khi giá hồi phục về vùng này, các nhà đầu tư kẹp hàng có xu hướng bán tháo để hòa vốn, tạo nên ngưỡng cản tâm lý rất mạnh.</div>
+        </div>
+        
+        </div>
+    </div>
+    
+
+        <!-- FOOTER PHÁP LÝ & BẢO VỆ VỐN -->
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.82rem; margin-top: 50px; padding-top: 24px; border-top: 1px solid var(--border); line-height: 1.7;">
+            Báo cáo phân tích nghiên cứu chiến lược được khởi tạo tự động bởi Hệ thống <b>Vietnam Stock Analyzer Terminal</b>.<br>
+            <i>⚠️ Lưu ý miễn trừ trách nhiệm: Báo cáo là sản phẩm tham mưu hỗ trợ quyết định khách quan độc lập, không cấu thành lời mời chào hay khuyến nghị bảo đảm sinh lời. Quyết định giải ngân cuối cùng thuộc về nhà đầu tư cá nhân.</i>
+        </div>
+
+    </div>
+
+    <!-- SCRIPT VẼ BIỂU ĐỒ CHART.JS -->
+    <script>
+        try {
+            if (typeof Chart === 'undefined') {
+                const fb = document.getElementById('cashFlowOfflineFallback');
+                const cv = document.getElementById('cashFlowChart');
+                if (fb) fb.style.display = 'block';
+                if (cv) cv.style.display = 'none';
+            } else {
+                const ctx = document.getElementById('cashFlowChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ["2025-Q3", "2025-Q4", "2026-Q1", "2026-Q2"],
+                        datasets: [
+                            {
+                                label: 'Lợi nhuận sau thuế kế toán (Tỷ đ)',
+                                data: [5.9, -183.6, -4.4, -33.2],
+                                backgroundColor: 'rgba(56, 189, 248, 0.7)',
+                                borderColor: '#38bdf8',
+                                borderWidth: 1, borderRadius: 4
+                            },
+                            {
+                                label: 'Tiền kinh doanh thật - CFO (Tỷ đ)',
+                                data: [-21.9, 176.4, -12.3, -172.3],
+                                backgroundColor: 'rgba(52, 211, 153, 0.7)',
+                                borderColor: '#34d399',
+                                borderWidth: 1, borderRadius: 4
+                            },
+                            {
+                                type: 'line',
+                                label: 'Dòng tiền tự do - FCF (Tỷ đ)',
+                                data: [-22.8, 175.2, -12.4, -172.4],
+                                borderColor: '#fbbf24',
+                                backgroundColor: '#fbbf24',
+                                borderWidth: 2, tension: 0.3, pointRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+                        scales: {
+                            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+                            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94a3b8', font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+        } catch(e) {
+            const fb = document.getElementById('cashFlowOfflineFallback');
+            const cv = document.getElementById('cashFlowChart');
+            if (fb) fb.style.display = 'block';
+            if (cv) cv.style.display = 'none';
+        }
+
+        // SCRIPT VẼ BIỂU ĐỒ NẾN TRADINGVIEW LIGHTWEIGHT CHARTS
+        (function() {
+            const chartDiv = document.getElementById('tvChartContainer');
+            if (!chartDiv) return;
+            if (typeof LightweightCharts === 'undefined') {
+                const fb = document.getElementById('tvChartOfflineFallback');
+                if (fb) fb.style.display = 'block';
+                return;
+            }
+
+            const candleData = [{"time": "2026-02-23", "open": 4300.0, "high": 4600.0, "low": 4200.0, "close": 4500.0}, {"time": "2026-02-24", "open": 4500.0, "high": 4500.0, "low": 4300.0, "close": 4300.0}, {"time": "2026-02-25", "open": 4400.0, "high": 4400.0, "low": 4200.0, "close": 4300.0}, {"time": "2026-02-26", "open": 4300.0, "high": 4400.0, "low": 4200.0, "close": 4300.0}, {"time": "2026-02-27", "open": 4300.0, "high": 4300.0, "low": 4200.0, "close": 4200.0}, {"time": "2026-03-02", "open": 4200.0, "high": 4200.0, "low": 4000.0, "close": 4000.0}, {"time": "2026-03-03", "open": 4000.0, "high": 4100.0, "low": 4000.0, "close": 4000.0}, {"time": "2026-03-04", "open": 4000.0, "high": 4200.0, "low": 3900.0, "close": 4100.0}, {"time": "2026-03-05", "open": 4100.0, "high": 4300.0, "low": 4100.0, "close": 4200.0}, {"time": "2026-03-06", "open": 4100.0, "high": 4200.0, "low": 4000.0, "close": 4100.0}, {"time": "2026-03-09", "open": 4000.0, "high": 4000.0, "low": 3700.0, "close": 3700.0}, {"time": "2026-03-10", "open": 3800.0, "high": 3900.0, "low": 3600.0, "close": 3800.0}, {"time": "2026-03-11", "open": 3800.0, "high": 3900.0, "low": 3700.0, "close": 3900.0}, {"time": "2026-03-12", "open": 3900.0, "high": 3900.0, "low": 3700.0, "close": 3900.0}, {"time": "2026-03-13", "open": 3800.0, "high": 3900.0, "low": 3800.0, "close": 3900.0}, {"time": "2026-03-16", "open": 3900.0, "high": 4100.0, "low": 3800.0, "close": 4000.0}, {"time": "2026-03-17", "open": 4100.0, "high": 4100.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-03-18", "open": 3900.0, "high": 4000.0, "low": 3800.0, "close": 4000.0}, {"time": "2026-03-19", "open": 3900.0, "high": 4000.0, "low": 3800.0, "close": 3900.0}, {"time": "2026-03-20", "open": 3900.0, "high": 4000.0, "low": 3800.0, "close": 4000.0}, {"time": "2026-03-23", "open": 4000.0, "high": 4000.0, "low": 3700.0, "close": 3800.0}, {"time": "2026-03-24", "open": 3800.0, "high": 4000.0, "low": 3800.0, "close": 4000.0}, {"time": "2026-03-25", "open": 4000.0, "high": 4000.0, "low": 3900.0, "close": 3900.0}, {"time": "2026-03-26", "open": 3900.0, "high": 4000.0, "low": 3800.0, "close": 3800.0}, {"time": "2026-03-27", "open": 3900.0, "high": 4100.0, "low": 3900.0, "close": 4100.0}, {"time": "2026-03-30", "open": 4000.0, "high": 4100.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-03-31", "open": 4000.0, "high": 4100.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-01", "open": 4000.0, "high": 4100.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-02", "open": 4000.0, "high": 4000.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-03", "open": 3900.0, "high": 4000.0, "low": 3800.0, "close": 3900.0}, {"time": "2026-04-06", "open": 3900.0, "high": 3900.0, "low": 3800.0, "close": 3900.0}, {"time": "2026-04-07", "open": 3900.0, "high": 3900.0, "low": 3800.0, "close": 3900.0}, {"time": "2026-04-08", "open": 3900.0, "high": 4100.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-09", "open": 4000.0, "high": 4100.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-10", "open": 4000.0, "high": 4100.0, "low": 3900.0, "close": 4100.0}, {"time": "2026-04-13", "open": 4000.0, "high": 4100.0, "low": 3900.0, "close": 3900.0}, {"time": "2026-04-14", "open": 4000.0, "high": 4100.0, "low": 4000.0, "close": 4000.0}, {"time": "2026-04-15", "open": 4000.0, "high": 4100.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-16", "open": 4000.0, "high": 4000.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-17", "open": 4000.0, "high": 4000.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-20", "open": 4000.0, "high": 4000.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-21", "open": 4000.0, "high": 4000.0, "low": 3900.0, "close": 3900.0}, {"time": "2026-04-22", "open": 3900.0, "high": 4000.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-04-23", "open": 3900.0, "high": 4000.0, "low": 3800.0, "close": 3900.0}, {"time": "2026-04-24", "open": 3900.0, "high": 3900.0, "low": 3800.0, "close": 3800.0}, {"time": "2026-04-28", "open": 3800.0, "high": 3900.0, "low": 3800.0, "close": 3900.0}, {"time": "2026-04-29", "open": 3900.0, "high": 3900.0, "low": 3800.0, "close": 3800.0}, {"time": "2026-05-04", "open": 3900.0, "high": 3900.0, "low": 3800.0, "close": 3800.0}, {"time": "2026-05-05", "open": 3800.0, "high": 3900.0, "low": 3700.0, "close": 3800.0}, {"time": "2026-05-06", "open": 3800.0, "high": 3900.0, "low": 3800.0, "close": 3900.0}, {"time": "2026-05-07", "open": 3900.0, "high": 3900.0, "low": 3800.0, "close": 3800.0}, {"time": "2026-05-08", "open": 3800.0, "high": 3900.0, "low": 3700.0, "close": 3800.0}, {"time": "2026-05-11", "open": 3800.0, "high": 3800.0, "low": 3700.0, "close": 3800.0}, {"time": "2026-05-12", "open": 3800.0, "high": 4100.0, "low": 3700.0, "close": 4000.0}, {"time": "2026-05-13", "open": 4000.0, "high": 4400.0, "low": 4000.0, "close": 4400.0}, {"time": "2026-05-14", "open": 4400.0, "high": 4700.0, "low": 4300.0, "close": 4400.0}, {"time": "2026-05-15", "open": 4300.0, "high": 4600.0, "low": 4200.0, "close": 4400.0}, {"time": "2026-05-18", "open": 4400.0, "high": 4800.0, "low": 4300.0, "close": 4700.0}, {"time": "2026-05-19", "open": 4800.0, "high": 4900.0, "low": 4500.0, "close": 4500.0}, {"time": "2026-05-20", "open": 4500.0, "high": 4600.0, "low": 4200.0, "close": 4500.0}, {"time": "2026-05-21", "open": 4500.0, "high": 4600.0, "low": 4400.0, "close": 4500.0}, {"time": "2026-05-22", "open": 4500.0, "high": 4500.0, "low": 4300.0, "close": 4500.0}, {"time": "2026-05-25", "open": 4500.0, "high": 4700.0, "low": 4400.0, "close": 4600.0}, {"time": "2026-05-26", "open": 4600.0, "high": 4700.0, "low": 4600.0, "close": 4600.0}, {"time": "2026-05-27", "open": 4600.0, "high": 4700.0, "low": 4500.0, "close": 4500.0}, {"time": "2026-05-28", "open": 4500.0, "high": 4700.0, "low": 4500.0, "close": 4500.0}, {"time": "2026-05-29", "open": 4500.0, "high": 4800.0, "low": 4500.0, "close": 4700.0}, {"time": "2026-06-01", "open": 4700.0, "high": 4900.0, "low": 4600.0, "close": 4700.0}, {"time": "2026-06-02", "open": 4700.0, "high": 4800.0, "low": 4500.0, "close": 4600.0}, {"time": "2026-06-03", "open": 4500.0, "high": 4600.0, "low": 4400.0, "close": 4500.0}, {"time": "2026-06-04", "open": 4500.0, "high": 4500.0, "low": 4400.0, "close": 4500.0}, {"time": "2026-06-05", "open": 4500.0, "high": 4700.0, "low": 4400.0, "close": 4500.0}, {"time": "2026-06-08", "open": 4500.0, "high": 4700.0, "low": 4300.0, "close": 4500.0}, {"time": "2026-06-09", "open": 4600.0, "high": 4900.0, "low": 4600.0, "close": 4900.0}, {"time": "2026-06-10", "open": 5300.0, "high": 5300.0, "low": 5000.0, "close": 5300.0}, {"time": "2026-06-11", "open": 5500.0, "high": 5800.0, "low": 4800.0, "close": 4900.0}, {"time": "2026-06-12", "open": 4900.0, "high": 5200.0, "low": 4700.0, "close": 4800.0}, {"time": "2026-06-15", "open": 4800.0, "high": 5000.0, "low": 4600.0, "close": 4700.0}, {"time": "2026-06-16", "open": 4800.0, "high": 4800.0, "low": 4500.0, "close": 4600.0}, {"time": "2026-06-17", "open": 4700.0, "high": 4800.0, "low": 4500.0, "close": 4700.0}, {"time": "2026-06-18", "open": 4800.0, "high": 4800.0, "low": 4500.0, "close": 4500.0}, {"time": "2026-06-19", "open": 4500.0, "high": 4600.0, "low": 4200.0, "close": 4300.0}, {"time": "2026-06-22", "open": 4400.0, "high": 4400.0, "low": 4200.0, "close": 4200.0}, {"time": "2026-06-23", "open": 4200.0, "high": 4300.0, "low": 4100.0, "close": 4200.0}, {"time": "2026-06-24", "open": 4300.0, "high": 4300.0, "low": 4100.0, "close": 4200.0}, {"time": "2026-06-25", "open": 4200.0, "high": 4200.0, "low": 4100.0, "close": 4100.0}, {"time": "2026-06-26", "open": 4200.0, "high": 4200.0, "low": 4000.0, "close": 4000.0}, {"time": "2026-06-29", "open": 4100.0, "high": 4400.0, "low": 4000.0, "close": 4400.0}, {"time": "2026-06-30", "open": 4500.0, "high": 4500.0, "low": 4300.0, "close": 4400.0}, {"time": "2026-07-01", "open": 4300.0, "high": 4500.0, "low": 4200.0, "close": 4300.0}, {"time": "2026-07-02", "open": 4300.0, "high": 4400.0, "low": 4200.0, "close": 4300.0}, {"time": "2026-07-03", "open": 4300.0, "high": 4500.0, "low": 4300.0, "close": 4400.0}, {"time": "2026-07-06", "open": 4400.0, "high": 4500.0, "low": 4200.0, "close": 4300.0}, {"time": "2026-07-07", "open": 4400.0, "high": 4400.0, "low": 4100.0, "close": 4200.0}, {"time": "2026-07-08", "open": 4300.0, "high": 4300.0, "low": 4100.0, "close": 4200.0}, {"time": "2026-07-09", "open": 4300.0, "high": 4300.0, "low": 4100.0, "close": 4200.0}, {"time": "2026-07-10", "open": 4200.0, "high": 4300.0, "low": 4100.0, "close": 4100.0}, {"time": "2026-07-13", "open": 4100.0, "high": 4200.0, "low": 4000.0, "close": 4100.0}, {"time": "2026-07-14", "open": 4200.0, "high": 4200.0, "low": 4000.0, "close": 4100.0}, {"time": "2026-07-15", "open": 4100.0, "high": 4200.0, "low": 4000.0, "close": 4000.0}, {"time": "2026-07-16", "open": 4100.0, "high": 4100.0, "low": 3900.0, "close": 4000.0}, {"time": "2026-07-17", "open": 4100.0, "high": 4100.0, "low": 3900.0, "close": 3900.0}, {"time": "2026-07-20", "open": 3900.0, "high": 4000.0, "low": 3800.0, "close": 3900.0}, {"time": "2026-07-21", "open": 3900.0, "high": 4000.0, "low": 3800.0, "close": 3800.0}, {"time": "2026-07-22", "open": 3800.0, "high": 3900.0, "low": 3700.0, "close": 3700.0}, {"time": "2026-07-23", "open": 3700.0, "high": 3800.0, "low": 3600.0, "close": 3800.0}, {"time": "2026-07-24", "open": 3800.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-07-27", "open": 3700.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-07-28", "open": 3700.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-07-29", "open": 3800.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-07-30", "open": 3700.0, "high": 3800.0, "low": 3600.0, "close": 3800.0}, {"time": "2026-07-31", "open": 3800.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-08-03", "open": 3700.0, "high": 3900.0, "low": 3700.0, "close": 3800.0}, {"time": "2026-08-04", "open": 3900.0, "high": 3900.0, "low": 3700.0, "close": 3800.0}, {"time": "2026-08-05", "open": 3800.0, "high": 3900.0, "low": 3700.0, "close": 3700.0}, {"time": "2026-08-06", "open": 3800.0, "high": 3800.0, "low": 3700.0, "close": 3700.0}, {"time": "2026-08-07", "open": 3800.0, "high": 3800.0, "low": 3600.0, "close": 3800.0}, {"time": "2026-08-10", "open": 3800.0, "high": 3800.0, "low": 3700.0, "close": 3700.0}, {"time": "2026-08-11", "open": 3800.0, "high": 3800.0, "low": 3700.0, "close": 3800.0}, {"time": "2026-08-12", "open": 3800.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-08-13", "open": 3800.0, "high": 3900.0, "low": 3700.0, "close": 3800.0}, {"time": "2026-08-14", "open": 3800.0, "high": 3800.0, "low": 3700.0, "close": 3700.0}, {"time": "2026-08-17", "open": 3700.0, "high": 3700.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-08-18", "open": 3800.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-08-19", "open": 3600.0, "high": 3700.0, "low": 3600.0, "close": 3600.0}, {"time": "2026-08-20", "open": 3700.0, "high": 3700.0, "low": 3500.0, "close": 3600.0}, {"time": "2026-08-21", "open": 3700.0, "high": 3700.0, "low": 3500.0, "close": 3700.0}, {"time": "2026-08-24", "open": 3800.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-08-25", "open": 3700.0, "high": 3700.0, "low": 3600.0, "close": 3600.0}, {"time": "2026-08-26", "open": 3600.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-08-27", "open": 3800.0, "high": 3800.0, "low": 3600.0, "close": 3700.0}, {"time": "2026-08-28", "open": 3700.0, "high": 3700.0, "low": 3600.0, "close": 3600.0}, {"time": "2026-09-03", "open": 3700.0, "high": 3700.0, "low": 3500.0, "close": 3600.0}, {"time": "2026-09-04", "open": 3600.0, "high": 3700.0, "low": 3500.0, "close": 3600.0}, {"time": "2026-09-07", "open": 3600.0, "high": 3600.0, "low": 3500.0, "close": 3600.0}, {"time": "2026-09-08", "open": 3600.0, "high": 3600.0, "low": 3500.0, "close": 3600.0}, {"time": "2026-09-09", "open": 3600.0, "high": 3600.0, "low": 3500.0, "close": 3600.0}, {"time": "2026-09-10", "open": 3600.0, "high": 3600.0, "low": 3500.0, "close": 3600.0}, {"time": "2026-09-11", "open": 3500.0, "high": 3600.0, "low": 3500.0, "close": 3500.0}, {"time": "2026-09-14", "open": 3600.0, "high": 3600.0, "low": 3400.0, "close": 3500.0}, {"time": "2026-09-15", "open": 3500.0, "high": 3500.0, "low": 3400.0, "close": 3500.0}, {"time": "2026-09-16", "open": 3500.0, "high": 3500.0, "low": 3400.0, "close": 3400.0}, {"time": "2026-09-17", "open": 3500.0, "high": 3500.0, "low": 3400.0, "close": 3400.0}, {"time": "2026-09-18", "open": 3400.0, "high": 3500.0, "low": 3400.0, "close": 3400.0}, {"time": "2026-09-21", "open": 3500.0, "high": 3500.0, "low": 3300.0, "close": 3400.0}, {"time": "2026-09-22", "open": 3400.0, "high": 3500.0, "low": 3300.0, "close": 3300.0}, {"time": "2026-09-23", "open": 3400.0, "high": 3400.0, "low": 3200.0, "close": 3300.0}, {"time": "2026-09-24", "open": 3400.0, "high": 3400.0, "low": 3200.0, "close": 3200.0}, {"time": "2026-09-25", "open": 3400.0, "high": 3400.0, "low": 3100.0, "close": 3100.0}, {"time": "2026-09-28", "open": 3200.0, "high": 3200.0, "low": 3000.0, "close": 3100.0}, {"time": "2026-09-29", "open": 3000.0, "high": 3100.0, "low": 3000.0, "close": 3000.0}, {"time": "2026-09-30", "open": 3000.0, "high": 3100.0, "low": 3000.0, "close": 3000.0}, {"time": "2026-10-01", "open": 3000.0, "high": 3100.0, "low": 2900.0, "close": 2900.0}, {"time": "2026-10-02", "open": 2900.0, "high": 3000.0, "low": 2700.0, "close": 2800.0}, {"time": "2026-10-05", "open": 2800.0, "high": 2900.0, "low": 2700.0, "close": 2900.0}, {"time": "2026-10-06", "open": 2800.0, "high": 2900.0, "low": 2700.0, "close": 2800.0}, {"time": "2026-10-07", "open": 2800.0, "high": 2900.0, "low": 2800.0, "close": 2900.0}, {"time": "2026-10-08", "open": 2900.0, "high": 3000.0, "low": 2800.0, "close": 2900.0}, {"time": "2026-10-09", "open": 2900.0, "high": 3000.0, "low": 2800.0, "close": 2900.0}, {"time": "2026-10-12", "open": 2900.0, "high": 3000.0, "low": 2800.0, "close": 2900.0}];
+            const volData = [{"time": "2026-02-23", "value": 1131200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-02-24", "value": 303500.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-02-25", "value": 486700.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-02-26", "value": 172500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-02-27", "value": 380900.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-03-02", "value": 1124600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-03-03", "value": 465200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-04", "value": 1061100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-05", "value": 634700.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-06", "value": 243600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-09", "value": 2047000.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-03-10", "value": 876400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-11", "value": 271000.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-12", "value": 287400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-13", "value": 233300.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-16", "value": 800800.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-17", "value": 221500.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-03-18", "value": 496500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-19", "value": 306800.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-20", "value": 363000.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-23", "value": 406400.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-03-24", "value": 811900.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-25", "value": 812300.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-03-26", "value": 187600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-03-27", "value": 1312900.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-30", "value": 888900.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-03-31", "value": 195100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-01", "value": 784800.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-02", "value": 440500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-03", "value": 644200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-06", "value": 186300.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-07", "value": 133500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-08", "value": 795100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-09", "value": 380400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-10", "value": 354200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-13", "value": 404800.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-04-14", "value": 652000.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-15", "value": 294900.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-16", "value": 133500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-17", "value": 85200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-20", "value": 201100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-21", "value": 299100.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-04-22", "value": 187400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-23", "value": 791200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-24", "value": 125600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-04-28", "value": 136700.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-04-29", "value": 395600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-05-04", "value": 98600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-05-05", "value": 271400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-06", "value": 342300.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-07", "value": 319800.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-05-08", "value": 112300.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-11", "value": 185200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-12", "value": 1449100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-13", "value": 3088300.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-14", "value": 752200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-15", "value": 889700.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-18", "value": 1668300.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-19", "value": 506400.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-05-20", "value": 1086600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-21", "value": 197500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-22", "value": 289900.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-25", "value": 480100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-26", "value": 254500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-27", "value": 220000.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-05-28", "value": 446200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-05-29", "value": 659800.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-01", "value": 474600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-02", "value": 744300.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-03", "value": 248100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-04", "value": 275000.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-05", "value": 284600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-08", "value": 827600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-09", "value": 4036800.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-10", "value": 4206900.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-11", "value": 3645700.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-12", "value": 2118800.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-15", "value": 1589300.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-16", "value": 912800.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-17", "value": 631500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-18", "value": 1472600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-19", "value": 1546600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-22", "value": 315500.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-23", "value": 468700.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-24", "value": 569700.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-25", "value": 253700.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-26", "value": 365300.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-06-29", "value": 1415600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-06-30", "value": 464400.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-01", "value": 527100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-07-02", "value": 320100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-07-03", "value": 1211600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-07-06", "value": 586700.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-07", "value": 423300.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-08", "value": 343500.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-09", "value": 212100.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-10", "value": 220800.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-13", "value": 295600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-07-14", "value": 289600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-15", "value": 306100.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-16", "value": 609700.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-17", "value": 178600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-20", "value": 468700.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-07-21", "value": 298000.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-22", "value": 672900.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-23", "value": 418400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-07-24", "value": 707800.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-27", "value": 124400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-07-28", "value": 260800.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-07-29", "value": 115600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-07-30", "value": 344500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-07-31", "value": 385000.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-03", "value": 522200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-08-04", "value": 423200.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-05", "value": 655400.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-06", "value": 309600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-07", "value": 335100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-08-10", "value": 194700.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-11", "value": 178200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-08-12", "value": 665100.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-13", "value": 880600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-08-14", "value": 347600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-17", "value": 206800.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-08-18", "value": 207000.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-19", "value": 325200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-08-20", "value": 627000.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-21", "value": 546400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-08-24", "value": 228500.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-25", "value": 309400.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-26", "value": 844400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-08-27", "value": 269500.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-08-28", "value": 252700.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-03", "value": 399300.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-04", "value": 314800.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-09-07", "value": 239100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-09-08", "value": 361500.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-09-09", "value": 256200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-09-10", "value": 210200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-09-11", "value": 450100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-09-14", "value": 388200.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-15", "value": 239600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-09-16", "value": 113900.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-17", "value": 294500.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-18", "value": 111400.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-09-21", "value": 264900.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-22", "value": 464600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-23", "value": 376200.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-24", "value": 576400.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-25", "value": 495600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-28", "value": 192400.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-09-29", "value": 338100.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-09-30", "value": 83300.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-10-01", "value": 609000.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-10-02", "value": 480600.0, "color": "rgba(239, 68, 68, 0.7)"}, {"time": "2026-10-05", "value": 286200.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-10-06", "value": 429300.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-10-07", "value": 720000.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-10-08", "value": 370800.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-10-09", "value": 276600.0, "color": "rgba(16, 185, 129, 0.7)"}, {"time": "2026-10-12", "value": 348600.0, "color": "rgba(16, 185, 129, 0.7)"}];
+            const ema20Data = [{"time": "2026-02-23", "value": 4467.7}, {"time": "2026-02-24", "value": 4451.7}, {"time": "2026-02-25", "value": 4437.2}, {"time": "2026-02-26", "value": 4424.2}, {"time": "2026-02-27", "value": 4402.8}, {"time": "2026-03-02", "value": 4364.5}, {"time": "2026-03-03", "value": 4329.7}, {"time": "2026-03-04", "value": 4307.9}, {"time": "2026-03-05", "value": 4297.6}, {"time": "2026-03-06", "value": 4278.8}, {"time": "2026-03-09", "value": 4223.7}, {"time": "2026-03-10", "value": 4183.3}, {"time": "2026-03-11", "value": 4156.3}, {"time": "2026-03-12", "value": 4131.9}, {"time": "2026-03-13", "value": 4109.8}, {"time": "2026-03-16", "value": 4099.4}, {"time": "2026-03-17", "value": 4089.9}, {"time": "2026-03-18", "value": 4081.3}, {"time": "2026-03-19", "value": 4064.1}, {"time": "2026-03-20", "value": 4058.0}, {"time": "2026-03-23", "value": 4033.4}, {"time": "2026-03-24", "value": 4030.2}, {"time": "2026-03-25", "value": 4017.8}, {"time": "2026-03-26", "value": 3997.1}, {"time": "2026-03-27", "value": 4006.9}, {"time": "2026-03-30", "value": 4006.2}, {"time": "2026-03-31", "value": 4005.6}, {"time": "2026-04-01", "value": 4005.1}, {"time": "2026-04-02", "value": 4004.6}, {"time": "2026-04-03", "value": 3994.6}, {"time": "2026-04-06", "value": 3985.6}, {"time": "2026-04-07", "value": 3977.5}, {"time": "2026-04-08", "value": 3979.6}, {"time": "2026-04-09", "value": 3981.6}, {"time": "2026-04-10", "value": 3992.8}, {"time": "2026-04-13", "value": 3984.0}, {"time": "2026-04-14", "value": 3985.5}, {"time": "2026-04-15", "value": 3986.9}, {"time": "2026-04-16", "value": 3988.1}, {"time": "2026-04-17", "value": 3989.3}, {"time": "2026-04-20", "value": 3990.3}, {"time": "2026-04-21", "value": 3981.7}, {"time": "2026-04-22", "value": 3983.4}, {"time": "2026-04-23", "value": 3975.5}, {"time": "2026-04-24", "value": 3958.8}, {"time": "2026-04-28", "value": 3953.2}, {"time": "2026-04-29", "value": 3938.6}, {"time": "2026-05-04", "value": 3925.4}, {"time": "2026-05-05", "value": 3913.5}, {"time": "2026-05-06", "value": 3912.2}, {"time": "2026-05-07", "value": 3901.5}, {"time": "2026-05-08", "value": 3891.8}, {"time": "2026-05-11", "value": 3883.1}, {"time": "2026-05-12", "value": 3894.2}, {"time": "2026-05-13", "value": 3942.4}, {"time": "2026-05-14", "value": 3986.0}, {"time": "2026-05-15", "value": 4025.4}, {"time": "2026-05-18", "value": 4089.6}, {"time": "2026-05-19", "value": 4128.7}, {"time": "2026-05-20", "value": 4164.1}, {"time": "2026-05-21", "value": 4196.1}, {"time": "2026-05-22", "value": 4225.0}, {"time": "2026-05-25", "value": 4260.7}, {"time": "2026-05-26", "value": 4293.0}, {"time": "2026-05-27", "value": 4312.8}, {"time": "2026-05-28", "value": 4330.6}, {"time": "2026-05-29", "value": 4365.8}, {"time": "2026-06-01", "value": 4397.6}, {"time": "2026-06-02", "value": 4416.9}, {"time": "2026-06-03", "value": 4424.8}, {"time": "2026-06-04", "value": 4432.0}, {"time": "2026-06-05", "value": 4438.4}, {"time": "2026-06-08", "value": 4444.3}, {"time": "2026-06-09", "value": 4487.7}, {"time": "2026-06-10", "value": 4565.1}, {"time": "2026-06-11", "value": 4597.0}, {"time": "2026-06-12", "value": 4616.3}, {"time": "2026-06-15", "value": 4624.3}, {"time": "2026-06-16", "value": 4622.0}, {"time": "2026-06-17", "value": 4629.4}, {"time": "2026-06-18", "value": 4617.1}, {"time": "2026-06-19", "value": 4586.9}, {"time": "2026-06-22", "value": 4550.0}, {"time": "2026-06-23", "value": 4516.7}, {"time": "2026-06-24", "value": 4486.5}, {"time": "2026-06-25", "value": 4449.7}, {"time": "2026-06-26", "value": 4406.9}, {"time": "2026-06-29", "value": 4406.2}, {"time": "2026-06-30", "value": 4405.6}, {"time": "2026-07-01", "value": 4395.6}, {"time": "2026-07-02", "value": 4386.5}, {"time": "2026-07-03", "value": 4387.8}, {"time": "2026-07-06", "value": 4379.4}, {"time": "2026-07-07", "value": 4362.3}, {"time": "2026-07-08", "value": 4346.9}, {"time": "2026-07-09", "value": 4332.9}, {"time": "2026-07-10", "value": 4310.7}, {"time": "2026-07-13", "value": 4290.6}, {"time": "2026-07-14", "value": 4272.5}, {"time": "2026-07-15", "value": 4246.5}, {"time": "2026-07-16", "value": 4223.0}, {"time": "2026-07-17", "value": 4192.3}, {"time": "2026-07-20", "value": 4164.4}, {"time": "2026-07-21", "value": 4129.7}, {"time": "2026-07-22", "value": 4088.8}, {"time": "2026-07-23", "value": 4061.3}, {"time": "2026-07-24", "value": 4026.9}, {"time": "2026-07-27", "value": 3995.8}, {"time": "2026-07-28", "value": 3967.6}, {"time": "2026-07-29", "value": 3942.1}, {"time": "2026-07-30", "value": 3928.6}, {"time": "2026-07-31", "value": 3906.8}, {"time": "2026-08-03", "value": 3896.6}, {"time": "2026-08-04", "value": 3887.4}, {"time": "2026-08-05", "value": 3869.6}, {"time": "2026-08-06", "value": 3853.4}, {"time": "2026-08-07", "value": 3848.3}, {"time": "2026-08-10", "value": 3834.2}, {"time": "2026-08-11", "value": 3831.0}, {"time": "2026-08-12", "value": 3818.5}, {"time": "2026-08-13", "value": 3816.7}, {"time": "2026-08-14", "value": 3805.6}, {"time": "2026-08-17", "value": 3795.5}, {"time": "2026-08-18", "value": 3786.4}, {"time": "2026-08-19", "value": 3768.7}, {"time": "2026-08-20", "value": 3752.6}, {"time": "2026-08-21", "value": 3747.6}, {"time": "2026-08-24", "value": 3743.1}, {"time": "2026-08-25", "value": 3729.5}, {"time": "2026-08-26", "value": 3726.6}, {"time": "2026-08-27", "value": 3724.1}, {"time": "2026-08-28", "value": 3712.3}, {"time": "2026-09-03", "value": 3701.6}, {"time": "2026-09-04", "value": 3691.9}, {"time": "2026-09-07", "value": 3683.2}, {"time": "2026-09-08", "value": 3675.2}, {"time": "2026-09-09", "value": 3668.1}, {"time": "2026-09-10", "value": 3661.6}, {"time": "2026-09-11", "value": 3646.2}, {"time": "2026-09-14", "value": 3632.3}, {"time": "2026-09-15", "value": 3619.7}, {"time": "2026-09-16", "value": 3598.8}, {"time": "2026-09-17", "value": 3579.8}, {"time": "2026-09-18", "value": 3562.7}, {"time": "2026-09-21", "value": 3547.2}, {"time": "2026-09-22", "value": 3523.7}, {"time": "2026-09-23", "value": 3502.4}, {"time": "2026-09-24", "value": 3473.6}, {"time": "2026-09-25", "value": 3438.0}, {"time": "2026-09-28", "value": 3405.8}, {"time": "2026-09-29", "value": 3367.2}, {"time": "2026-09-30", "value": 3332.2}, {"time": "2026-10-01", "value": 3291.0}, {"time": "2026-10-02", "value": 3244.3}, {"time": "2026-10-05", "value": 3211.5}, {"time": "2026-10-06", "value": 3172.3}, {"time": "2026-10-07", "value": 3146.4}, {"time": "2026-10-08", "value": 3122.9}, {"time": "2026-10-09", "value": 3101.7}, {"time": "2026-10-12", "value": 3082.5}];
+            const ema50Data = [{"time": "2026-02-23", "value": 4770.8}, {"time": "2026-02-24", "value": 4752.4}, {"time": "2026-02-25", "value": 4734.6}, {"time": "2026-02-26", "value": 4717.6}, {"time": "2026-02-27", "value": 4697.3}, {"time": "2026-03-02", "value": 4669.9}, {"time": "2026-03-03", "value": 4643.7}, {"time": "2026-03-04", "value": 4622.4}, {"time": "2026-03-05", "value": 4605.8}, {"time": "2026-03-06", "value": 4586.0}, {"time": "2026-03-09", "value": 4551.2}, {"time": "2026-03-10", "value": 4521.8}, {"time": "2026-03-11", "value": 4497.4}, {"time": "2026-03-12", "value": 4473.9}, {"time": "2026-03-13", "value": 4451.4}, {"time": "2026-03-16", "value": 4433.7}, {"time": "2026-03-17", "value": 4416.7}, {"time": "2026-03-18", "value": 4400.4}, {"time": "2026-03-19", "value": 4380.8}, {"time": "2026-03-20", "value": 4365.8}, {"time": "2026-03-23", "value": 4343.6}, {"time": "2026-03-24", "value": 4330.2}, {"time": "2026-03-25", "value": 4313.3}, {"time": "2026-03-26", "value": 4293.2}, {"time": "2026-03-27", "value": 4285.6}, {"time": "2026-03-30", "value": 4274.4}, {"time": "2026-03-31", "value": 4263.6}, {"time": "2026-04-01", "value": 4253.3}, {"time": "2026-04-02", "value": 4243.4}, {"time": "2026-04-03", "value": 4229.9}, {"time": "2026-04-06", "value": 4217.0}, {"time": "2026-04-07", "value": 4204.5}, {"time": "2026-04-08", "value": 4196.5}, {"time": "2026-04-09", "value": 4188.8}, {"time": "2026-04-10", "value": 4185.3}, {"time": "2026-04-13", "value": 4174.1}, {"time": "2026-04-14", "value": 4167.3}, {"time": "2026-04-15", "value": 4160.7}, {"time": "2026-04-16", "value": 4154.4}, {"time": "2026-04-17", "value": 4148.4}, {"time": "2026-04-20", "value": 4142.6}, {"time": "2026-04-21", "value": 4133.0}, {"time": "2026-04-22", "value": 4127.8}, {"time": "2026-04-23", "value": 4118.9}, {"time": "2026-04-24", "value": 4106.4}, {"time": "2026-04-28", "value": 4098.3}, {"time": "2026-04-29", "value": 4086.6}, {"time": "2026-05-04", "value": 4075.4}, {"time": "2026-05-05", "value": 4064.6}, {"time": "2026-05-06", "value": 4058.1}, {"time": "2026-05-07", "value": 4048.0}, {"time": "2026-05-08", "value": 4038.3}, {"time": "2026-05-11", "value": 4028.9}, {"time": "2026-05-12", "value": 4027.8}, {"time": "2026-05-13", "value": 4042.4}, {"time": "2026-05-14", "value": 4056.4}, {"time": "2026-05-15", "value": 4069.9}, {"time": "2026-05-18", "value": 4094.6}, {"time": "2026-05-19", "value": 4110.5}, {"time": "2026-05-20", "value": 4125.8}, {"time": "2026-05-21", "value": 4140.4}, {"time": "2026-05-22", "value": 4154.5}, {"time": "2026-05-25", "value": 4172.0}, {"time": "2026-05-26", "value": 4188.8}, {"time": "2026-05-27", "value": 4201.0}, {"time": "2026-05-28", "value": 4212.7}, {"time": "2026-05-29", "value": 4231.8}, {"time": "2026-06-01", "value": 4250.2}, {"time": "2026-06-02", "value": 4263.9}, {"time": "2026-06-03", "value": 4273.2}, {"time": "2026-06-04", "value": 4282.1}, {"time": "2026-06-05", "value": 4290.6}, {"time": "2026-06-08", "value": 4298.8}, {"time": "2026-06-09", "value": 4322.4}, {"time": "2026-06-10", "value": 4360.7}, {"time": "2026-06-11", "value": 4381.9}, {"time": "2026-06-12", "value": 4398.3}, {"time": "2026-06-15", "value": 4410.1}, {"time": "2026-06-16", "value": 4417.6}, {"time": "2026-06-17", "value": 4428.6}, {"time": "2026-06-18", "value": 4431.4}, {"time": "2026-06-19", "value": 4426.3}, {"time": "2026-06-22", "value": 4417.4}, {"time": "2026-06-23", "value": 4408.9}, {"time": "2026-06-24", "value": 4400.7}, {"time": "2026-06-25", "value": 4388.9}, {"time": "2026-06-26", "value": 4373.6}, {"time": "2026-06-29", "value": 4374.7}, {"time": "2026-06-30", "value": 4375.7}, {"time": "2026-07-01", "value": 4372.7}, {"time": "2026-07-02", "value": 4369.9}, {"time": "2026-07-03", "value": 4371.0}, {"time": "2026-07-06", "value": 4368.2}, {"time": "2026-07-07", "value": 4361.7}, {"time": "2026-07-08", "value": 4355.3}, {"time": "2026-07-09", "value": 4349.2}, {"time": "2026-07-10", "value": 4339.4}, {"time": "2026-07-13", "value": 4330.1}, {"time": "2026-07-14", "value": 4321.0}, {"time": "2026-07-15", "value": 4308.4}, {"time": "2026-07-16", "value": 4296.4}, {"time": "2026-07-17", "value": 4280.8}, {"time": "2026-07-20", "value": 4265.9}, {"time": "2026-07-21", "value": 4247.6}, {"time": "2026-07-22", "value": 4226.1}, {"time": "2026-07-23", "value": 4209.4}, {"time": "2026-07-24", "value": 4189.4}, {"time": "2026-07-27", "value": 4170.2}, {"time": "2026-07-28", "value": 4151.8}, {"time": "2026-07-29", "value": 4134.1}, {"time": "2026-07-30", "value": 4121.0}, {"time": "2026-07-31", "value": 4104.5}, {"time": "2026-08-03", "value": 4092.5}, {"time": "2026-08-04", "value": 4081.1}, {"time": "2026-08-05", "value": 4066.1}, {"time": "2026-08-06", "value": 4051.8}, {"time": "2026-08-07", "value": 4041.9}, {"time": "2026-08-10", "value": 4028.5}, {"time": "2026-08-11", "value": 4019.5}, {"time": "2026-08-12", "value": 4007.0}, {"time": "2026-08-13", "value": 3998.9}, {"time": "2026-08-14", "value": 3987.2}, {"time": "2026-08-17", "value": 3975.9}, {"time": "2026-08-18", "value": 3965.1}, {"time": "2026-08-19", "value": 3950.8}, {"time": "2026-08-20", "value": 3937.0}, {"time": "2026-08-21", "value": 3927.7}, {"time": "2026-08-24", "value": 3918.8}, {"time": "2026-08-25", "value": 3906.3}, {"time": "2026-08-26", "value": 3898.2}, {"time": "2026-08-27", "value": 3890.4}, {"time": "2026-08-28", "value": 3879.0}, {"time": "2026-09-03", "value": 3868.1}, {"time": "2026-09-04", "value": 3857.6}, {"time": "2026-09-07", "value": 3847.5}, {"time": "2026-09-08", "value": 3837.8}, {"time": "2026-09-09", "value": 3828.4}, {"time": "2026-09-10", "value": 3819.5}, {"time": "2026-09-11", "value": 3807.0}, {"time": "2026-09-14", "value": 3794.9}, {"time": "2026-09-15", "value": 3783.4}, {"time": "2026-09-16", "value": 3768.3}, {"time": "2026-09-17", "value": 3753.9}, {"time": "2026-09-18", "value": 3740.0}, {"time": "2026-09-21", "value": 3726.7}, {"time": "2026-09-22", "value": 3709.9}, {"time": "2026-09-23", "value": 3693.9}, {"time": "2026-09-24", "value": 3674.5}, {"time": "2026-09-25", "value": 3652.0}, {"time": "2026-09-28", "value": 3630.3}, {"time": "2026-09-29", "value": 3605.6}, {"time": "2026-09-30", "value": 3581.8}, {"time": "2026-10-01", "value": 3555.1}, {"time": "2026-10-02", "value": 3525.5}, {"time": "2026-10-05", "value": 3501.0}, {"time": "2026-10-06", "value": 3473.5}, {"time": "2026-10-07", "value": 3451.0}, {"time": "2026-10-08", "value": 3429.4}, {"time": "2026-10-09", "value": 3408.6}, {"time": "2026-10-12", "value": 3388.7}];
+
+            if (!candleData || candleData.length === 0) {
+                chartDiv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#64748b;">Đang cập nhật chuỗi dữ liệu nến...</div>';
+                return;
+            }
+
+            const chart = LightweightCharts.createChart(chartDiv, {
+                width: chartDiv.clientWidth,
+                height: 460,
+                layout: {
+                    background: { color: '#070c16' },
+                    textColor: '#94a3b8',
+                    fontSize: 11,
+                    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                },
+                grid: {
+                    vertLines: { color: 'rgba(255, 255, 255, 0.03)' },
+                    horzLines: { color: 'rgba(255, 255, 255, 0.03)' }
+                },
+                crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+                rightPriceScale: {
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    scaleMargins: { top: 0.08, bottom: 0.22 }
+                },
+                timeScale: {
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    timeVisible: true, secondsVisible: false
+                }
+            });
+
+            const candleSeries = chart.addCandlestickSeries({
+                upColor: '#10b981', downColor: '#ef4444',
+                borderDownColor: '#ef4444', borderUpColor: '#10b981',
+                wickDownColor: '#ef4444', wickUpColor: '#10b981'
+            });
+            candleSeries.setData(candleData);
+
+            const volSeries = chart.addHistogramSeries({
+                priceFormat: { type: 'volume' },
+                priceScaleId: '',
+                scaleMargins: { top: 0.78, bottom: 0 }
+            });
+            volSeries.setData(volData);
+
+            if (ema20Data.length > 0) {
+                const ema20Line = chart.addLineSeries({
+                    color: '#fbbf24', lineWidth: 1.5, title: 'EMA20'
+                });
+                ema20Line.setData(ema20Data);
+            }
+
+            if (ema50Data.length > 0) {
+                const ema50Line = chart.addLineSeries({
+                    color: '#38bdf8', lineWidth: 1.5, title: 'EMA50'
+                });
+                ema50Line.setData(ema50Data);
+            }
+
+            const pivotPrice = 3600.0;
+            if (pivotPrice > 0) {
+                candleSeries.createPriceLine({
+                    price: pivotPrice, color: '#10b981',
+                    lineWidth: 2, lineStyle: LightweightCharts.LineStyle.Dashed,
+                    axisLabelVisible: true, title: 'PIVOT MUA'
+                });
+            }
+
+            const slPrice = 0.0;
+            if (slPrice > 0) {
+                candleSeries.createPriceLine({
+                    price: slPrice, color: '#ef4444',
+                    lineWidth: 2, lineStyle: LightweightCharts.LineStyle.Solid,
+                    axisLabelVisible: true, title: 'CẮT LỖ (SL)'
+                });
+            }
+
+            const tp1Price = 0.0;
+            if (tp1Price > 0) {
+                candleSeries.createPriceLine({
+                    price: tp1Price, color: '#38bdf8',
+                    lineWidth: 1.5, lineStyle: LightweightCharts.LineStyle.Dotted,
+                    axisLabelVisible: true, title: 'MỤC TIÊU 1'
+                });
+            }
+
+            chart.subscribeCrosshairMove(param => {
+                const tooltip = document.getElementById('chartTooltip');
+                if (!tooltip) return;
+                if (!param || !param.time || !param.seriesData.get(candleSeries)) {
+                    tooltip.innerHTML = '<span>Rê chuột trên biểu đồ để xem chi tiết nến OHLCV và Khối lượng</span>';
+                    return;
+                }
+                const data = param.seriesData.get(candleSeries);
+                const volItem = param.seriesData.get(volSeries);
+                const volVal = volItem ? volItem.value : 0;
+                const chg = ((data.close - data.open) / data.open * 100).toFixed(2);
+                const chgColor = data.close >= data.open ? '#10b981' : '#ef4444';
+                tooltip.innerHTML = `
+                    <span>Ngày: <b>${param.time}</b></span>
+                    <span>Mở: <b>${data.open.toLocaleString()}</b></span>
+                    <span>Cao: <b>${data.high.toLocaleString()}</b></span>
+                    <span>Thấp: <b>${data.low.toLocaleString()}</b></span>
+                    <span>Đóng: <b style="color:${chgColor}">${data.close.toLocaleString()} (${chg >= 0 ? '+' : ''}${chg}%)</b></span>
+                    <span>Khối lượng: <b>${volVal.toLocaleString()} CP</b></span>
+                `;
+            });
+
+            window.addEventListener('resize', () => {
+                chart.applyOptions({ width: chartDiv.clientWidth });
+            });
+        })();
+    </script>
+</body>
+</html>

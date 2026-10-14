@@ -2,8 +2,10 @@ import sys
 import argparse
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 # Fix Windows console UTF-8 display and line buffering
+
 if sys.platform == "win32":
     try:
         sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
@@ -501,6 +503,89 @@ def render_macro_terminal():
     console.print(table)
 
 
+def list_experts():
+    """Hiển thị danh mục 11 chuyên gia Hội đồng Tham mưu (prompts.chat)."""
+    from ai.prompt_library import PromptLibrary
+    personas = PromptLibrary.list_personas()
+    table = Table(title="🏛️ DANH MỤC 11 CHUYÊN GIA HỘI ĐỒNG THAM MƯU (PROMPTS.CHAT)", header_style="bold cyan")
+    table.add_column("Mã Alias (--expert)", style="bold yellow", width=18)
+    table.add_column("Huy hiệu & Tên chuyên gia", style="cyan", width=30)
+    table.add_column("Trường phái & Danh xưng", style="white", width=44)
+    table.add_column("Nhóm", style="green", width=12)
+    for p in personas:
+        table.add_row(
+            p["id"],
+            f"{p['badge']} {p['name']}",
+            p["title"],
+            "Cốt lõi" if p["category"] == "core" else "Mở rộng"
+        )
+    console.print(table)
+
+
+def ask_council(symbol: str, question: Optional[str] = None, expert_id: str = "all"):
+    """
+    Hỏi-đáp trực tiếp với 11 Chuyên gia Hội đồng Tham mưu (prompts.chat).
+    """
+    symbol = symbol.upper().strip()
+    if not question:
+        question = "Đánh giá toàn diện rủi ro, con hào kinh tế và cơ hội giải ngân vị thế tại vùng giá hiện tại?"
+
+    console.print(f"\n[bold cyan]⏳ Đang tập hợp dữ liệu và kết nối Hội đồng Tham mưu cho mã [yellow]{symbol}[/yellow]...[/bold cyan]")
+    from ai.interactive_advisor import CouncilAdvisor
+    from core.stock_service import analyze_ticker_full
+
+    context = {}
+    try:
+        res = analyze_ticker_full(symbol, save_report=False, send_alert=False)
+        if "error" not in res:
+            q = res.get("quote", {})
+            fa = res.get("fa_result", {})
+            ta = res.get("ta_result", {})
+            ts = res.get("trade_setup", {})
+            ratios = fa.get("ratios", {})
+            p = float(q.get("price", 0))
+            context = {
+                "price": p,
+                "fair_price": float(fa.get("fair_value", p)),
+                "bvps": float(fa.get("bvps", 0)),
+                "pb": float(ratios.get("pb", 1.0)),
+                "stop_loss": float(ts.get("stop_loss", p * 0.93)),
+                "stop_loss_pct": float(ts.get("stop_loss_pct", 7.0)),
+                "take_profit_1": float(ts.get("take_profit_1", p * 1.12)),
+                "take_profit_1_pct": float(ts.get("take_profit_1_pct", 12.0)),
+                "take_profit_2": float(ts.get("take_profit_2", p * 1.25)),
+                "take_profit_2_pct": float(ts.get("take_profit_2_pct", 25.0)),
+                "trigger_pivot": float(ts.get("buy_zone_high", p * 1.03)),
+                "risk_reward_ratio": float(ts.get("risk_reward_ratio", 2.0)),
+                "max_position_size_pct": float(ts.get("position_size_pct", 10.0)),
+                "foreign_net_vol": float(q.get("foreign_net_vol", 0)),
+                "active_buy_pct": float(q.get("active_buy_pct", 50.0)),
+                "sector": fa.get("sector_name", "Doanh nghiệp niêm yết"),
+                "cfo_human": fa.get("cfo_quality", "Dương"),
+                "fcf_human": fa.get("fcf_quality", "Dương"),
+                "timing_verdict": ts.get("action", "Theo dõi")
+            }
+    except Exception:
+        pass
+
+    advisor = CouncilAdvisor()
+    resp = advisor.answer_question(symbol=symbol, question=question, expert_id=expert_id, context=context)
+
+    expert_name = resp.get("expert", "Hội đồng Tham mưu")
+    answer = resp.get("answer", "")
+    source = resp.get("source", "offline")
+
+    console.print()
+    console.print(Panel(
+        f"[bold yellow]❓ Câu hỏi:[/bold yellow] {question}\n\n"
+        f"[bold green]💬 Trả lời từ {expert_name}:[/bold green]\n\n"
+        f"{answer}\n\n"
+        f"[dim]Phương thức thẩm định: {source} | Dữ liệu mã: {symbol}[/dim]",
+        title=f"🏛️ HỘI ĐỒNG THAM MƯU ĐẦU TƯ — {expert_name.upper()}",
+        border_style="cyan"
+    ))
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Vietnam Stock Market Analyzer - Hệ thống Phân tích Chứng khoán Cục bộ Đa AI",
@@ -514,14 +599,29 @@ def main():
     )
     parser.add_argument(
         "--mode", "-m",
-        choices=["dashboard", "analyze", "scan", "macro", "fa", "ta", "track"],
+        choices=["dashboard", "analyze", "scan", "macro", "fa", "ta", "track", "ask"],
         default=None,
-        help="Chế độ hoạt động:\n  dashboard: Cập nhật & Mở Dashboard Offline trên Microsoft Edge\n  analyze: Soi sâu 1 mã (FA + TA + Timing Engine)\n  scan: Quét toàn bộ TTCK tìm top nổ vol\n  macro: Xem ma trận Vĩ mô & Hàng hóa thế giới\n  fa: Chỉ phân tích Cơ bản (BCTC)\n  ta: Chỉ phân tích Kỹ thuật (Chart)\n  track: PDCA - Đánh giá hiệu suất khuyến nghị quá khứ"
+        help="Chế độ hoạt động:\n  dashboard: Cập nhật & Mở Dashboard Offline trên Microsoft Edge\n  analyze: Soi sâu 1 mã (FA + TA + Timing Engine)\n  scan: Quét toàn bộ TTCK tìm top nổ vol\n  macro: Xem ma trận Vĩ mô & Hàng hóa thế giới\n  fa: Chỉ phân tích Cơ bản (BCTC)\n  ta: Chỉ phân tích Kỹ thuật (Chart)\n  track: PDCA - Đánh giá hiệu suất khuyến nghị quá khứ\n  ask: Hỏi-đáp trực tiếp với 11 chuyên gia Hội đồng Tham mưu (prompts.chat)"
     )
     parser.add_argument(
         "--ticker", "-t",
         default=None,
         help="Mã cổ phiếu cần phân tích (ví dụ: HPG, PVD, GVR, FPT...)"
+    )
+    parser.add_argument(
+        "--question", "-q",
+        default=None,
+        help="Câu hỏi dành cho chuyên gia Hội đồng (khi dùng --mode ask)"
+    )
+    parser.add_argument(
+        "--expert", "-e",
+        default="all",
+        help="Chuyên gia trả lời (buffett, lynch, oneil, vsa, marks, cro, pe, audit, redteam, stresstest, unit... hoặc 'all')"
+    )
+    parser.add_argument(
+        "--list-experts",
+        action="store_true",
+        help="Hiển thị danh mục 11 chuyên gia và vai trò thẩm định"
     )
     parser.add_argument(
         "--sector", "-s",
@@ -547,11 +647,17 @@ def main():
 
     args = parser.parse_args()
 
+    if args.list_experts:
+        list_experts()
+        return
+
     ticker = (args.ticker_pos or args.ticker or "HPG").upper().strip()
     send_alert = not args.no_alert
 
     if args.mode:
         mode = args.mode
+    elif args.question or args.expert != "all":
+        mode = "ask"
     elif args.ticker_pos or args.ticker:
         mode = "analyze"
     else:
@@ -572,6 +678,8 @@ def main():
         from core.performance_tracker import evaluate_all_recommendations, render_performance_terminal_dashboard
         perf_data = evaluate_all_recommendations()
         render_performance_terminal_dashboard(perf_data)
+    elif mode == "ask":
+        ask_council(symbol=ticker, question=args.question, expert_id=args.expert)
     elif mode == "fa":
         analyze_single_ticker(symbol=ticker, mode="fa", send_alert=send_alert)
     elif mode == "ta":
@@ -582,4 +690,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 

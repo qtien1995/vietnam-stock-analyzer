@@ -1,11 +1,14 @@
 import sqlite3
 import datetime
 import os
+import shutil
 from pathlib import Path
+from typing import Optional
 
 from config import PROJECT_ROOT
 
 DB_PATH = PROJECT_ROOT / "data" / "market.db"
+
 
 
 def init_db():
@@ -220,3 +223,42 @@ def save_recommendation(trade_setup: dict, quote: dict) -> int:
     conn.commit()
     conn.close()
     return rec_id
+
+
+def backup_database(destination: Optional[Path] = None) -> Path:
+    """
+    Tạo bản sao lưu an toàn cho database market.db (có đóng dấu thời gian)
+    theo đúng quy chuẩn AGENTS.md.
+    Kiểm tra tính toàn vẹn (PRAGMA integrity_check) trước và sau khi sao lưu.
+    """
+    init_db()
+
+    # Kiểm tra toàn vẹn nguồn
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("PRAGMA integrity_check;")
+    check = cur.fetchone()[0]
+    conn.close()
+    if check != "ok":
+        raise RuntimeError(f"Database market.db không hợp lệ trước khi sao lưu: {check}")
+
+    if destination is None:
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        destination = DB_PATH.parent / f"market_backup_{timestamp}.db"
+    else:
+        destination = Path(destination)
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(DB_PATH, destination)
+
+    # Kiểm tra toàn vẹn file đích
+    conn_b = sqlite3.connect(destination)
+    cur_b = conn_b.cursor()
+    cur_b.execute("PRAGMA integrity_check;")
+    check_b = cur_b.fetchone()[0]
+    conn_b.close()
+    if check_b != "ok":
+        raise RuntimeError(f"Bản sao lưu tại {destination} bị lỗi toàn vẹn: {check_b}")
+
+    return destination
+

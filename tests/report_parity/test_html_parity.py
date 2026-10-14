@@ -174,3 +174,42 @@ class TestHtmlParityBankNotApplicable:
         assert html_path.exists()
         content = html_path.read_text(encoding="utf-8")
         assert "NOT_APPLICABLE" in content or "N/A" in content or "Ngân hàng" in content
+
+
+class TestHtmlParityNoRelicLeakAndEli5:
+    """Kiểm tra báo cáo HTML không rò rỉ dữ liệu cứng và luôn có phân hệ ELI5 chuẩn Rule 4 AGENTS.md."""
+
+    def test_no_mock_relics_and_has_eli5(self, clean_reports_dir):
+        quote = dict(VCB_QUOTE)
+        fin = dict(VCB_FINANCIALS)
+        sym = "VCB"
+
+        df_ohlcv = make_mock_ohlcv(days=250, trend="uptrend", base_price=quote["price"])
+        current_price = quote["price"]
+
+        fa_res = analyze_fundamentals(fin, current_price, quote)
+        ta_res = analyze_technicals(df_ohlcv)
+        trade_setup = calculate_trade_setup(current_price, fa_res, ta_res, quote)
+        council = InvestmentCouncil()
+        council_res = council.deliberate(sym, quote, fa_res, ta_res, trade_setup)
+
+        html_path = generate_html_report(
+            symbol=sym,
+            quote=quote,
+            fa_result=fa_res,
+            ta_result=ta_res,
+            trade_setup=trade_setup,
+            council_result=council_res,
+            df_ohlcv=df_ohlcv,
+        )
+
+        content = html_path.read_text(encoding="utf-8")
+
+        # 1. Bắt buộc có khối ELI5
+        assert 'id="sec-eli5"' in content, "Báo cáo HTML phải có phân hệ 1 ELI5 theo Rule 4 AGENTS.md"
+        assert "GIẢI THÍCH CHO ĐỨA TRẺ LÊN 5" in content
+
+        # 2. Tuyệt đối không rò rỉ text mẫu cũ của Apec / condotel
+        forbidden_terms = ["condotel", "mandala", "grand plaza", "lạng sơn", "mũi né", "nguyễn đức quân"]
+        for term in forbidden_terms:
+            assert term not in content.lower(), f"Phát hiện rò rỉ từ khóa mẫu: {term}"
