@@ -17,18 +17,105 @@ from core.data_loader import (
     get_realtime_quote,
     get_historical_ohlcv,
     get_financial_data,
-    get_all_tickers_realtime
+    get_all_tickers_realtime,
+    get_company_news_and_events
 )
 from core.fa_engine import analyze_fundamentals
 from core.ta_engine import analyze_technicals
 from core.risk_manager import calculate_trade_setup
 from core.timing_engine import analyze_timing_prediction
+from core.insider_whale_analyzer import analyze_whale_and_insider_news
+
 from core.db_manager import save_eod_quote, save_recommendation
 from core.html_report_generator import generate_html_report
 from core.macro_engine import classify_sector, SECTOR_PROFILES
 from ai.council import InvestmentCouncil
 from alerts.telegram_bot import send_telegram_alert
+from core.models import AnalysisResult
 
+
+
+def generate_eli5_summary(
+    symbol: str,
+    quote: Dict[str, Any],
+    fa_result: Dict[str, Any],
+    ta_result: Dict[str, Any],
+    trade_setup: Dict[str, Any]
+) -> Dict[str, str]:
+    """
+    Phân hệ 1: 🧒 Giải Thích Cho Đứa Trẻ Lên 5 (ELI5 — Bản Chất Cốt Lõi Là Gì?)
+    Quy định chuẩn AGENTS.md: Mộc mạc, hình tượng bằng các ví dụ đời thường.
+    Dùng chung cho cả Báo cáo HTML, Báo cáo Markdown và Màn hình Terminal CLI.
+    """
+    sym = symbol.upper().strip()
+    comp_name = quote.get("company_name", sym)
+    sector_name = fa_result.get("macro", {}).get("sector_name") or quote.get("industry") or "Doanh nghiệp"
+    fin = fa_result.get("ratios", {})
+    cf = fa_result.get("cash_flow", {})
+    asset_val = fa_result.get("asset_valuation", {})
+    ind = ta_result.get("indicators", {})
+    cfo_ttm = float(cf.get("cfo_ttm") or 0.0)
+    net_p_ttm = float(fin.get("ttm_profit") or 0.0)
+    pb_val = asset_val.get("pb", "N/A")
+    action = trade_setup.get("action", "QUAN SÁT")
+
+    # 1. Bán cái gì kiếm tiền?
+    model_sum = fa_result.get("segments", {}).get("business_model_summary") or quote.get("company_profile")
+    if not model_sum or len(model_sum) < 15:
+        model_sum = f"{comp_name} hoạt động chính trong lĩnh vực {sector_name}, kiếm tiền bằng việc cung cấp sản phẩm và dịch vụ cốt lõi cho khách hàng."
+
+    # 2. Tiền thật hay tiền trên giấy?
+    if cfo_ttm > 0 and (cfo_ttm >= net_p_ttm * 0.8):
+        money_verdict = f"Tiền tươi thóc thật! Tiệm bán hàng và thu được tiền mặt thật ({cfo_ttm:,.0f} đ), tiền chạy thẳng vào hũ heo đất chứ không phải bán chịu ghi nợ."
+    elif cfo_ttm > 0:
+        money_verdict = f"Có tiền thật ({cfo_ttm:,.0f} đ) nhưng một phần lợi nhuận vẫn đang nằm ở sổ ghi nợ của khách và hàng tồn kho chưa bán được."
+    else:
+        money_verdict = f"Tiền trên giấy! Sổ sách kế toán có thể ghi nhận có lãi hoặc lỗ nhẹ, nhưng két sắt công ty bị hụt tiền mặt (CFO âm {abs(cfo_ttm):,.0f} đ), giống như bán chịu cả đống đồ cho khách mà chưa đòi được nợ."
+
+    # 3. Món hời hay bẫy chuột?
+    try:
+        pb_flt = float(pb_val)
+    except Exception:
+        pb_flt = 1.0
+
+    if pb_flt < 1.0 and cfo_ttm < 0:
+        deal_verdict = f"Cẩn thận bẫy chuột! Giá cổ phiếu nhìn rẻ (P/B {pb_val}x) giống như món đồ giảm giá 70%, nhưng bên trong tiệm đang thiếu tiền mặt và tồn kho khó bán."
+    elif pb_flt < 1.0 and cfo_ttm > 0:
+        deal_verdict = f"Cơ hội tài sản giá rẻ! Thị giá đang bán thấp hơn cả giá trị nhà cửa sổ sách (P/B {pb_val}x) trong khi tiệm vẫn kiếm ra tiền mặt đều đặn."
+    elif pb_flt >= 3.0:
+        deal_verdict = f"Tiệm hàng hiệu giá cao! Tiệm làm ăn phát đạt nên cổ phiếu được trả giá cao (P/B {pb_val}x), cần chọn đúng lúc giảm giá khuyến mãi mới nên mua."
+    else:
+        deal_verdict = f"Định giá hợp lý (P/B {pb_val}x), tương xứng với chất lượng tài sản và vị thế của tiệm trên thị trường."
+
+    # 4. Đội lái và cá mập đang làm gì?
+    vsa_phase = ta_result.get("vsa", {}).get("phase", "Tích lũy")
+    current_p = float(trade_setup.get("current_price", 0.0))
+    ema20_val = float(ind.get("ema20", 0.0))
+    if "Đè giá" in vsa_phase or current_p < ema20_val:
+        shark_action = "Cá mập và đội lái đang đứng ngoài hoặc tìm cách bán bớt hàng ra ngoài. Chưa thấy dấu hiệu họ gom hàng mạnh mẽ trở lại."
+    elif "Tích lũy" in vsa_phase:
+        shark_action = "Cá mập đang lặng lẽ gom hàng như người đi câu cá kiên nhẫn ngồi bên bờ sông, không vội vàng đẩy giá lên ngay."
+    else:
+        shark_action = "Dòng tiền lớn đang bảo kê và nâng đỡ đường giá, nỗ lực đẩy giá bứt phá qua các vùng cản cũ."
+
+    # 5. Lời khuyên bỏ heo đất
+    if "MUA" in action:
+        piggy_advice = f"Có thể trích một phần tiền tiết kiệm trong ống heo (tối đa {trade_setup.get('max_position_size_pct', 10):.0f}% số tiền có) để mua một góc tiệm này, vì tiệm đang có dòng tiền và giá bắt đầu vào nhịp thuận lợi."
+    elif "THEO DÕI" in action:
+        piggy_advice = "Cứ giữ chặt ống heo đất! Đứng xem tiệm giải quyết xong các vấn đề nợ nần hoặc chờ giá ngừng giảm rồi mới tính tiếp."
+    else:
+        piggy_advice = "Tuyệt đối không đập heo đất đưa tiền cho tiệm này lúc này! Rủi ro mất tiền rất cao, hãy giữ tiền để tìm tiệm khác an toàn hơn."
+
+    return {
+        "what_they_sell": model_sum,
+        "core_business": model_sum,
+        "real_or_paper_money": money_verdict,
+        "real_vs_paper_money": money_verdict,
+        "bargain_or_trap": deal_verdict,
+        "shark_action": shark_action,
+        "big_money_action": shark_action,
+        "piggy_bank_advice": piggy_advice
+    }
 
 
 def get_liquidity_rating(value_vnd: float) -> str:
@@ -231,15 +318,19 @@ def analyze_ticker_full(
     # 3. Phân tích Động cơ Thời điểm Tăng/Sập (Timing Matrix)
     timing_result = analyze_timing_prediction(symbol, quote, ta_result, fa_result)
 
-    # 4. Lưu trữ SQLite Database
+    # 4. Phân tích Tạo Lập, Tay To Giữ Hàng & Radar Tin Tức Ban Lãnh Đạo
+    news_events = get_company_news_and_events(symbol)
+    insider_whale_result = analyze_whale_and_insider_news(symbol, quote, fa_result, ta_result, news_events)
+
+    # 5. Lưu trữ SQLite Database
     save_eod_quote(quote)
     save_recommendation(trade_setup, quote)
 
-    # 5. Phản biện Hội đồng AI
+    # 6. Phản biện Hội đồng AI
     council = InvestmentCouncil()
     council_result = council.deliberate(symbol, quote, fa_result, ta_result, trade_setup)
 
-    # 6. Xuất bản Báo cáo HTML chuyên sâu (kèm Timing & Vĩ mô Hàng hóa)
+    # 7. Xuất bản Báo cáo HTML chuyên sâu (kèm Timing, Sóng Ngành & Tạo Lập)
     html_path = None
     if save_report:
         html_path = generate_html_report(
@@ -250,10 +341,24 @@ def analyze_ticker_full(
             trade_setup=trade_setup,
             council_result=council_result,
             timing_result=timing_result,
-            df_ohlcv=df_ohlcv
+            df_ohlcv=df_ohlcv,
+            insider_whale_result=insider_whale_result
         )
 
-    # 7. Bắn Telegram nếu bật
+    # 8. Đóng gói Canonical AnalysisResult (Single Source of Truth)
+    analysis_result = AnalysisResult.from_components(
+        symbol=symbol,
+        quote=quote,
+        fa_result=fa_result,
+        ta_result=ta_result,
+        trade_setup=trade_setup,
+        timing_result=timing_result,
+        council_result=council_result,
+        insider_whale_result=insider_whale_result,
+        html_report_path=str(html_path) if html_path else None
+    )
+
+    # 9. Bắn Telegram nếu bật
     if send_alert:
         send_telegram_alert(
             symbol=symbol,
@@ -272,8 +377,11 @@ def analyze_ticker_full(
         "trade_setup": trade_setup,
         "timing_result": timing_result,
         "council_result": council_result,
-        "html_path": html_path
+        "insider_whale_result": insider_whale_result,
+        "html_path": html_path,
+        "analysis_result": analysis_result
     }
+
 
 
 
@@ -321,3 +429,12 @@ def analyze_ticker_ta(symbol: str) -> Dict[str, Any]:
         "ta_result": ta_result,
         "trade_setup": trade_setup
     }
+
+
+def get_sector_waves_overview() -> List[Dict[str, Any]]:
+    """
+    Lấy danh sách xếp hạng 10 Sóng Ngành lớn của TTCK Việt Nam (2020 - 2026+)
+    kèm Điểm nhiệt Heat Score (0 - 100), Pha sóng và danh sách cổ phiếu dẫn sóng.
+    """
+    from core.sector_wave_engine import evaluate_sector_wave_radar
+    return evaluate_sector_wave_radar()

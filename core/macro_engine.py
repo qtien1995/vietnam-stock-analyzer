@@ -47,7 +47,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "%",
         "trend": "Đang trong chu kỳ nới lỏng cắt giảm lãi suất (Dovish Pivot)",
         "change_pct": -0.50,
-        "impact": "Giảm áp lực tỷ giá USD/VND, mở rộng dư địa nới lỏng cho NHNN, hỗ trợ định giá chứng khoán & BĐS"
+        "impact": "Giảm áp lực tỷ giá USD/VND, mở rộng dư địa nới lỏng cho NHNN, hỗ trợ định giá chứng khoán & BĐS",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     },
     "us_cpi": {
         "name": "Lạm phát Mỹ (US Core CPI YoY)",
@@ -55,7 +57,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "%",
         "trend": "Hạ nhiệt dần về mục tiêu 2.0% của Fed",
         "change_pct": -0.2,
-        "impact": "Củng cố kỳ vọng Fed tiếp tục hạ lãi suất các kỳ họp tới"
+        "impact": "Củng cố kỳ vọng Fed tiếp tục hạ lãi suất các kỳ họp tới",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     },
     "dxy_index": {
         "name": "Chỉ số Sức mạnh Đồng USD (DXY)",
@@ -63,7 +67,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "điểm",
         "trend": "Hạ nhiệt từ đỉnh 106, dao động tích lũy quanh 101 - 103",
         "change_pct": -1.2,
-        "impact": "Giảm áp lực rút ròng của khối ngoại khỏi các thị trường mới nổi như Việt Nam"
+        "impact": "Giảm áp lực rút ròng của khối ngoại khỏi các thị trường mới nổi như Việt Nam",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     },
     "usd_vnd": {
         "name": "Tỷ giá USD/VND (Thương mại / VCB)",
@@ -71,7 +77,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "VND",
         "trend": "Căng thẳng nhẹ theo biến động đồng USD thế giới",
         "change_pct": +0.3,
-        "impact": "Doanh nghiệp vay nợ USD lớn (BSR, PC1, HPG...) chịu lỗ tỷ giá; Doanh nghiệp xuất khẩu (VHC, TNG, FMC) hưởng lợi"
+        "impact": "Doanh nghiệp vay nợ USD lớn (BSR, PC1, HPG...) chịu lỗ tỷ giá; Doanh nghiệp xuất khẩu (VHC, TNG, FMC) hưởng lợi",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     },
     "crude_oil_brent": {
         "name": "Giá Dầu Thô Brent (Brent Crude)",
@@ -79,7 +87,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "USD/thùng",
         "trend": "Biến động mạnh theo căng thẳng địa chính trị Trung Đông và OPEC+ hạn chế sản lượng",
         "change_pct": +2.8,
-        "impact": "Trực tiếp kích hoạt sóng ngành Dầu khí (PVD, PVS, BSR, GAS); Tăng chi phí vận tải & đầu vào phân bón, nhựa"
+        "impact": "Trực tiếp kích hoạt sóng ngành Dầu khí (PVD, PVS, BSR, GAS); Tăng chi phí vận tải & đầu vào phân bón, nhựa",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     },
     "gold_world": {
         "name": "Giá Vàng Thế Giới (Gold Spot)",
@@ -87,7 +97,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "USD/oz",
         "trend": "Thiết lập đỉnh cao lịch sử do nhu cầu trú ẩn rủi ro địa chính trị & NHTW gom mua",
         "change_pct": +1.5,
-        "impact": "Thúc đẩy giá vàng trong nước; Tác động tâm lý thị trường tài chính và cổ phiếu kinh doanh vàng PNJ"
+        "impact": "Thúc đẩy giá vàng trong nước; Tác động tâm lý thị trường tài chính và cổ phiếu kinh doanh vàng PNJ",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     },
     "gold_sjc": {
         "name": "Giá Vàng Miếng SJC Trong Nước",
@@ -95,7 +107,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "Triệu VND/lượng",
         "trend": "Bình ổn dưới sự can thiệp bán vàng trực tiếp từ NHNN qua 4 NHTM Nhà nước và SJC",
         "change_pct": +0.6,
-        "impact": "Dòng tiền nhàn rỗi có xu hướng phân bổ đa dạng, cạnh tranh với tiền gửi ngân hàng"
+        "impact": "Dòng tiền nhàn rỗi có xu hướng phân bổ đa dạng, cạnh tranh với tiền gửi ngân hàng",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     },
     "rubber_tsr20": {
         "name": "Giá Cao Su Tự Nhiên (TSR20 / TOCOM)",
@@ -103,7 +117,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "US Cents/kg",
         "trend": "Tăng mạnh lên vùng đỉnh nhiều năm do mưa bão El Nino/La Nina gây thiếu hụt nguồn cung tại Thái Lan, Việt Nam",
         "change_pct": +4.2,
-        "impact": "Đòn bẩy cực lớn cho các doanh nghiệp Cao su tự nhiên (GVR, DPR, DRI, PHR); Tăng chi phí đầu vào săm lốp (DRC, CSM)"
+        "impact": "Đòn bẩy cực lớn cho các doanh nghiệp Cao su tự nhiên (GVR, DPR, DRI, PHR); Tăng chi phí đầu vào săm lốp (DRC, CSM)",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     },
     "steel_hrc": {
         "name": "Giá Thép Cuộn Cán Nóng (HRC Thế Giới)",
@@ -111,7 +127,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "USD/tấn",
         "trend": "Phục hồi nhẹ từ đáy; Việt Nam đang áp thuế Chống bán phá giá bảo hộ ngành thép nội địa",
         "change_pct": +1.8,
-        "impact": "Hỗ trợ biên lợi nhuận của Hòa Phát (HPG), Hoa Sen (HSG), Nam Kim (NKG); Kích thích giải ngân đầu tư công"
+        "impact": "Hỗ trợ biên lợi nhuận của Hòa Phát (HPG), Hoa Sen (HSG), Nam Kim (NKG); Kích thích giải ngân đầu tư công",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     },
     "urea_fertilizer": {
         "name": "Giá Phân Bón Urê Thế Giới",
@@ -119,7 +137,9 @@ GLOBAL_COMMODITIES_AND_MACRO = {
         "unit": "USD/tấn",
         "trend": "Tích lũy ổn định, hỗ trợ nhu cầu mùa vụ nông nghiệp quý 4",
         "change_pct": +0.9,
-        "impact": "Hỗ trợ doanh thu & biên lãi gộp của DCM, DPM; Nhu cầu hóa chất DGC duy trì tích cực"
+        "impact": "Hỗ trợ doanh thu & biên lãi gộp của DCM, DPM; Nhu cầu hóa chất DGC duy trì tích cực",
+        "source_type": "REFERENCE_BENCHMARK",
+        "as_of_date": "2024-Q4"
     }
 }
 
@@ -670,6 +690,12 @@ def analyze_macro_and_sector_cycle(symbol: str, overview_data: Optional[Dict[str
 
     commodity_sensitivity = get_commodity_sensitivity(sym, sector_key)
 
+    try:
+        from core.sector_wave_engine import get_wave_context_for_ticker
+        sector_wave = get_wave_context_for_ticker(sym, sector_key)
+    except Exception:
+        sector_wave = {}
+
     return {
         "symbol": sym,
         "sector_key": sector_key,
@@ -684,6 +710,7 @@ def analyze_macro_and_sector_cycle(symbol: str, overview_data: Optional[Dict[str
         "general_macro": CURRENT_VIETNAM_MACRO,
         "global_commodities": GLOBAL_COMMODITIES_AND_MACRO,
         "commodity_sensitivity": commodity_sensitivity,
+        "sector_wave": sector_wave,
         "dalio_verdict": dalio_verdict,
         "marks_verdict": marks_verdict
     }

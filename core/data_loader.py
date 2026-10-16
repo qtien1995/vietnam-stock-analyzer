@@ -253,7 +253,40 @@ def get_historical_ohlcv(symbol: str, days: int = 300) -> pd.DataFrame:
     except Exception:
         pass
 
-    return pd.DataFrame(columns=["time", "open", "high", "low", "close", "volume"])
+def normalize_quarter_key(col: str) -> Optional[str]:
+    """
+    Chuẩn hóa định dạng cột quý về chuẩn YYYY_QX để sắp xếp thời gian chính xác:
+    Ví dụ: 'Q2/2024' -> '2024_Q2', '2024-Q2' -> '2024_Q2', '2024-06' -> '2024_Q2', '2024_Q2' -> '2024_Q2'
+    """
+    import re
+    s = str(col).strip().upper()
+    # Pattern 1: YYYY-QX or YYYY_QX or YYYYQX
+    m1 = re.search(r'(20\d\d)[-_/ ]*Q([1-4])', s)
+    if m1:
+        return f"{m1.group(1)}_Q{m1.group(2)}"
+    # Pattern 2: QX/YYYY or QX-YYYY or QX YYYY
+    m2 = re.search(r'Q([1-4])[-_/ ]*(20\d\d)', s)
+    if m2:
+        return f"{m2.group(2)}_Q{m2.group(1)}"
+    # Pattern 3: YYYY-MM
+    m3 = re.search(r'(20\d\d)[-_/ ](0[1-9]|1[0-2])', s)
+    if m3:
+        year = m3.group(1)
+        month = int(m3.group(2))
+        q = (month - 1) // 3 + 1
+        return f"{year}_Q{q}"
+    return None
+
+
+def sort_quarter_columns(columns: list) -> list:
+    """
+    Sắp xếp các cột quý từ mới nhất đến cũ nhất dựa trên khóa YYYY_QX chuẩn.
+    Trả về danh sách cột gốc đã được sắp xếp giảm dần theo thời gian.
+    """
+    def sort_key(col):
+        norm = normalize_quarter_key(col)
+        return norm if norm else ""
+    return sorted(columns, key=sort_key, reverse=True)
 
 
 def get_financial_data(symbol: str) -> dict:
@@ -331,7 +364,8 @@ def get_financial_data(symbol: str) -> dict:
         "cfi_ttm": None,
         "cff_ttm": None,
         "quarterly_cash_flows": [],
-        "earnings_quality_ratio": None
+        "earnings_quality_ratio": None,
+        "ttm_status": None
     }
     
     try:
@@ -448,9 +482,10 @@ def get_financial_data(symbol: str) -> dict:
         try:
             inc_df = stock.finance.income_statement(period="quarter")
             if inc_df is not None and not inc_df.empty:
-                q_cols_inc = [c for c in inc_df.columns if "-" in str(c) or "Q" in str(c)]
-                q_cols_inc_sorted = sorted(q_cols_inc, reverse=True)
+                q_cols_inc = [c for c in inc_df.columns if normalize_quarter_key(c) is not None or "-" in str(c) or "Q" in str(c)]
+                q_cols_inc_sorted = sort_quarter_columns(q_cols_inc)
                 recent_4q = q_cols_inc_sorted[:4]
+                result["ttm_status"] = "COMPLETE" if len(recent_4q) >= 4 else "INCOMPLETE_QUARTERS"
 
                 def sum_inc_item(keyword_list):
                     total = 0.0
@@ -518,8 +553,8 @@ def get_financial_data(symbol: str) -> dict:
         try:
             cf_df = stock.finance.cash_flow(period="quarter")
             if cf_df is not None and not cf_df.empty:
-                q_cols_cf = [c for c in cf_df.columns if "-" in str(c) or "Q" in str(c)]
-                q_cols_cf_sorted = sorted(q_cols_cf, reverse=True)
+                q_cols_cf = [c for c in cf_df.columns if normalize_quarter_key(c) is not None or "-" in str(c) or "Q" in str(c)]
+                q_cols_cf_sorted = sort_quarter_columns(q_cols_cf)
                 recent_4q_cf = q_cols_cf_sorted[:4]
 
                 def get_quarterly_cf_series(keyword_list):
@@ -764,6 +799,87 @@ def get_governance_data(symbol: str) -> Dict[str, Any]:
     return result
 
 
+def get_company_news_and_events(symbol: str, force_refresh: bool = False) -> Dict[str, Any]:
+    """
+    Thu thập tin tức báo chí, nghị quyết HĐQT, thông báo cổ tức,
+    giao dịch nội bộ và sự kiện doanh nghiệp của mã cổ phiếu.
+    Hỗ trợ Cache cục bộ trong cache/{symbol}_news_events.json (TTL = 4 giờ).
+    """
+    from config import PROJECT_ROOT
+
+    symbol = symbol.upper().strip()
+    cache_dir = PROJECT_ROOT / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / f"{symbol}_news_events.json"
+
+    # Kiểm tra cache còn hạn (< 4 giờ)
+    if not force_refresh and cache_file.exists():
+        try:
+            mtime = cache_file.stat().st_mtime
+            if time.time() - mtime < 14400:  # 4 hours
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    cached_data = json.load(f)
+                    if cached_data.get("news") or cached_data.get("events"):
+                        return cached_data
+        except Exception:
+            pass
+
+    result: Dict[str, Any] = {
+        "symbol": symbol,
+        "news": [],
+        "events": [],
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    try:
+        from vnstock import Vnstock
+        stock = Vnstock().stock(symbol=symbol, source="VCI")
+
+        # 1. Tin tức báo chí & Nghị quyết
+        try:
+            df_news = stock.company.news()
+            if df_news is not None and not df_news.empty:
+                for _, row in df_news.head(25).iterrows():
+                    result["news"].append({
+                        "title": str(row.get("news_title") or row.get("title") or "").strip(),
+                        "public_date": str(row.get("public_date") or "").strip(),
+                        "short_content": str(row.get("news_short_content") or "").strip(),
+                        "source": str(row.get("news_source") or "").strip(),
+                        "link": str(row.get("news_source_link") or "").strip()
+                    })
+        except Exception:
+            pass
+
+        # 2. Sự kiện doanh nghiệp & Giao dịch nội bộ
+        try:
+            df_events = stock.company.events()
+            if df_events is not None and not df_events.empty:
+                for _, row in df_events.head(25).iterrows():
+                    result["events"].append({
+                        "event_name": str(row.get("event_name_vi") or row.get("event_name_en") or "").strip(),
+                        "public_date": str(row.get("public_date") or "").strip(),
+                        "category": str(row.get("category") or "").strip(),
+                        "action_type": str(row.get("action_type_vi") or row.get("action_type_en") or "").strip(),
+                        "value_per_share": float(row.get("value_per_share") or 0.0) if pd.notna(row.get("value_per_share")) else 0.0
+                    })
+        except Exception:
+            pass
+
+    except Exception:
+        pass
+
+    # Ghi cache nếu có dữ liệu
+    try:
+        if result["news"] or result["events"]:
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(result, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+
+    return result
+
+
+
 
 def get_all_tickers_realtime() -> list:
     """
@@ -833,8 +949,9 @@ def get_global_macro_and_commodities(force_refresh: bool = False) -> Dict[str, A
         except Exception:
             pass
 
-    # Bản sao dữ liệu mặc định chuẩn hóa
-    res_commodities = dict(GLOBAL_COMMODITIES_AND_MACRO)
+    import copy
+    # Bản sao dữ liệu mặc định chuẩn hóa (dùng deepcopy để tránh làm biến đổi GLOBAL_COMMODITIES_AND_MACRO)
+    res_commodities = copy.deepcopy(GLOBAL_COMMODITIES_AND_MACRO)
 
     # Thử cào nhanh giá Dầu & Vàng qua Yahoo Finance chart endpoint (miễn phí, không cần auth)
     yahoo_symbols = {
@@ -857,6 +974,8 @@ def get_global_macro_and_commodities(force_refresh: bool = False) -> Dict[str, A
                         chg_pct = round(((curr_price - prev_close) / prev_close) * 100, 2) if prev_close > 0 else 0.0
                         res_commodities[comm_key]["value"] = round(curr_price, 2)
                         res_commodities[comm_key]["change_pct"] = chg_pct
+                        res_commodities[comm_key]["source_type"] = "LIVE"
+                        res_commodities[comm_key]["as_of_date"] = datetime.now().strftime("%Y-%m-%d")
         except Exception:
             pass
 

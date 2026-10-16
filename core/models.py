@@ -100,6 +100,7 @@ class FinancialRatios(BaseModel):
     ttm_revenue: Optional[float] = None
     ttm_profit: Optional[float] = None
     ebit_ttm: Optional[float] = None
+    dupont: Optional[Dict[str, Any]] = None
 
 
 class CashFlowAnalysis(BaseModel):
@@ -179,6 +180,7 @@ class MacroAndSectorAssessment(BaseModel):
     key_metrics_to_watch: List[str] = Field(default_factory=list)
     commodity_sensitivity: Dict[str, Any] = Field(default_factory=dict)
     global_commodities: Dict[str, Any] = Field(default_factory=dict)
+    sector_wave: Dict[str, Any] = Field(default_factory=dict)
 
 
 class FundamentalAnalysis(BaseModel):
@@ -193,6 +195,8 @@ class FundamentalAnalysis(BaseModel):
     lynch_growth: Dict[str, Any] = Field(default_factory=dict)
     asset_valuation: Dict[str, Any] = Field(default_factory=dict)
     growth_quality: Dict[str, Any] = Field(default_factory=dict)
+    dupont: Dict[str, Any] = Field(default_factory=dict)
+    roic: Optional[float] = None
     segments: BusinessSegmentsProfile = Field(default_factory=BusinessSegmentsProfile)
     governance: GovernanceAssessment = Field(default_factory=GovernanceAssessment)
     macro: MacroAndSectorAssessment = Field(default_factory=MacroAndSectorAssessment)
@@ -214,6 +218,9 @@ class TechnicalIndicators(BaseModel):
     atr14: float = 0.0
     sup_20d: float = 0.0
     res_20d: float = 0.0
+    high_52w: float = 0.0
+    low_52w: float = 0.0
+    rs_rating: int = 50
     vol_ma20: float = 0.0
     vol_ratio: float = 1.0
 
@@ -333,6 +340,7 @@ class AnalysisResult(BaseModel):
     trade_setup: TradeSetup
     timing: TimingPrediction
     council: InvestmentCouncilResult
+    insider_whale: Optional[Dict[str, Any]] = None
 
     # Report Artifact Paths
     html_report_path: Optional[str] = None
@@ -348,6 +356,7 @@ class AnalysisResult(BaseModel):
         trade_setup: Dict[str, Any],
         timing_result: Optional[Dict[str, Any]] = None,
         council_result: Optional[Dict[str, Any]] = None,
+        insider_whale_result: Optional[Dict[str, Any]] = None,
         html_report_path: Optional[str] = None
     ) -> "AnalysisResult":
         """Factory method xây dựng canonical AnalysisResult từ output của các engine."""
@@ -355,6 +364,9 @@ class AnalysisResult(BaseModel):
             timing_result = {}
         if council_result is None:
             council_result = {}
+        if insider_whale_result is None:
+            insider_whale_result = {}
+
 
         quote_clean = {
             "symbol": symbol.upper().strip(),
@@ -400,6 +412,8 @@ class AnalysisResult(BaseModel):
             lynch_growth=fa_result.get("lynch", {}),
             asset_valuation=fa_result.get("asset_valuation", {}),
             growth_quality=fa_result.get("growth_quality", {}),
+            dupont=fa_result.get("dupont", {}),
+            roic=fa_result.get("roic"),
             segments=BusinessSegmentsProfile(**{k: v for k, v in seg_dict.items() if k in BusinessSegmentsProfile.model_fields}),
             governance=GovernanceAssessment(**{k: v for k, v in gov_dict.items() if k in GovernanceAssessment.model_fields}),
             macro=MacroAndSectorAssessment(**{k: v for k, v in macro_dict.items() if k in MacroAndSectorAssessment.model_fields}),
@@ -447,6 +461,7 @@ class AnalysisResult(BaseModel):
             trade_setup=trade_obj,
             timing=timing_obj,
             council=council_obj,
+            insider_whale=insider_whale_result if insider_whale_result else None,
             html_report_path=html_report_path
         )
 
@@ -469,6 +484,8 @@ class AnalysisResult(BaseModel):
                 "lynch": self.fa.lynch_growth,
                 "asset_valuation": self.fa.asset_valuation,
                 "growth_quality": self.fa.growth_quality,
+                "dupont": self.fa.dupont,
+                "roic": self.fa.roic,
                 "segments": self.fa.segments.model_dump(),
                 "governance": self.fa.governance.model_dump(),
                 "macro": self.fa.macro.model_dump(),
@@ -483,6 +500,7 @@ class AnalysisResult(BaseModel):
             },
             "trade_setup": self.trade_setup.model_dump(),
             "timing_result": self.timing.model_dump(),
+            "insider_whale": self.insider_whale,
             "council_result": {
                 "council_report": self.council.council_report,
                 "members": [m.model_dump() for m in self.council.members],
@@ -491,3 +509,4 @@ class AnalysisResult(BaseModel):
             },
             "html_path": self.html_report_path
         }
+

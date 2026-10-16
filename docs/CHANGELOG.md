@@ -1,5 +1,96 @@
 # NHẬT KÝ THAY ĐỔI KIẾN TRÚC & HỆ THỐNG (CHANGELOG)
 
+## [Phiên bản 2.2.0] - Tích Hợp Radar 10 Sóng Ngành & Động Lực Luân Chuyển Dòng Tiền (2020 - 2026+)
+**Ngày phát hành:** 16/10/2026  
+**Nhánh Git:** `main`  
+**Bộ kiểm thử:** 40/40 test cases tự động chạy qua Pytest 9.1.1 (100% Passed)  
+
+---
+
+### 1. Module Radar 10 Sóng Ngành & Luân Chuyển Dòng Tiền (`core/sector_wave_engine.py`)
+- **Mô hình hóa 10 Sóng Ngành Lớn của TTCK Việt Nam (2020 - 2026+):**
+  1. `WAVE_OIL_GAS_GEOPOLITICS` (Căng thẳng Mỹ - Iran, Eo biển Hormuz, OPEC+, Brent > 80 USD; Leaders: PVD, PVS, BSR, GAS; Runners: PVC, PVB, PVT).
+  2. `WAVE_TECH_AI_SEMICONDUCTOR` (Làn sóng AI toàn cầu, Chiến lược Bán dẫn quốc gia; Leaders: FPT, CMG, CTR; Runners: ELC, VGI).
+  3. `WAVE_STEEL_INFRA_TARIFF` (Thuế Chống bán phá giá HRC, Đại công trường đầu tư công; Leaders: HPG, HSG, NKG; Runners: VGS, TLH).
+  4. `WAVE_SECURITIES_LIQUIDITY` (Môi trường tiền rẻ, Thanh khoản > 20k-30k tỷ/phiên, Nâng hạng FTSE/KRX; Leaders: SSI, VCI, HCM; Runners: FTS, BSI, CTS, VIX).
+  5. `WAVE_RESIDENTIAL_REAL_ESTATE` (Nới lỏng tín dụng, Tháo gỡ điểm nghẽn Luật Đất đai; Leaders: VHM, KDH, NLG; Runners: DIG, CEO, DXG).
+  6. `WAVE_INDUSTRIAL_PARK_FDI` (Làn sóng dịch chuyển China+1, Chuyển đổi đất cao su; Leaders: GVR, KBC, IDC; Runners: DPR, D2D).
+  7. `WAVE_CHEMICAL_FERTILIZER` (Phốt pho vàng cho chip/pin, Giá Urê thế giới; Leaders: DGC, DCM, DPM; Runners: BFC, CSV).
+  8. `WAVE_PUBLIC_INFRASTRUCTURE` (Mệnh lệnh giải ngân cao tốc Bắc - Nam, Sân bay Long Thành; Leaders: VCG, HHV, LCG; Runners: FCN, KSB).
+  9. `WAVE_EXPORT_SHIPPING` (Tỷ giá USD/VND neo cao, Cước vận tải biển; Leaders: VHC, ANV, TNG; Runners: MSH, FMC).
+  10. `WAVE_RETAIL_DOMESTIC` (Giảm thuế VAT 2%, Tăng lương cơ sở, Chuỗi bán lẻ tạo tiền; Leaders: MWG, PNJ, FRT; Runners: DGW, PET).
+- **Thuật toán Đo Nhiệt Độ Sóng (Wave Heat Score: 0 - 100):** Tự động liên kết các biến số vĩ mô quốc tế (Brent, HRC, Fed, Urea, DXY...) với xung lực dòng tiền và phân loại thành 4 Pha chu kỳ:
+  - `Pha 1: Tích lũy âm thầm (Smart Money gom)` (50 - 64đ)
+  - `Pha 2: Bùng nổ & Đẩy sóng (Momentum - Vùng đánh sóng tốt nhất)` (65 - 82đ)
+  - `Pha 3: Quá nhiệt / Phân phối đỉnh (Overheated - Cấm FOMO)` (>= 83đ)
+  - `Pha 4: Hạ nhiệt / Thoái trào (Fading)` (< 50đ)
+- **Cơ chế Phân cấp Cổ phiếu:** Tự động nhận diện vai trò `👑 CỔ PHIẾU ĐẦU ĐÀN (LEADER)` vs `🚀 CỔ PHIẾU CHẠY THEO BETA CAO (RUNNER)` kèm nguyên tắc kỷ luật giao dịch đón sóng.
+
+---
+
+### 2. Tích hợp Hệ thống Đa Nền tảng (CLI, Báo cáo & Giao diện)
+- **Chế độ CLI mới `python main.py --mode wave`:** Render bảng Rich Table hiển thị trực quan 10 sóng ngành, độ nhiệt Heat score, pha chu kỳ, mã dẫn sóng và chất xúc tác.
+- **Tích hợp Báo cáo 360° Phân tích từng Cổ phiếu:**
+  - **Terminal Dashboard & Markdown (`main.py`):** Hiển thị khối Radar Sóng Ngành chi tiết, vai trò cổ phiếu, các mã đồng pha và kỷ luật giải ngân.
+  - **Báo cáo HTML Độc lập (`core/html_report_generator.py`):** Card kính mờ thủy tinh (Glassmorphism) sang trọng với thanh tiến trình Heat Score, nút bấm điều hướng nhanh `#sec-wave` trên thanh Quick Nav Bar.
+  - **Mô hình Dữ liệu Chuẩn (`core/models.py`):** Bổ sung trường `sector_wave` vào `MacroAndSectorAssessment` trong Canonical `AnalysisResult`.
+
+---
+
+## [Phiên bản 2.1.0] - Chuẩn Hóa Toàn Diện 7 Phân Hệ 360°, Định Lượng DuPont/ROIC/52W/RS & Bộ Test Toàn Diện
+**Ngày phát hành:** 16/10/2026  
+**Nhánh Git:** `main`  
+**Bộ kiểm thử:** 35/35 test cases tự động chạy qua Pytest 9.1.1 (100% Passed)  
+
+---
+
+### 1. Bổ sung Chỉ số Định lượng Thiếu sót trong Lõi Phân tích (Core Engines)
+- **Động cơ Phân tích Kỹ thuật (`core/ta_engine.py`):**
+  - **Khung giá 52 Tuần (52-Week High & Low):** Tự động tính toán mức đỉnh/đáy 52 tuần trượt (250 phiên) trực tiếp trong hàm `calculate_indicators()`, lưu vào trường `high_52w` và `low_52w`. Loại bỏ việc tầng giao diện HTML tự tính toán ad-hoc.
+  - **O'Neil RS Rating (Thang điểm 1 - 99):** Bổ sung hàm định lượng `calculate_rs_rating()` tính điểm sức mạnh giá theo chuẩn CANSLIM của William O'Neil (trọng số 40% cho biến động 3 tháng gần nhất, 30% cho 6 tháng, 30% cho 12 tháng), xếp hạng cổ phiếu vào thang điểm 1-99 điểm so với mặt bằng thị trường.
+- **Động cơ Phân tích Cơ bản (`core/fa_engine.py`):**
+  - **Phân rã Tỷ suất Sinh lời DuPont (3 Nhân tố):** Bổ sung hàm `evaluate_dupont_decomposition()` phân tách ROE thành tích của: *Biên Lợi nhuận Ròng (Net Margin) × Vòng quay Tổng Tài sản (Asset Turnover) × Đòn bẩy Tài chính (Equity Multiplier)*, tự động xác định động lực tăng trưởng chính của doanh nghiệp.
+  - **Tỷ suất Sinh lời trên Vốn Đầu tư (ROIC):** Tính toán `calculate_roic()` = $NOPAT / Invested Capital$ = $(EBIT \times (1 - t)) / (Total Debt + Equity - Cash)$ để đo lường thực chất hiệu quả sinh tiền trên vốn huy động.
+- **Chuẩn hóa Mô hình Dữ liệu (`core/models.py`):**
+  - Cập nhật Canonical Schema Pydantic v2 `AnalysisResult`: Thêm các trường `high_52w`, `low_52w`, `rs_rating` vào `TechnicalIndicators`; thêm `dupont` và `roic` vào `FinancialRatios` và `FundamentalAnalysis`.
+
+---
+
+### 2. Tái cấu trúc Báo cáo Terminal & Markdown Đồng bộ Chuẩn 7 Phân Hệ 360° & ELI5
+- **Tập trung hóa Module ELI5 (`core/stock_service.py`):**
+  - Tạo hàm dùng chung `generate_eli5_summary()` cung cấp góc nhìn mộc mạc cho đứa trẻ lên 5: *Bán gì kiếm tiền? Tiền thật hay tiền trên giấy? Món hời hay bẫy chuột? Đội lái cá mập đang làm gì? Lời khuyên bỏ heo đất.*
+- **Đồng bộ Báo cáo Markdown & Terminal CLI (`main.py`):**
+  - Nâng cấp `_render_terminal_dashboard()` và `_save_markdown_report()` phản ánh đầy đủ 7 Phân hệ 360° theo quy định tại `AGENTS.md`:
+    1. 🧒 Giải thích cho đứa trẻ lên 5 (ELI5)
+    2. 🎯 Phán quyết Hội đồng & 2 Kế hoạch Giao dịch (Tích sản Giá trị vs Swing Kỹ thuật)
+    3. 🏛️ Bảng 5 Trường phái & Điểm Mâu thuẫn Lớn nhất (Conflict Spotlight)
+    4. 🔬 FA Deep-Dive (BCTC, Dòng tiền CFO/FCF, DuPont 3 nhân tố, ROIC, Bội số Định giá Tài sản, Segments, G-Score)
+    5. 📈 TA Deep-Dive (Xu hướng, SMA200, 52W Range, RS Rating, VCP, Wyckoff VSA)
+    6. ⚡ Động cơ Thời điểm (Timing Matrix & Price Ladder Gauge)
+    7. 🔮 Dự phóng 3 Kịch bản Giá (Base/Bull/Bear) & Điều kiện Mất hiệu lực (Invalidation Triggers)
+  - Loại bỏ hoàn toàn nhãn cũ "Radar Thao túng" gây hiểu nhầm pháp lý, thay thế bằng "Định giá Bội số Tài sản & Rủi ro Pha loãng".
+
+---
+
+### 3. Chuẩn hóa Nguồn gốc Vĩ mô & Sắp xếp Kỳ BCTC
+- **Minh bạch Dữ liệu Hàng hóa Vĩ mô (`core/macro_engine.py` & `core/data_loader.py`):**
+  - Bổ sung trường định danh nguồn gốc `source_type` (`"LIVE"`, `"CACHED"`, `"REFERENCE_BENCHMARK"`) và thời điểm lấy dữ liệu `as_of_date` cho từng hàng hóa vĩ mô.
+- **Chuẩn hóa Trục Thời gian Quý BCTC (`core/data_loader.py`):**
+  - Bổ sung hàm `normalize_quarter_key()` và `sort_quarter_columns()` chuẩn hóa tên cột quý theo chuẩn `YYYY_QX` trước khi sắp xếp theo thời gian thực tế.
+  - Thêm cờ kiểm tra tính toàn vẹn 4 quý TTM: `ttm_status = "COMPLETE" | "INCOMPLETE_QUARTERS"`.
+
+---
+
+### 4. Bổ sung Bộ Kiểm thử Tự động Hoàn thiện (4 Test Suites Mới)
+- Bổ sung 4 bộ test tự động lấp đầy toàn bộ khoảng trống kiểm thử:
+  1. `tests/unit/test_timing_engine.py`: Kiểm tra giới hạn điểm số `setup_quality_score` [0, 100], tính điểm nổ Pivot/Breakdown và lịch sự kiện trọng yếu.
+  2. `tests/unit/test_macro_engine.py`: Kiểm tra tính minh bạch nguồn gốc `source_type` và `as_of_date`, phân loại ngành động và điểm gió xuôi vĩ mô.
+  3. `tests/unit/test_data_loader.py`: Kiểm tra chuẩn hóa định dạng quý `YYYY_QX`, sắp xếp cột quý theo trục thời gian và cờ `ttm_status`.
+  4. `tests/report_parity/test_offline_html_rendering.py`: Kiểm tra báo cáo HTML offline độc lập, fallback đồ họa nội tuyến SVG nến và SVG dòng tiền trên Microsoft Edge.
+- **Tổng số test cases tự động tăng lên 35 bài (100% Passed).**
+
+---
+
 ## [Phiên bản 2.0.0] - Kiểm toán Toàn diện & Tái thiết Lõi Hệ thống (Audit & Rebuild)
 **Ngày phát hành:** 12/10/2026  
 **Nhánh Git:** `audit-rebuild` (Base commit: `17b76a2`)  

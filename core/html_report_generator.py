@@ -345,7 +345,343 @@ def build_macro_impact_matrix(symbol: str, sector_name: str, global_comm: Dict[s
     """
 
 
+def build_sector_wave_html(sector_wave: Optional[Dict[str, Any]], symbol: str) -> str:
+    """
+    Xây dựng khối trực quan Sóng Ngành & Động Lực Luân Chuyển Dòng Tiền (Sector Wave Radar).
+    Đánh giá vị thế của mã cổ phiếu trong chuỗi giá trị sóng ngành (Leader vs Runner).
+    """
+    if not sector_wave or not sector_wave.get("has_wave"):
+        return f"""
+        <div id="sec-wave" class="card" style="margin-bottom: 24px; border-left: 4px solid #64748b; background: linear-gradient(145deg, #131722, #0d111a);">
+            <div class="card-header">
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.25rem;">🌊</span>
+                    <span style="font-weight: 800; color: #cbd5e1;">RADAR SÓNG NGÀNH & ĐỘNG LỰC LUÂN CHUYỂN DÒNG TIỀN</span>
+                </span>
+                <span class="badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid #64748b;">CHƯA CÓ SÓNG LỚN</span>
+            </div>
+            <div style="font-size: 0.88rem; color: #94a3b8; line-height: 1.6;">
+                Mã <b>{symbol}</b> hiện chưa nằm trong 10 đợt sóng ngành tâm điểm lớn có dòng tiền dẫn dắt (Hormuz/Dầu khí, AI/Bán dẫn, Thép CBPG, Chứng khoán thanh khoản...). Cổ phiếu đang vận động tích lũy tự thân theo kết quả kinh doanh nội tại.
+            </div>
+        </div>
+        """
+
+    wave_name = sector_wave.get("wave_name", "")
+    phase = sector_wave.get("phase", "Pha 1")
+    heat_score = int(sector_wave.get("heat_score", 50))
+    role = sector_wave.get("role", "THEO DÕI")
+    theme_macro = sector_wave.get("theme_macro", "")
+    catalysts = sector_wave.get("catalysts", [])
+    leaders = sector_wave.get("leaders", [])
+    runners = sector_wave.get("runners", [])
+    trading_rule = sector_wave.get("trading_rule", "")
+    hist_ref = sector_wave.get("historical_reference", "")
+    warning = sector_wave.get("warning", "")
+
+    # Màu sắc heat score
+    if heat_score >= 80:
+        heat_col = "#ef4444"
+        heat_badge = "background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444;"
+    elif heat_score >= 63:
+        heat_col = "#10b981"
+        heat_badge = "background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;"
+    elif heat_score >= 45:
+        heat_col = "#fbbf24"
+        heat_badge = "background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b;"
+    else:
+        heat_col = "#94a3b8"
+        heat_badge = "background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid #64748b;"
+
+    # Màu sắc vai trò
+    is_leader = "LEADER" in role
+    role_badge = "background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid #fbbf24;" if is_leader else "background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8;"
+
+    cats_html = "".join([f"<li style='margin-bottom: 6px;'>{c}</li>" for c in catalysts])
+    leaders_str = ", ".join([f"<b style='color:#fbbf24;'>{tk}</b>" if tk == symbol else tk for tk in leaders])
+    runners_str = ", ".join([f"<b style='color:#38bdf8;'>{tk}</b>" if tk == symbol else tk for tk in runners])
+
+    return f"""
+    <!-- KHỐI SÓNG NGÀNH & ĐỘNG LỰC LUÂN CHUYỂN DÒNG TIỀN -->
+    <div id="sec-wave" class="card" style="margin-bottom: 24px; border-left: 4px solid #38bdf8; background: linear-gradient(145deg, #0e172a, #0b1120); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);">
+        <div class="card-header">
+            <span style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.25rem;">🌊</span>
+                <span style="font-weight: 800; color: #38bdf8;">RADAR SÓNG NGÀNH & ĐỘNG LỰC LUÂN CHUYỂN DÒNG TIỀN (SECTOR WAVE RADAR)</span>
+            </span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span class="badge" style="{heat_badge}">ĐỘ NHIỆT SÓNG: {heat_score}/100</span>
+                <span class="badge" style="{role_badge}">{role}</span>
+            </div>
+        </div>
+
+        <div style="font-size: 0.95rem; font-weight: 800; color: #fff; margin-bottom: 6px;">
+            🔥 {wave_name}
+        </div>
+        <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 16px;">
+            {theme_macro}
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <!-- Cột 1: Vị thế sóng & Cổ phiếu cùng ngành -->
+            <div style="background: rgba(15, 23, 42, 0.7); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.88rem; font-weight: 700; color: #38bdf8; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px;">
+                    🎯 Vị Thế Sóng & Phân Vai Nhóm Cổ Phiếu
+                </div>
+                <div style="font-size: 0.86rem; color: #cbd5e1; line-height: 1.8;">
+                    • <b>Pha chu kỳ sóng hiện tại:</b> <span style="color: {heat_col}; font-weight: 700;">{phase}</span><br>
+                    • <b>Vai trò của {symbol}:</b> <span class="badge" style="{role_badge}">{role}</span><br>
+                    • <b>👑 Cổ phiếu dẫn dắt (Leaders):</b> {leaders_str}<br>
+                    • <b>🚀 Cổ phiếu chạy theo (Runners / High-Beta):</b> {runners_str}<br>
+                    • <b>Bối cảnh lịch sử tương đồng:</b> <i>{hist_ref}</i>
+                </div>
+                <!-- Heat score progress bar -->
+                <div style="margin-top: 12px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 4px;">
+                        <span style="color: #94a3b8;">Độ nóng sóng ngành (Heat Score)</span>
+                        <span style="color: {heat_col}; font-weight: 700;">{heat_score}/100</span>
+                    </div>
+                    <div style="height: 7px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden;">
+                        <div style="width: {heat_score}%; background: {heat_col}; height: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột 2: Chất xúc tác kích hoạt & Kỷ luật đánh sóng -->
+            <div style="background: rgba(15, 23, 42, 0.7); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                <div style="font-size: 0.88rem; font-weight: 700; color: #fbbf24; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px;">
+                    ⚡ Chất Xúc Tác Kích Hoạt & Kỷ Luật Giao Dịch
+                </div>
+                <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6;">
+                    <b>Chất xúc tác vĩ mô / địa chính trị then chốt:</b>
+                    <ul style="margin: 6px 0 12px 16px; color: #cbd5e1;">
+                        {cats_html}
+                    </ul>
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 0.82rem; color: #a7f3d0;">
+                        💡 <b>Chiến lược giải ngân đón sóng:</b> {trading_rule}
+                    </div>
+                    <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #fca5a5;">
+                        ⚠️ <b>Cảnh báo rủi ro khi sóng tàn:</b> {warning}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    """
+
+
+def build_insider_whale_html(insider_whale: Optional[Dict[str, Any]], symbol: str) -> str:
+    """
+    Xây dựng khối Bóc Tách Tạo Lập, Tay To Giữ Hàng & Radar Tin Tức Ban Lãnh Đạo.
+    """
+    if not insider_whale:
+        return ""
+
+    holding = insider_whale.get("holding_structure", {})
+    mm = insider_whale.get("market_maker_behavior", {})
+    lead = insider_whale.get("leadership_and_news_forensic", {})
+    playbook = insider_whale.get("actionable_playbook", {})
+
+    status = mm.get("status", "CHƯA XÁC ĐỊNH")
+    status_col = mm.get("status_color", "#eab308")
+    shakeout_score = int(mm.get("shakeout_risk_score", 40))
+    shakeout_level = mm.get("shakeout_risk_level", "TRUNG BÌNH")
+    shakeout_evidence = mm.get("shakeout_evidence", [])
+
+    trap_diag = lead.get("news_trap_diagnosis", {})
+    trap_type = trap_diag.get("trap_type", "TRUNG TÍNH")
+    trap_col = "#ef4444" if "BẪY TIN TỐT" in trap_type else ("#38bdf8" if "TIN XẤU" in trap_type else "#10b981")
+
+    # Holding structure
+    insider_pct = float(holding.get("insider_pct", 0.0))
+    foreigner_pct = float(holding.get("foreigner_pct", 0.0))
+    state_pct = float(holding.get("state_pct", 0.0))
+    free_float_pct = float(holding.get("true_free_float_pct", 50.0))
+    conc_grade = holding.get("concentration_grade", "")
+    conc_desc = holding.get("concentration_desc", "")
+    whale_dom = holding.get("whale_dominance", "")
+
+    # Top shareholders table
+    top_sh = holding.get("top_shareholders", [])
+    top_sh_rows = ""
+    for sh in top_sh[:5]:
+        top_sh_rows += f"""
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+            <td style="padding: 6px 10px; font-weight: 600; color: #fff;">{sh.get('name', '')}</td>
+            <td style="padding: 6px 10px; text-align: right; color: #38bdf8; font-weight: 700;">{sh.get('percentage', 0):.2f}%</td>
+            <td style="padding: 6px 10px; text-align: right; color: #94a3b8;">{sh.get('shares', 0):,.0f} CP</td>
+        </tr>
+        """
+
+    # Recent news items
+    news_items = lead.get("recent_news_highlights", [])
+    news_rows = ""
+    for nw in news_items[:4]:
+        title = nw.get('title', '')
+        date = nw.get('date', '')
+        news_rows += f"""
+        <div style="padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.83rem;">
+            <span style="color: #38bdf8; font-size: 0.76rem; font-weight: 700; margin-right: 6px;">[{date}]</span>
+            <span style="color: #e2e8f0;">{title}</span>
+        </div>
+        """
+    if not news_rows:
+        news_rows = "<div style='color: #94a3b8; font-size: 0.83rem; padding: 6px 0;'>Chưa ghi nhận bài báo truyền thông mới trong 30 ngày qua.</div>"
+
+    # Recent events
+    events_items = lead.get("recent_events", [])
+    events_rows = ""
+    for ev in events_items[:4]:
+        ename = ev.get('event_name', '')
+        edate = ev.get('date', '')
+        ecat = ev.get('category', '')
+        events_rows += f"""
+        <div style="padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.83rem;">
+            <span style="color: #fbbf24; font-size: 0.76rem; font-weight: 700; margin-right: 6px;">[{edate}]</span>
+            <span style="color: #e2e8f0;">{ename}</span>
+            <span class="badge" style="background: rgba(255,255,255,0.08); font-size: 0.7rem; margin-left: 6px;">{ecat}</span>
+        </div>
+        """
+    if not events_rows:
+        events_rows = "<div style='color: #94a3b8; font-size: 0.83rem; padding: 6px 0;'>Chưa ghi nhận sự kiện/giao dịch nội bộ gần nhất.</div>"
+
+    ev_bullets = "".join([f"<li style='margin-bottom: 6px;'>{ev}</li>" for ev in shakeout_evidence])
+
+    return f'''
+    <!-- PHÂN HỆ: BÓC TÁCH TẠO LẬP, TAY TO GIỮ HÀNG & RADAR TIN TỨC LÃNH ĐẠO -->
+    <div id="sec-whale" class="card" style="margin-bottom: 28px; border-left: 4px solid #a855f7; background: linear-gradient(145deg, #0e1222, #080b16); box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45);">
+        <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
+            <span style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.3rem;">🦈</span>
+                <span style="font-weight: 800; color: #c084fc; letter-spacing: 0.5px;">BÓC TÁCH TẠO LẬP, TAY TO GIỮ HÀNG & RADAR TIN TỨC LÃNH ĐẠO</span>
+            </span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid #a855f7;">TẠO LẬP: {status}</span>
+                <span class="badge" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid #eab308;">ÁP LỰC RUNG LẮC: {shakeout_score}/100</span>
+                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid #10b981;">{lead.get('leadership_credibility', 'MINH BẠCH')}</span>
+            </div>
+        </div>
+
+        <!-- HÀNG 1: BẢN ĐỒ CỔ ĐÔNG & HÀNH VI TẠO LẬP -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 18px; margin-bottom: 20px;">
+            <!-- Khối 1: Bản đồ Phân bổ Cổ phiếu -->
+            <div style="background: rgba(15, 23, 42, 0.65); padding: 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #38bdf8; margin-bottom: 12px; display: flex; justify-content: space-between;">
+                    <span>📊 Bản Đồ Phân Bổ & Trôi Nổi Thực Tế</span>
+                    <span style="color: #cbd5e1; font-weight: 600;">Trôi nổi F0: {free_float_pct}%</span>
+                </div>
+                
+                <!-- Thanh tỷ lệ Visual Bar -->
+                <div style="height: 12px; border-radius: 6px; overflow: hidden; display: flex; margin-bottom: 12px; background: #1e293b;">
+                    <div style="width: {min(100, insider_pct)}%; background: #a855f7;" title="Nội bộ: {insider_pct}%"></div>
+                    <div style="width: {min(100, foreigner_pct)}%; background: #10b981;" title="Khối ngoại: {foreigner_pct}%"></div>
+                    <div style="width: {min(100, state_pct)}%; background: #ef4444;" title="Nhà nước: {state_pct}%"></div>
+                    <div style="width: {min(100, free_float_pct)}%; background: #38bdf8;" title="Trôi nổi F0: {free_float_pct}%"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.74rem; color: #94a3b8; margin-bottom: 12px;">
+                    <span><span style="color:#a855f7;">■</span> Nội bộ ({insider_pct:.1f}%)</span>
+                    <span><span style="color:#10b981;">■</span> Ngoại ({foreigner_pct:.1f}%)</span>
+                    <span><span style="color:#ef4444;">■</span> Nhà nước ({state_pct:.1f}%)</span>
+                    <span><span style="color:#38bdf8;">■</span> Tự do ({free_float_pct:.1f}%)</span>
+                </div>
+
+                <div style="font-size: 0.84rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 12px;">
+                    <b>Độ cô đặc:</b> <span style="color: #facc15; font-weight: 700;">{conc_grade}</span><br>
+                    {conc_desc}
+                </div>
+
+                <div style="font-size: 0.82rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px;">
+                    <b>Quyền lực chi phối:</b> {whale_dom}
+                </div>
+            </div>
+
+            <!-- Khối 2: Chẩn đoán Hành vi Tạo lập & Rung lắc -->
+            <div style="background: rgba(15, 23, 42, 0.65); padding: 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #c084fc; margin-bottom: 12px; display: flex; justify-content: space-between;">
+                    <span>🎯 Chẩn Đoán Hành Vi Cá Mập & Đội Lái</span>
+                    <span style="color: {status_col}; font-weight: 800;">{status}</span>
+                </div>
+                <div style="font-size: 0.86rem; color: #e2e8f0; line-height: 1.65; margin-bottom: 14px;">
+                    {mm.get('whale_action_desc', '')}
+                </div>
+
+                <!-- Khung Áp lực Rung lắc -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 0.82rem; font-weight: 700; color: #fbbf24;">⚡ Áp Lực Rung Lắc & Ép Bán:</span>
+                        <span style="font-size: 0.95rem; font-weight: 800; color: #fbbf24;">{shakeout_score}/100 ({shakeout_level})</span>
+                    </div>
+                    <ul style="margin: 0; padding-left: 18px; font-size: 0.8rem; color: #cbd5e1; line-height: 1.6;">
+                        {ev_bullets}
+                    </ul>
+                </div>
+                <div style="font-size: 0.8rem; color: #94a3b8;">
+                    Khối ngoại khớp lệnh phiên: <b style="color: #fff;">{mm.get('foreign_flow_today', 'N/A')}</b>
+                </div>
+            </div>
+        </div>
+
+        <!-- HÀNG 2: RADAR TIN TỨC & BẪY TRUYỀN THÔNG -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 18px; margin-bottom: 20px;">
+            <!-- Khối 3: Radar Bẫy Tin Tức -->
+            <div style="background: rgba(15, 23, 42, 0.65); padding: 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 0.9rem; font-weight: 700; color: #38bdf8;">📡 Radar Bẫy Tin Tức & Thao Túng Truyền Thông</span>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.04); border-left: 3px solid {trap_col}; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                    <div style="font-weight: 800; color: {trap_col}; font-size: 0.88rem; margin-bottom: 6px;">
+                        {trap_type}
+                    </div>
+                    <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.6;">
+                        {trap_diag.get('explanation', '')}
+                    </div>
+                </div>
+
+                <div style="font-size: 0.82rem; color: #f87171; line-height: 1.6; background: rgba(239, 68, 68, 0.08); padding: 10px; border-radius: 8px; border: 1px dashed rgba(239, 68, 68, 0.3);">
+                    ⚠️ <b>Cảnh báo cho NĐT cá nhân:</b> {trap_diag.get('warning', '')}
+                </div>
+            </div>
+
+            <!-- Khối 4: Tin tức & Giao dịch nội bộ gần nhất -->
+            <div style="background: rgba(15, 23, 42, 0.65); padding: 18px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #fbbf24; margin-bottom: 10px;">
+                    📰 Tin Tức & Sự Kiện / Giao Dịch Nội Bộ Gần Nhất
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Top Tin Báo Chí & Nghị Quyết:</div>
+                    {news_rows}
+                </div>
+
+                <div>
+                    <div style="font-size: 0.78rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px;">Sự Kiện & Giao Dịch Cổ Đông:</div>
+                    {events_rows}
+                </div>
+            </div>
+        </div>
+
+        <!-- HÀNG 3: CẨM NANG ỨNG XỬ THỰC CHIẾN (PLAYBOOK) -->
+        <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 14px; padding: 16px 20px;">
+            <div style="font-size: 0.92rem; font-weight: 800; color: #c084fc; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                <span>🛡️ CẨM NANG THỰC CHIẾN: LÀM SAO ĐỂ KHÔNG BỊ TẠO LẬP RŨ BỎ & TRUYỀN THÔNG DẪN DẮT?</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; font-size: 0.84rem; color: #cbd5e1; line-height: 1.7;">
+                <div>
+                    <b style="color: #facc15;">1. Nguyên tắc ứng phó rung lắc:</b><br>
+                    {playbook.get('shakeout_rule', '')}
+                </div>
+                <div>
+                    <b style="color: #38bdf8;">2. Bộ lọc "3 Câu hỏi Vàng" trước tin tức:</b><br>
+                    {playbook.get('news_filter_rule', '')}
+                </div>
+            </div>
+        </div>
+    </div>
+    '''
+
+
 def build_smart_money_and_catalyst_html(timing_result: Optional[Dict[str, Any]]) -> str:
+
     """Tạo khối Dòng tiền Khớp lệnh Chủ động & Lịch Xúc tác Sự kiện."""
     if not timing_result:
         return ""
@@ -868,6 +1204,8 @@ def build_fa_deep_dive_html(
 ) -> str:
     """Xây dựng toàn bộ Phần 3: Phân tích Cơ bản Doanh nghiệp Chuyên sâu (FA Deep-Dive)."""
     sym = symbol.upper()
+    dupont = fa_result.get("dupont") or fin.get("dupont") or {}
+    roic = fa_result.get("roic") if fa_result.get("roic") is not None else fin.get("roic")
     # 1. Bảng 4 quý BCTC
     quarterly_cf = cf.get("quarterly_cash_flows", [])
     q_rows = ""
@@ -1072,6 +1410,14 @@ def build_fa_deep_dive_html(
                 <div style="font-size: 0.8rem; color: #94a3b8;">Đạt chuẩn an toàn vốn khi F-Score &ge; 5/9</div>
             </div>
         </div>
+        <div style="margin-top: 14px; background: rgba(30, 41, 59, 0.5); padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.85rem; color: #cbd5e1; line-height: 1.7;">
+            <div style="font-weight: 700; color: #38bdf8; margin-bottom: 4px;">
+                🔄 Phân Rã Tỷ Suất Sinh Lời DuPont (3 Nhân Tố) & Hiệu Quả Vốn Đầu Tư (ROIC):
+            </div>
+            • <b>Phân rã ROE DuPont:</b> Biên lãi ròng ({dupont.get('net_margin_pct', 'N/A')}%) &times; Vòng quay tài sản ({dupont.get('asset_turnover', 'N/A')}x) &times; Đòn bẩy tài sản/VCSH ({dupont.get('equity_multiplier', 'N/A')}x) &rarr; <b style="color: #34d399;">ROE: {dupont.get('calculated_roe', fin.get('roe', 'N/A'))}%</b><br>
+            • <b>Động lực thúc đẩy chính:</b> <span style="color: #fbbf24; font-weight: 600;">{dupont.get('primary_driver', 'CÂN BẰNG')}</span> — <i>{dupont.get('explanation', '')}</i><br>
+            • <b>Tỷ suất sinh lời trên Vốn đầu tư (ROIC):</b> <b style="color: #c084fc;">{f"{float(roic):.2f}%" if roic is not None else "N/A"}</b> (Đo lường năng lực sinh tiền thực tế trên tổng vốn vay và vốn chủ)
+        </div>
     </div>
 
     <!-- KHỐI 2: BẢNG CÂN ĐỐI KẾ TOÁN & RADAR TÀI SẢN ĐỌNG VỐN -->
@@ -1232,13 +1578,14 @@ def build_ta_deep_dive_html(
     fibo_data = adv_ta.get("fibonacci") if isinstance(adv_ta.get("fibonacci"), dict) else {}
     overhead_data = adv_ta.get("overhead_supply_detail") if isinstance(adv_ta.get("overhead_supply_detail"), dict) else {}
 
-    # Tính toán 52-week High/Low
-    h52_val = current_price
-    l52_val = current_price
-    if df_ohlcv is not None and isinstance(df_ohlcv, pd.DataFrame) and not df_ohlcv.empty:
+    # Lấy 52-week High/Low và RS Rating từ Engine indicators (hoặc fallback df_ohlcv)
+    h52_val = float(ind.get("high_52w") or current_price)
+    l52_val = float(ind.get("low_52w") or current_price)
+    if (h52_val == current_price or l52_val == current_price) and df_ohlcv is not None and isinstance(df_ohlcv, pd.DataFrame) and not df_ohlcv.empty:
         w52 = df_ohlcv.tail(250)
         h52_val = float(w52["high"].max())
         l52_val = float(w52["low"].min())
+    rs_rating = int(ind.get("rs_rating", 50))
 
     ema20 = float(ind.get("ema20", 0))
     ema50 = float(ind.get("ema50", 0))
@@ -1350,7 +1697,7 @@ def build_ta_deep_dive_html(
                         <td style="color: #94a3b8;">Biên độ dao động bình quân mỗi phiên giao dịch</td>
                     </tr>
                     <tr>
-                        <td rowspan="2" style="font-weight: 700; color: #f87171;">Vùng Giá & Khung 52 Tuần (Key Levels)</td>
+                        <td rowspan="3" style="font-weight: 700; color: #f87171;">Vùng Giá & Khung 52 Tuần (Key Levels)</td>
                         <td>Vùng Kháng cự & Hỗ trợ 20 phiên</td>
                         <td style="text-align: right; font-weight: 700; color: #fff;">Kháng cự: {res20:,.0f} đ | Hỗ trợ: {sup20:,.0f} đ</td>
                         <td style="color: #cbd5e1;">Biên dao động tích lũy ngắn hạn</td>
@@ -1359,6 +1706,11 @@ def build_ta_deep_dive_html(
                         <td>Khung giá 52 Tuần (52-Week Range)</td>
                         <td style="text-align: right; font-weight: 700; color: #fff;">Đáy: {l52_val:,.0f} đ | Đỉnh: {h52_val:,.0f} đ</td>
                         <td style="color: #cbd5e1;">Khoảng biến động lớn nhất trong 1 năm qua</td>
+                    </tr>
+                    <tr>
+                        <td>Sức mạnh giá O'Neil (RS Rating)</td>
+                        <td style="text-align: right; font-weight: 800; color: {'#34d399' if rs_rating >= 80 else ('#38bdf8' if rs_rating >= 65 else '#fbbf24')};">{rs_rating}/99 điểm</td>
+                        <td style="color: #cbd5e1;">{'Top 20% cổ phiếu dẫn đầu đà tăng (Chuẩn CANSLIM)' if rs_rating >= 80 else ('Xung lực giá tích cực' if rs_rating >= 65 else 'Sức mạnh giá trung bình/yếu')}</td>
                     </tr>
                 </tbody>
             </table>
@@ -1543,8 +1895,10 @@ def generate_html_report(
     trade_setup: Dict[str, Any],
     council_result: Dict[str, Any],
     timing_result: Optional[Dict[str, Any]] = None,
-    df_ohlcv: Optional[Any] = None
+    df_ohlcv: Optional[Any] = None,
+    insider_whale_result: Optional[Dict[str, Any]] = None
 ) -> Path:
+
     """
     Hàm chính xuất bản Báo Cáo HTML Độc Lập Chuyên Sâu Đa Chiều.
     Lưu tại: reports/YYYY-MM-DD_{symbol}.html
@@ -1693,6 +2047,18 @@ def generate_html_report(
     # HTML Snippets
     eli5_html = build_eli5_html(symbol, quote, fa_result, ta_result, trade_setup)
     macro_matrix_html = build_macro_impact_matrix(symbol, sector_name, macro.get("global_commodities", {}))
+    sector_wave_html = build_sector_wave_html(macro.get("sector_wave", {}), symbol)
+
+    if insider_whale_result is None:
+        try:
+            from core.data_loader import get_company_news_and_events
+            from core.insider_whale_analyzer import analyze_whale_and_insider_news
+            news_ev = get_company_news_and_events(symbol)
+            insider_whale_result = analyze_whale_and_insider_news(symbol, quote, fa_result, ta_result, news_ev)
+        except Exception:
+            insider_whale_result = {}
+
+    insider_whale_html = build_insider_whale_html(insider_whale_result, symbol)
     smart_pulse_html = build_smart_money_and_catalyst_html(timing_result)
     five_schools_html = build_five_schools_matrix_html(symbol, council_result, fa_result, ta_result, trade_setup)
     clash_html = build_clash_of_perspectives_html(council_result.get("clash_of_perspectives"), symbol, trade_setup)
@@ -1701,6 +2067,7 @@ def generate_html_report(
     scenarios_html = build_scenarios_and_invalidation_html(symbol, trade_setup, current_price, has_valid_setup)
     missing_data_html = build_missing_data_audit_html(symbol, fa_result)
     glossary_html = build_glossary_html()
+
 
     cfo_human_str = format_vnd_human(cfo_ttm)
     fcf_human_str = format_vnd_human(fcf_ttm)
@@ -2146,7 +2513,9 @@ def generate_html_report(
         <div class="quick-nav-bar">
             <a href="#sec-eli5" class="q-link">🧒 Bản Chất Cốt Lõi (ELI5)</a>
             <a href="#sec-matrix" class="q-link">🏛️ Bảng 5 Trường Phái</a>
+            <a href="#sec-wave" class="q-link">🌊 Sóng Ngành & Luân Chuyển</a>
             <a href="#sec-fa" class="q-link">🔬 Phân Tích Cơ Bản (FA)</a>
+            <a href="#sec-whale" class="q-link">🦈 Tạo Lập & Tin Tức Lãnh Đạo</a>
             <a href="#sec-ta" class="q-link">📈 Phân Tích Kỹ Thuật (TA)</a>
             <a href="#sec-timing" class="q-link">⚡ Động Cơ Thời Điểm</a>
             <a href="#sec-scenarios" class="q-link">🔮 Kịch Bản & Invalidation</a>
@@ -2163,10 +2532,17 @@ def generate_html_report(
             {clash_html}
         </div>
 
+        <!-- PHÂN HỆ SÓNG NGÀNH & ĐỘNG LỰC LUÂN CHUYỂN DÒNG TIỀN -->
+        {sector_wave_html}
+
         <!-- PHẦN 2: PHÂN TÍCH CƠ BẢN DOANH NGHIỆP CHUYÊN SÂU (FA DEEP-DIVE) -->
         <div id="sec-fa">
             {fa_deep_dive_html}
         </div>
+
+        <!-- PHÂN HỆ: BÓC TÁCH TẠO LẬP, TAY TO GIỮ HÀNG & RADAR TIN TỨC LÃNH ĐẠO -->
+        {insider_whale_html}
+
 
         <!-- BIỂU ĐỒ DÒNG TIỀN THẬT CHART.JS -->
         <div class="card" style="margin-bottom: 24px;">

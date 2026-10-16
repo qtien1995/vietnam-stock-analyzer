@@ -51,6 +51,11 @@ def calculate_indicators(df: pd.DataFrame) -> pd.DataFrame:
     data["res_20d"] = data["high"].shift(1).rolling(window=20).max()
     data["sup_20d"] = data["low"].shift(1).rolling(window=20).min()
 
+    # 7. Khung giá 52 tuần (52-Week Range: ~250 phiên giao dịch)
+    w52 = min(len(data), 250)
+    data["high_52w"] = data["high"].rolling(window=w52, min_periods=1).max()
+    data["low_52w"] = data["low"].rolling(window=w52, min_periods=1).min()
+
     return data
 
 
@@ -302,6 +307,36 @@ def detect_advanced_patterns_and_vsa(df: pd.DataFrame) -> Dict[str, Any]:
     }
 
 
+def calculate_rs_rating(df: pd.DataFrame) -> int:
+    """
+    Tính chỉ số Sức mạnh giá Tương đối O'Neil (Relative Strength Rating: 1 - 99).
+    Áp dụng công thức có trọng số của Investor's Business Daily (IBD):
+    40% quý gần nhất (3 tháng ~ 63 phiên), 30% 6 tháng (~ 126 phiên), 30% 12 tháng (~ 250 phiên).
+    """
+    if df.empty or len(df) < 20:
+        return 50
+    close = df["close"]
+    p_current = float(close.iloc[-1])
+    if p_current <= 0:
+        return 50
+
+    p_3m = float(close.iloc[-min(len(close), 63)])
+    p_6m = float(close.iloc[-min(len(close), 126)])
+    p_12m = float(close.iloc[-min(len(close), 250)])
+
+    ret_3m = (p_current - p_3m) / p_3m if p_3m > 0 else 0.0
+    ret_6m = (p_current - p_6m) / p_6m if p_6m > 0 else 0.0
+    ret_12m = (p_current - p_12m) / p_12m if p_12m > 0 else 0.0
+
+    # Hiệu suất tổng hợp theo trọng số chuẩn IBD
+    weighted_perf = (ret_3m * 0.4) + (ret_6m * 0.3) + (ret_12m * 0.3)
+    
+    # Quy đổi chuẩn hóa về thang điểm 1 - 99:
+    raw_rs = 50 + (weighted_perf * 100.0) * 0.8
+    rs_score = int(min(99, max(1, round(raw_rs))))
+    return rs_score
+
+
 def analyze_technicals(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Tổng hợp phân tích kỹ thuật toàn diện từ chuỗi nến.
@@ -322,6 +357,7 @@ def analyze_technicals(df: pd.DataFrame) -> Dict[str, Any]:
     oneil = evaluate_oneil_momentum(latest, prev)
     vsa = evaluate_vsa_price_action(latest, prev)
     advanced_ta = detect_advanced_patterns_and_vsa(df_ind)
+    rs_rating = calculate_rs_rating(df_ind)
 
     # Tổng điểm TA (50% O'Neil Breakout, 50% VSA / Price Action)
     ta_total_score = int(oneil["score"] * 0.5 + vsa["score"] * 0.5)
@@ -340,6 +376,9 @@ def analyze_technicals(df: pd.DataFrame) -> Dict[str, Any]:
             "atr14": float(latest.get("atr14", 0.0)),
             "res_20d": float(latest.get("res_20d", float(latest["close"]))),
             "sup_20d": float(latest.get("sup_20d", float(latest["close"]))),
+            "high_52w": float(latest.get("high_52w", float(latest["close"]))),
+            "low_52w": float(latest.get("low_52w", float(latest["close"]))),
+            "rs_rating": rs_rating,
             "macd": float(latest.get("macd", 0.0)),
             "macd_signal": float(latest.get("macd_signal", 0.0)),
             "macd_hist": float(latest.get("macd_hist", 0.0)),

@@ -494,6 +494,93 @@ def evaluate_growth_and_earnings_quality(fin: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def evaluate_dupont_decomposition(fin: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Phân rã Tỷ suất sinh lời ROE theo Mô hình DuPont 3 nhân tố:
+    ROE = (Net Profit / Revenue) * (Revenue / Total Assets) * (Total Assets / Owners' Equity)
+        = Net Margin * Asset Turnover * Equity Multiplier
+    Giúp bóc tách bản chất sinh lời: Do sản phẩm có biên lợi nhuận cao (Net Margin),
+    sử dụng tài sản hiệu quả (Asset Turnover) hay do dùng đòn bẩy nợ cao (Financial Leverage).
+    """
+    revenue = fin.get("ttm_revenue") or fin.get("revenue")
+    profit = fin.get("ttm_profit") or fin.get("net_profit")
+    assets = fin.get("total_assets")
+    equity = fin.get("owners_equity")
+    reported_roe = fin.get("roe")
+
+    net_margin = None
+    asset_turnover = None
+    equity_multiplier = None
+    calculated_roe = None
+    driver = "CÂN BẰNG"
+    explanation = ""
+
+    if revenue and revenue > 0 and profit is not None:
+        net_margin = round((profit / revenue) * 100, 2)
+    elif fin.get("net_margin") is not None:
+        net_margin = float(fin.get("net_margin"))
+
+    if revenue and revenue > 0 and assets and assets > 0:
+        asset_turnover = round(revenue / assets, 2)
+
+    if assets and assets > 0 and equity and equity > 0:
+        equity_multiplier = round(assets / equity, 2)
+
+    if net_margin is not None and asset_turnover is not None and equity_multiplier is not None:
+        calculated_roe = round((net_margin / 100.0) * asset_turnover * equity_multiplier * 100.0, 2)
+    elif reported_roe is not None:
+        calculated_roe = float(reported_roe)
+
+    # Đánh giá nhân tố thúc đẩy chính
+    if equity_multiplier and equity_multiplier >= 3.5:
+        driver = "ĐÒN BẨY NỢ CAO (FINANCIAL LEVERAGE)"
+        explanation = f"ROE ({calculated_roe or 'N/A'}%) phụ thuộc chủ yếu vào đòn bẩy tài chính cao (Tài sản/VCSH = {equity_multiplier:.1f}x), cần chú ý rủi ro chi phí lãi vay."
+    elif net_margin and net_margin >= 20.0:
+        driver = "BIÊN LỢI NHUẬN CAO (PRICING POWER)"
+        explanation = f"ROE ({calculated_roe or 'N/A'}%) được thúc đẩy bởi biên lãi ròng vượt trội ({net_margin:.1f}%), thể hiện lợi thế cạnh tranh và quyền định giá sản phẩm."
+    elif asset_turnover and asset_turnover >= 1.2:
+        driver = "VÒNG QUAY TÀI SẢN CAO (OPERATIONAL EFFICIENCY)"
+        explanation = f"ROE ({calculated_roe or 'N/A'}%) xuất phát từ hiệu suất khai thác tài sản xuất sắc (Vòng quay = {asset_turnover:.2f} vòng/năm)."
+    else:
+        driver = "CƠ CẤU VẬN HÀNH BÌNH THƯỜNG"
+        explanation = f"Các nhân tố DuPont cân bằng (Biên ròng: {net_margin or 'N/A'}%, Vòng quay: {asset_turnover or 'N/A'}x, Đòn bẩy: {equity_multiplier or 'N/A'}x)."
+
+    return {
+        "net_margin_pct": net_margin,
+        "asset_turnover": asset_turnover,
+        "equity_multiplier": equity_multiplier,
+        "calculated_roe": calculated_roe,
+        "primary_driver": driver,
+        "explanation": explanation
+    }
+
+
+def calculate_roic(fin: Dict[str, Any], tax_rate: float = 0.20) -> Optional[float]:
+    """
+    Tính Tỷ suất sinh lời trên Vốn Đầu tư (ROIC - Return on Invested Capital):
+    ROIC = NOPAT / Invested Capital
+         = (EBIT * (1 - t)) / (Total Debt + Owners' Equity - Cash)
+    """
+    ebit = fin.get("ebit_ttm")
+    if ebit is None and fin.get("ttm_profit"):
+        ebit = fin.get("ttm_profit") / (1 - tax_rate)
+
+    if not ebit or ebit <= 0:
+        return None
+
+    total_debt = fin.get("total_debt") or 0.0
+    equity = fin.get("owners_equity") or 0.0
+    cash = fin.get("cash") or 0.0
+
+    invested_capital = total_debt + equity - cash
+    if invested_capital <= 0:
+        return None
+
+    nopat = ebit * (1 - tax_rate)
+    return round((nopat / invested_capital) * 100, 2)
+
+
+
 def evaluate_asset_based_valuation(fin: Dict[str, Any], current_price: float) -> Dict[str, Any]:
     """
     Định giá cổ phiếu dựa trên Khối tài sản hiện có & Phân tích chất lượng tài sản (Asset Quality):
@@ -784,6 +871,8 @@ def analyze_fundamentals(fin: Dict[str, Any], current_price: float, quote: Optio
     lynch = evaluate_peter_lynch(fin, current_price)
     growth_quality = evaluate_growth_and_earnings_quality(fin)
     asset_valuation = evaluate_asset_based_valuation(fin, current_price)
+    dupont = evaluate_dupont_decomposition(fin)
+    roic = calculate_roic(fin)
 
     # 1. Phân tích Quản trị Doanh nghiệp & Cổ đông
     gov_data = get_governance_data(symbol)
@@ -871,6 +960,8 @@ def analyze_fundamentals(fin: Dict[str, Any], current_price: float, quote: Optio
     ratios_dict["pe_status"] = buffett.get("pe_status", "VALID")
     ratios_dict["pb"] = buffett.get("pb")
     ratios_dict["pb_status"] = buffett.get("pb_status", "VALID")
+    ratios_dict["roic"] = roic
+    ratios_dict["dupont"] = dupont
 
     # Xác định trạng thái Data Quality tổng thể
     has_essential_data = (
@@ -896,6 +987,8 @@ def analyze_fundamentals(fin: Dict[str, Any], current_price: float, quote: Optio
         "lynch": lynch,
         "growth_quality": growth_quality,
         "asset_valuation": asset_valuation,
+        "dupont": dupont,
+        "roic": roic,
         "segments": segments,
         "governance": governance,
         "valuation_warning": valuation_warning,

@@ -291,6 +291,12 @@ def analyze_timing_prediction(
         "timing_color": timing_color,
         "overall_timing_score": int(setup_quality_score),
         "setup_quality_score": int(setup_quality_score),
+        "pivot_price": trigger_pivot,
+        "breakdown_price": failure_level,
+        "active_buy_pct": round(active_buy_pct, 1),
+        "active_sell_pct": round(active_sell_pct, 1),
+        "up_probability_pct": int(setup_quality_score),
+        "down_probability_pct": int(risk_points),
         
         "smart_money_pulse": {
             "active_buy_pct": round(active_buy_pct, 1),

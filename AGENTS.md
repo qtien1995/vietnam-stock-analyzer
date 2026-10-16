@@ -58,22 +58,33 @@ Mỗi khi người dùng yêu cầu phân tích một mã cổ phiếu trong đo
 - **Mô hình Kinh doanh Cốt lõi & Danh mục Dự án (Project Pipeline):** Cơ cấu doanh thu mảng và tiến độ/pháp lý các dự án trọng điểm.
 - **Quản trị & Radar Hệ sinh thái (G-Score):** Cơ cấu cổ đông (Trôi nổi Free float, Khối ngoại), Cam kết ban lãnh đạo (Skin-in-the-game), Mạng lưới công ty con/liên kết, Radar phát hiện tăng vốn ảo / luân chuyển vốn bất thường.
 
-### Phân hệ 5: 📈 Bóc Tách Chuyên Sâu Kỹ Thuật (TA Deep-Dive 360°)
+### Phân hệ 5: 🦈 Bóc Tách Tạo Lập, Tay To Giữ Hàng & Radar Tin Tức Ban Lãnh Đạo (Whale & MM Forensic)
+- **Bản đồ Phân bổ Cổ phiếu & Trôi nổi Thực tế:** Tỷ lệ nắm giữ của Cổ đông sáng lập/Ban Lãnh đạo, Khối ngoại, Nhà nước, và lượng hàng trôi nổi tự do F0 ngoài thị trường (True Free-Float). Đánh giá tính cô đặc (Siêu cô đặc vs Phân mảnh cao).
+- **Chẩn đoán Trạng thái Hành vi của Tay To & Tạo Lập:** Phân loại chính xác 1 trong 5 pha: `GOM HÀNG LẶNG LẼ (ACCUMULATION)`, `RUNG LẮC RŨ BỎ (SHAKEOUT)`, `ĐẨY GIÁ THỬ CUNG (MARK-UP)`, `PHÂN PHỐI / KÉO XẢ (DISTRIBUTION)`, `ĐÈ GIÁ / THẢ TRÔI (MARK-DOWN)`.
+- **Chỉ số Áp lực Rung Lắc & Ép Bán (Shakeout Risk Index: 0 - 100):** Đo lường nguy cơ nhỏ lẻ bị rung cây dọa khỉ, ép cắt lỗ trong phiên trước khi vào sóng mới.
+- **Radar Tin Tức & Bẫy Thao Túng Truyền Thông (News Trap Radar):** Phân tích tương quan giữa tin tức báo chí và vùng giá cổ phiếu:
+  * *Bẫy "Tin tốt để xả" (Buy the rumor, sell the news)*: Tin tốt ra ồ ạt ở đỉnh / vùng phân phối.
+  * *Chiêu bài "Tin xấu rũ bỏ" (Shakeout on bad news)*: Tin xấu / đồn đoán ra ở đáy hoảng loạn để gom hàng rẻ.
+- **Bóc tách Giao dịch & Độ Uy Tín của Chủ tịch / Ban Điều hành:** Đăng ký mua/bán người nội bộ, tiền sử lướt sóng, phát hành giấy hay đồng hành dài hạn cùng cổ đông.
+- **Cẩm nang Ứng Xử Thực Chiến (Actionable Playbook):** Nguyên tắc đối phó rung lắc trong phiên và bộ lọc '3 Câu hỏi Vàng' trước tin tức truyền thông.
+
+### Phân hệ 6: 📈 Bóc Tách Chuyên Sâu Kỹ Thuật (TA Deep-Dive 360°)
 - **Hệ thống Chỉ báo & Xu hướng:** Thị giá so với EMA20, EMA50, SMA200, Đỉnh/Đáy 52 tuần, RSI 14, MACD & Signal & Histogram, ATR 14, Khối lượng giao dịch vs MA20, các mốc Hỗ trợ / Kháng cự gần nhất.
 - **Mô hình Thu hẹp Biến động VCP (Minervini) & CANSLIM:** Số lần thu hẹp (T), độ cạn kiệt thanh khoản tại đáy nền.
 - **Hành vi Dòng tiền Lớn & Wyckoff VSA:** Xác định pha chu kỳ (Tích lũy / Đẩy giá / Phân phối / Đè giá), nhận diện nến VSA (No Supply, Upthrust, Shakeout, Stopping Volume).
 - **Fibonacci Retracement & Vùng Cung Kẹp Hàng (Overhead Supply):** Các mốc thoái lui 0.382, 0.5, 0.618 và áp lực bán chực chờ từ đỉnh cũ.
 
-### Phân hệ 6: ⚡ Động Cơ Thời Điểm (Timing Matrix) & Thước Đo Giá (Price Ladder)
+### Phân hệ 7: ⚡ Động Cơ Thời Điểm (Timing Matrix) & Thước Đo Giá (Price Ladder)
 - **Dự báo Thời điểm Tăng/Sập:**
   * *Khi nào tăng?* Xác suất (%), Khung thời gian bùng nổ, Mốc Pivot kích hoạt kèm điều kiện Vol.
   * *Khi nào sập?* Xác suất rủi ro (%), Khung thời gian nguy hiểm, Mốc vi phạm gãy nền.
 - **Thước đo Kích hoạt (Price Ladder Gauge):** Tính toán khoảng cách tương đối (%) giữa Cắt lỗ (SL), Ngưỡng gãy sóng, Thị giá hiện tại, Điểm nổ Pivot và Target chốt lời.
 
-### Phân hệ 7: 🔮 Dự Phóng Kịch Bản & Điều Kiện Mất Hiệu Lực (Invalidation)
+### Phân hệ 8: 🔮 Dự Phóng Kịch Bản & Điều Kiện Mất Hiệu Lực (Invalidation)
 - **3 Kịch bản Giá:** Kịch bản Cơ sở (Base), Tiêu cực (Bear), Tích cực (Bull) kèm xác suất và hướng xử lý.
 - **Điều kiện Mất hiệu lực (Invalidation Triggers):** Định nghĩa cụ thể các sự kiện (thủng hỗ trợ, lãnh đạo bán chui, CFO âm liên tiếp...) khiến toàn bộ luận điểm phân tích lập tức bị hủy bỏ.
 - **Báo cáo Dữ kiện Còn thiếu (Missing Data Audit):** Liệt kê các yếu tố cần người dùng kiểm tra thêm.
+
 
 *(Kết thúc bằng lưu ý miễn trừ trách nhiệm: Phân tích là sản phẩm tham mưu hỗ trợ quyết định, không cấu thành lời mời chào hay khuyến nghị bảo đảm sinh lời.)*
 
